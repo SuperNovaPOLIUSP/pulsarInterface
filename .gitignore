@@ -1,0 +1,9 @@
+.*~
+*.py~
+*.tex~
+*.html~
+*.pyc
+*.swp
+.*.swp
+.htaccess
+settings.py

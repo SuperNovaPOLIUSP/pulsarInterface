@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<XMI verified="false" xmi.version="1.2" timestamp="2013-01-31T15:47:15" xmlns:UML="http://schema.omg.org/spec/UML/1.3">
+<XMI verified="false" xmi.version="1.2" timestamp="2013-01-31T16:34:18" xmlns:UML="http://schema.omg.org/spec/UML/1.3">
  <XMI.header>
   <XMI.documentation>
    <XMI.exporter>umbrello uml modeller http://uml.sf.net</XMI.exporter>
@@ -462,15 +462,15 @@
         <UML:Generalization xmi.idref="KArn7mk9nfMU"/>
        </UML:GeneralizableElement.generalization>
        <UML:Classifier.feature>
-        <UML:Attribute visibility="public" isSpecification="false" xmi.id="VWSbI5LrP9dh" type="XgxsDc7M4FEo" name="idOpticalSheet"/>
+        <UML:Attribute visibility="public" isSpecification="false" xmi.id="VWSbI5LrP9dh" type="XgxsDc7M4FEo" comment="Associated data base key." name="idOpticalSheet"/>
         <UML:Attribute visibility="public" isSpecification="false" xmi.id="yskfRamC3UfX" type="D24c908A7qNN" comment="e = Encoded&#xa;n = not encoded" name="ApplicationType"/>
-        <UML:Attribute visibility="public" isSpecification="false" xmi.id="xtIDEzDF8m2R" type="8dRJJ5UyvWDJ" comment="list of dictionaries in the form [{&quot;term&quot;:term of the curriculum, &quot;curriculum&quot;:name of the curriculum },{...] " name="curricula"/>
-        <UML:Attribute visibility="public" isSpecification="false" xmi.id="gG5W6GsiVjbF" type="un2yBhJTEMD4" comment="list of questionnaires associated to this Optical Sheet" name="questionnaires"/>
-        <UML:Attribute visibility="public" isSpecification="false" xmi.id="mhi1mC712pWl" type="u1PewTLod3bR" comment="A dictionary in the format {index/code : Offer[],...} that describes the offers of each index or code " name="columns"/>
+        <UML:Attribute visibility="public" isSpecification="false" xmi.id="xtIDEzDF8m2R" type="8dRJJ5UyvWDJ" comment="List of dictionaries in the form [{&quot;term&quot;:term of the curriculum, &quot;curriculum&quot;:name of the curriculum },{...]. " name="curricula"/>
+        <UML:Attribute visibility="public" isSpecification="false" xmi.id="gG5W6GsiVjbF" type="un2yBhJTEMD4" comment="List of questionnaires associated to this Optical Sheet." name="questionnaires"/>
+        <UML:Attribute visibility="public" isSpecification="false" xmi.id="mhi1mC712pWl" type="u1PewTLod3bR" comment="A dictionary in the format {index/code : Offer[],...} that describes the offers of each index or code." name="columns"/>
         <UML:Operation visibility="public" isSpecification="false" isQuery="false" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="PWEJgdRILPXH" comment="Returns one complete Optical Sheet object where its ID is equal to the chosen." name="pickById">
          <UML:BehavioralFeature.parameter>
           <UML:Parameter kind="return" xmi.id="Qc9fnLsUAjPt" type="Nvjzd5DpqHuS"/>
-          <UML:Parameter visibility="private" isSpecification="false" xmi.id="Yu6UdN7UWjD7" type="XgxsDc7M4FEo" value="" name="idOpticalSheet"/>
+          <UML:Parameter visibility="private" isSpecification="false" xmi.id="SG5BdSk96pOd" type="XgxsDc7M4FEo" value="" comment="Associated data base key." name="idOpticalSheet"/>
          </UML:BehavioralFeature.parameter>
         </UML:Operation>
         <UML:Operation visibility="public" isSpecification="false" isQuery="false" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="F6DFVhSmN5De" comment="Returns a list of Optical Sheets that have the curriculum, the term and the period chosen." name="filterCurriculum_Term_Period">
@@ -837,7 +837,7 @@
   </UML:Model>
  </XMI.content>
  <XMI.extensions xmi.extender="umbrello">
-  <docsettings viewid="HX9CSe2jSKEc" uniqueid="0ggzLOXmGbAU" documentation=""/>
+  <docsettings viewid="HX9CSe2jSKEc" uniqueid="SG5BdSk96pOd" documentation=""/>
   <listview>
    <listitem open="1" type="800" id="Views">
     <listitem open="1" type="801" id="Logical View">

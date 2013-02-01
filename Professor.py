@@ -32,7 +32,7 @@ class Professor(object):
         @author
         """
         self.name = name
-        self.idProfessor = docente.objects.filter(nome = name).values('id')[0]['id']
+        self.idProfessor = None
 
     @staticmethod
     def pickById(idProfessor):
@@ -43,9 +43,13 @@ class Professor(object):
         @return Professor :
         @author
         """
-        pass 
+        name = docente.objects.filter(id = idProfessor).values('nome')[0]['nome']
+        professor = Professor(name)
+        professor.idProfessor = idProfessor
+        return professor        
 
-    def pickByName(self, name):
+    @staticmethod
+    def pickByName(name):
         """
          Returns a single professor with the chosen name.
 
@@ -53,9 +57,12 @@ class Professor(object):
         @return Professor :
         @author
         """
-        pass
+        professor = Professor(name)
+        professor.idProfessor = docente.objects.filter(nome = name).values('id')[0]['id']
+        return professor
 
-    def findName(self, name):
+    @staticmethod
+    def findName(name):
         """
          Returns a list of professors with the name that contains the chosen one.
 
@@ -63,7 +70,13 @@ class Professor(object):
         @return  :
         @author
         """
-        pass
+        professorData = docente.objects.filter(nome__contains = name).values('nome','id')
+        professorTargets = []
+        for professorDatum in professorData:
+            professorTarget = Professor(professorDatum['nome'])
+            professorTarget.idProfessor = professorDatum['id']
+            professorTargets.append(professorTarget)
+        return professorTargets
 
     def store(self):
         """

@@ -1,3 +1,5 @@
+#encoding: utf8
+from ae2012.models import *
 
 class Professor(object):
 
@@ -29,9 +31,11 @@ class Professor(object):
         @return  :
         @author
         """
-        pass
+        self.name = name
+        self.idProfessor = docente.objects.filter(nome = name).values('id')[0]['id']
 
-    def pickById(self, idProfessor):
+    @staticmethod
+    def pickById(idProfessor):
         """
          Returns a single professor with the chosen ID.
 
@@ -39,7 +43,7 @@ class Professor(object):
         @return Professor :
         @author
         """
-        pass
+        pass 
 
     def pickByName(self, name):
         """

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<XMI verified="false" xmi.version="1.2" timestamp="2013-02-04T17:01:16" xmlns:UML="http://schema.omg.org/spec/UML/1.3">
+<XMI verified="false" xmi.version="1.2" timestamp="2013-02-04T18:01:31" xmlns:UML="http://schema.omg.org/spec/UML/1.3">
  <XMI.header>
   <XMI.documentation>
    <XMI.exporter>umbrello uml modeller http://uml.sf.net</XMI.exporter>
@@ -248,7 +248,7 @@
         <UML:Attribute visibility="public" isSpecification="false" xmi.id="FA1rk14epUhx" type="D24c908A7qNN" comment="Complete name of a course" name="name"/>
         <UML:Attribute visibility="public" isSpecification="false" xmi.id="h5VYWLigSAfB" type="ETo5X3bl522W" comment="List of offers associated with this course." name="offers"/>
         <UML:Attribute visibility="public" isSpecification="false" xmi.id="OvbMIAILMDJh" type="D24c908A7qNN" comment="Date of start of this course, in the form year-month-day “xxxx-xx-xx”. Start is defined as the start of the course in general, not only in this year, but the first time it was in this University. " name="startDate"/>
-        <UML:Attribute visibility="public" isSpecification="false" xmi.id="JWCb6224d6ld" type="D24c908A7qNN" comment="Date of the end of this course, in the form year-month-day “xxxx-xx-xx”. It's value is null if the course is not over. Over is defined as the last time this discipline is given in this University" name="endDate"/>
+        <UML:Attribute visibility="public" isSpecification="false" xmi.id="JWCb6224d6ld" type="D24c908A7qNN" comment="Date of the end of this course, in the form year-month-day “xxxx-xx-xx”. It's value is null if the course is not over. Over is defined as the last time this discipline is given was this University" name="endDate"/>
         <UML:Operation visibility="public" isSpecification="false" isQuery="false" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="rrCmv93mIHyI" name="findCourseCode">
          <UML:BehavioralFeature.parameter>
           <UML:Parameter kind="return" xmi.id="t2dvU0FuMXn5" type="FtEhJUJgZeKq"/>
@@ -374,18 +374,19 @@
         </UML:Operation>
        </UML:Classifier.feature>
       </UML:Class>
-      <UML:Class visibility="public" isSpecification="false" namespace="Logical View" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="Xfx7y78lzEEq" name="Curriculo">
+      <UML:Class visibility="public" isSpecification="false" namespace="Logical View" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="Xfx7y78lzEEq" name="Curriculum">
        <UML:Classifier.feature>
-        <UML:Attribute visibility="public" isSpecification="false" xmi.id="G9Aty3Stu8wU" type="XgxsDc7M4FEo" name="idCurriculo"/>
-        <UML:Attribute visibility="public" isSpecification="false" xmi.id="0W7xTOuPpGRL" type="D24c908A7qNN" comment="nome do currículo adaptado (ex: Automação e Controle)" name="nome"/>
-        <UML:Attribute visibility="public" isSpecification="false" xmi.id="jPTdLW3FOBBs" type="D24c908A7qNN" comment="data de início do currículo (aaaa-mm-dd)" name="dtaIni"/>
-        <UML:Attribute visibility="public" isSpecification="false" xmi.id="ACLeJI5fBVUR" type="D24c908A7qNN" comment="data de término do currículo (aaaa-mm-dd). se ainda não tiver acabado, será null" name="dtaFim"/>
-        <UML:Attribute visibility="public" isSpecification="false" xmi.id="8eZZFu3I9RRJ" type="D24c908A7qNN" comment="podem ser 3: ciclo básico, grande área ou habilitação" name="tipoDeCurriculo"/>
+        <UML:Attribute visibility="public" isSpecification="false" xmi.id="G9Aty3Stu8wU" type="XgxsDc7M4FEo" comment="Associated data base key." name="idCurriculum"/>
+        <UML:Attribute visibility="public" isSpecification="false" xmi.id="0W7xTOuPpGRL" type="D24c908A7qNN" comment="Curriculum's name." name="name"/>
+        <UML:Attribute visibility="public" isSpecification="false" xmi.id="jPTdLW3FOBBs" type="D24c908A7qNN" comment="Date of start of this course, in the form year-month-day “xxxx-xx-xx”. Start is defined as the start of the curriculum in this University. " name="startDate"/>
+        <UML:Attribute visibility="public" isSpecification="false" xmi.id="ACLeJI5fBVUR" type="D24c908A7qNN" comment="Date of the end of this course, in the form year-month-day “xxxx-xx-xx”. It's value is null if the course is not over. Over is defined as the last time this curriculum was given in this University" name="endDate"/>
+        <UML:Attribute visibility="public" isSpecification="false" xmi.id="8eZZFu3I9RRJ" type="D24c908A7qNN" comment="It represents the type of curriculum, (e.g general area, basic cycle ...)." name="curriculumType"/>
         <UML:Attribute visibility="public" isSpecification="false" xmi.id="X03oG9TRcwsY" type="XgxsDc7M4FEo" comment="código da habilitação (vide júpiter)" name="codHab"/>
-        <UML:Attribute visibility="public" isSpecification="false" xmi.id="LY6gCVBCXxTe" type="D24c908A7qNN" comment="&quot;quadrimestral&quot; ou &quot;semestral&quot;" name="periodo"/>
-        <UML:Attribute visibility="public" isSpecification="false" xmi.id="D2owyL8s4FbB" type="D24c908A7qNN" comment="id da unidade a qual o currrículo pertence" name="idUnidade"/>
-        <UML:Attribute visibility="public" isSpecification="false" xmi.id="gXzRPnQ9I5W4" type="W6A5XphrYtXM" comment="lista de disciplinas obrigatórias" name="periodosObrigatorios"/>
-        <UML:Attribute visibility="public" isSpecification="false" xmi.id="vk5OybkOLios" type="W6A5XphrYtXM" comment="lista de disciplinas optativas" name="periodosOptativos"/>
+        <UML:Attribute visibility="public" isSpecification="false" xmi.id="LY6gCVBCXxTe" type="D24c908A7qNN" comment="String representing the period division (&quot;quarter&quot; or &quot;semester&quot;)" name="teachingPeriodType"/>
+        <UML:Attribute visibility="public" isSpecification="false" xmi.id="D2owyL8s4FbB" type="D24c908A7qNN" comment="The curriculum's faculty. " name="faculty"/>
+        <UML:Attribute visibility="public" isSpecification="false" xmi.id="gXzRPnQ9I5W4" type="W6A5XphrYtXM" comment="List of IdealTeachingPeriod where each one contains a set of mandatory courses of this curriculum." name="mandatoryTeachingPeriod"/>
+        <UML:Attribute visibility="public" isSpecification="false" xmi.id="vk5OybkOLios" type="W6A5XphrYtXM" comment="List of IdealTeachingPeriod where each one contains a set of elective courses of this curriculum." name="ElectiveTeachingPeriod"/>
+        <UML:Attribute visibility="private" isSpecification="false" xmi.id="CAqobGZjoW05" type="D24c908A7qNN" comment="Abbreviated curriculum's name (e.g. Computing Engineering -> Computing)." name="abbreviation"/>
         <UML:Operation visibility="public" isSpecification="false" isQuery="false" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="UTH5Nsdj4ZvV" name="__init__">
          <UML:BehavioralFeature.parameter>
           <UML:Parameter visibility="private" isSpecification="false" xmi.id="mWruo1WqikK9" type="D24c908A7qNN" value="" comment="nome do currículo" name="nome"/>
@@ -731,30 +732,30 @@
            <startpoint startx="338" starty="467"/>
            <endpoint endx="338" endy="568"/>
           </linepath>
-          <floatingtext linecolor="none" usesdiagramfillcolor="1" linewidth="none" usesdiagramusefillcolor="1" x="336" showstereotype="1" y="509" text="tipoResposta" font="Sans Serif,9,-1,0,50,0,0,0,0,0" pretext="+" role="710" width="94" isinstance="0" posttext="" usefillcolor="1" fillcolor="none" xmi.id="bC3eCEjBJVBk" height="18"/>
+          <floatingtext linecolor="none" usesdiagramfillcolor="1" linewidth="none" usesdiagramusefillcolor="1" x="336" showstereotype="1" y="509" text="tipoResposta" font="Sans Serif,9,-1,0,50,0,0,0,0,0" pretext="+" role="710" width="94" isinstance="0" posttext="" usefillcolor="1" fillcolor="none" xmi.id="4KymfpSAwSQk" height="18"/>
          </assocwidget>
          <assocwidget indexa="1" indexb="1" visibilityA="0" widgetaid="3VJvqGk8BzkR" visibilityB="0" linecolor="none" changeabilityA="900" totalcounta="4" xmi.id="7FVExJvQeLpc" changeabilityB="900" widgetbid="a8m5M50oqmDt" totalcountb="2" type="501" linewidth="none">
           <linepath>
            <startpoint startx="361" starty="247"/>
            <endpoint endx="361" endy="327"/>
           </linepath>
-          <floatingtext linecolor="none" usesdiagramfillcolor="1" linewidth="none" usesdiagramusefillcolor="1" x="363" showstereotype="1" y="307" text="0..1" font="Sans Serif,9,-1,0,50,0,0,0,0,0" pretext="" role="702" width="31" isinstance="0" posttext="" usefillcolor="1" fillcolor="none" xmi.id="nykWJUvseyWp" height="18"/>
-          <floatingtext linecolor="none" usesdiagramfillcolor="1" linewidth="none" usesdiagramusefillcolor="1" x="280" showstereotype="1" y="307" text="perguntas" font="Sans Serif,9,-1,0,50,0,0,0,0,0" pretext="+" role="710" width="80" isinstance="0" posttext="" usefillcolor="1" fillcolor="none" xmi.id="GPplMr8JpbL6" height="18"/>
+          <floatingtext linecolor="none" usesdiagramfillcolor="1" linewidth="none" usesdiagramusefillcolor="1" x="363" showstereotype="1" y="307" text="0..1" font="Sans Serif,9,-1,0,50,0,0,0,0,0" pretext="" role="702" width="31" isinstance="0" posttext="" usefillcolor="1" fillcolor="none" xmi.id="CDWB5157K4rx" height="18"/>
+          <floatingtext linecolor="none" usesdiagramfillcolor="1" linewidth="none" usesdiagramusefillcolor="1" x="280" showstereotype="1" y="307" text="perguntas" font="Sans Serif,9,-1,0,50,0,0,0,0,0" pretext="+" role="710" width="80" isinstance="0" posttext="" usefillcolor="1" fillcolor="none" xmi.id="KPv8ofSUOqe3" height="18"/>
          </assocwidget>
          <assocwidget indexa="1" indexb="1" visibilityA="0" widgetaid="iYb80gczGsi4" visibilityB="0" linecolor="none" changeabilityA="900" totalcounta="2" xmi.id="X8In1yMc6KIh" changeabilityB="900" widgetbid="4g86aeAB2dvE" totalcountb="2" type="510" linewidth="none">
           <linepath>
            <startpoint startx="1530" starty="822"/>
            <endpoint endx="1530" endy="895"/>
           </linepath>
-          <floatingtext linecolor="none" usesdiagramfillcolor="1" linewidth="none" usesdiagramusefillcolor="1" x="1442" showstereotype="1" y="866" text="docente" font="Sans Serif,9,-1,0,50,0,0,0,0,0" pretext="+" role="710" width="67" isinstance="0" posttext="" usefillcolor="1" fillcolor="none" xmi.id="CE0TjAEyZ1jv" height="18"/>
+          <floatingtext linecolor="none" usesdiagramfillcolor="1" linewidth="none" usesdiagramusefillcolor="1" x="1442" showstereotype="1" y="866" text="docente" font="Sans Serif,9,-1,0,50,0,0,0,0,0" pretext="+" role="710" width="67" isinstance="0" posttext="" usefillcolor="1" fillcolor="none" xmi.id="rH7mjVW1vPAj" height="18"/>
          </assocwidget>
          <assocwidget indexa="1" indexb="1" visibilityA="0" widgetaid="FtEhJUJgZeKq" visibilityB="0" linecolor="none" changeabilityA="900" totalcounta="2" xmi.id="h5VYWLigSAfB" changeabilityB="900" widgetbid="iYb80gczGsi4" totalcountb="2" type="501" linewidth="none">
           <linepath>
            <startpoint startx="1796" starty="549"/>
            <endpoint endx="1796" endy="640"/>
           </linepath>
-          <floatingtext linecolor="none" usesdiagramfillcolor="1" linewidth="none" usesdiagramusefillcolor="1" x="1811" showstereotype="1" y="605" text="0..1" font="Sans Serif,9,-1,0,50,0,0,0,0,0" pretext="" role="702" width="31" isinstance="0" posttext="" usefillcolor="1" fillcolor="none" xmi.id="xdebb9QlNPF4" height="18"/>
-          <floatingtext linecolor="none" usesdiagramfillcolor="1" linewidth="none" usesdiagramusefillcolor="1" x="1683" showstereotype="1" y="606" text="offers" font="Sans Serif,9,-1,0,50,0,0,0,0,0" pretext="+" role="710" width="51" isinstance="0" posttext="" usefillcolor="1" fillcolor="none" xmi.id="qpCgQYkEWUio" height="18"/>
+          <floatingtext linecolor="none" usesdiagramfillcolor="1" linewidth="none" usesdiagramusefillcolor="1" x="1811" showstereotype="1" y="605" text="0..1" font="Sans Serif,9,-1,0,50,0,0,0,0,0" pretext="" role="702" width="31" isinstance="0" posttext="" usefillcolor="1" fillcolor="none" xmi.id="2rEMt5JjLPV4" height="18"/>
+          <floatingtext linecolor="none" usesdiagramfillcolor="1" linewidth="none" usesdiagramusefillcolor="1" x="1683" showstereotype="1" y="606" text="offers" font="Sans Serif,9,-1,0,50,0,0,0,0,0" pretext="+" role="710" width="51" isinstance="0" posttext="" usefillcolor="1" fillcolor="none" xmi.id="4aDTQpUc31m6" height="18"/>
          </assocwidget>
          <assocwidget indexa="1" indexb="1" widgetaid="rqc552Cex6IS" linecolor="none" totalcounta="3" xmi.id="sn9Jtegv5S3A" widgetbid="FtEhJUJgZeKq" totalcountb="3" type="501" linewidth="none">
           <linepath>
@@ -767,8 +768,8 @@
            <startpoint startx="1796" starty="220"/>
            <endpoint endx="1796" endy="246"/>
           </linepath>
-          <floatingtext linecolor="none" usesdiagramfillcolor="1" linewidth="none" usesdiagramusefillcolor="1" x="1798" showstereotype="1" y="226" text="0..1" font="Sans Serif,9,-1,0,50,0,0,0,0,0" pretext="" role="702" width="31" isinstance="0" posttext="" usefillcolor="1" fillcolor="none" xmi.id="khBH9t36Xhi6" height="18"/>
-          <floatingtext linecolor="none" usesdiagramfillcolor="1" linewidth="none" usesdiagramusefillcolor="1" x="1723" showstereotype="1" y="226" text="disciplinas" font="Sans Serif,9,-1,0,50,0,0,0,0,0" pretext="+" role="710" width="80" isinstance="0" posttext="" usefillcolor="1" fillcolor="none" xmi.id="ZR26Sl2IaEwz" height="18"/>
+          <floatingtext linecolor="none" usesdiagramfillcolor="1" linewidth="none" usesdiagramusefillcolor="1" x="1798" showstereotype="1" y="226" text="0..1" font="Sans Serif,9,-1,0,50,0,0,0,0,0" pretext="" role="702" width="31" isinstance="0" posttext="" usefillcolor="1" fillcolor="none" xmi.id="WOpXNbdPQpkI" height="18"/>
+          <floatingtext linecolor="none" usesdiagramfillcolor="1" linewidth="none" usesdiagramusefillcolor="1" x="1723" showstereotype="1" y="226" text="disciplinas" font="Sans Serif,9,-1,0,50,0,0,0,0,0" pretext="+" role="710" width="80" isinstance="0" posttext="" usefillcolor="1" fillcolor="none" xmi.id="u16nOEVSogtE" height="18"/>
          </assocwidget>
          <assocwidget indexa="1" indexb="1" widgetaid="Xfx7y78lzEEq" linecolor="none" totalcounta="4" xmi.id="12EsXY9AxNls" widgetbid="rqc552Cex6IS" totalcountb="4" type="501" linewidth="none">
           <linepath>
@@ -781,8 +782,8 @@
            <startpoint startx="1084" starty="663"/>
            <endpoint endx="1354" endy="663"/>
           </linepath>
-          <floatingtext linecolor="none" usesdiagramfillcolor="1" linewidth="none" usesdiagramusefillcolor="1" x="1321" showstereotype="1" y="643" text="0..1" font="Sans Serif,9,-1,0,50,0,0,0,0,0" pretext="" role="702" width="31" isinstance="0" posttext="" usefillcolor="1" fillcolor="none" xmi.id="2BCaN9X8oiNx" height="18"/>
-          <floatingtext linecolor="none" usesdiagramfillcolor="1" linewidth="none" usesdiagramusefillcolor="1" x="1258" showstereotype="1" y="665" text="colunas" font="Sans Serif,9,-1,0,50,0,0,0,0,0" pretext="+" role="710" width="64" isinstance="0" posttext="" usefillcolor="1" fillcolor="none" xmi.id="q8sBV5G4UGBw" height="18"/>
+          <floatingtext linecolor="none" usesdiagramfillcolor="1" linewidth="none" usesdiagramusefillcolor="1" x="1321" showstereotype="1" y="643" text="0..1" font="Sans Serif,9,-1,0,50,0,0,0,0,0" pretext="" role="702" width="31" isinstance="0" posttext="" usefillcolor="1" fillcolor="none" xmi.id="aZHME9ZkVOFs" height="18"/>
+          <floatingtext linecolor="none" usesdiagramfillcolor="1" linewidth="none" usesdiagramusefillcolor="1" x="1258" showstereotype="1" y="665" text="colunas" font="Sans Serif,9,-1,0,50,0,0,0,0,0" pretext="+" role="710" width="64" isinstance="0" posttext="" usefillcolor="1" fillcolor="none" xmi.id="t1zEOUGHTM4r" height="18"/>
          </assocwidget>
          <assocwidget indexa="1" indexb="2" widgetaid="Nvjzd5DpqHuS" linecolor="none" totalcounta="3" xmi.id="qS4j0ijHLNZu" widgetbid="3VJvqGk8BzkR" totalcountb="4" type="501" linewidth="none">
           <linepath>
@@ -795,8 +796,8 @@
            <startpoint startx="684" starty="531"/>
            <endpoint endx="684" endy="247"/>
           </linepath>
-          <floatingtext linecolor="none" usesdiagramfillcolor="1" linewidth="none" usesdiagramusefillcolor="1" x="686" showstereotype="1" y="249" text="0..1" font="Sans Serif,9,-1,0,50,0,0,0,0,0" pretext="" role="702" width="31" isinstance="0" posttext="" usefillcolor="1" fillcolor="none" xmi.id="4JOYaZUcifA6" height="18"/>
-          <floatingtext linecolor="none" usesdiagramfillcolor="1" linewidth="none" usesdiagramusefillcolor="1" x="583" showstereotype="1" y="249" text="questionarios" font="Sans Serif,9,-1,0,50,0,0,0,0,0" pretext="+" role="710" width="98" isinstance="0" posttext="" usefillcolor="1" fillcolor="none" xmi.id="aO255kBuq15M" height="18"/>
+          <floatingtext linecolor="none" usesdiagramfillcolor="1" linewidth="none" usesdiagramusefillcolor="1" x="686" showstereotype="1" y="249" text="0..1" font="Sans Serif,9,-1,0,50,0,0,0,0,0" pretext="" role="702" width="31" isinstance="0" posttext="" usefillcolor="1" fillcolor="none" xmi.id="21eVMhKuGcHS" height="18"/>
+          <floatingtext linecolor="none" usesdiagramfillcolor="1" linewidth="none" usesdiagramusefillcolor="1" x="583" showstereotype="1" y="249" text="questionarios" font="Sans Serif,9,-1,0,50,0,0,0,0,0" pretext="+" role="710" width="98" isinstance="0" posttext="" usefillcolor="1" fillcolor="none" xmi.id="xqFLgzbXzalN" height="18"/>
          </assocwidget>
          <assocwidget indexa="1" indexb="1" widgetaid="yoLz9hOxJ5ZM" linecolor="none" totalcounta="2" xmi.id="3qL7ZTMYdXLB" widgetbid="Nvjzd5DpqHuS" totalcountb="2" type="500" linewidth="none">
           <linepath>
@@ -821,14 +822,14 @@
            <startpoint startx="1525" starty="136"/>
            <endpoint endx="1701" endy="136"/>
           </linepath>
-          <floatingtext linecolor="none" usesdiagramfillcolor="1" linewidth="none" usesdiagramusefillcolor="1" x="1560" showstereotype="1" y="138" text="periodosObrigatorios" font="Sans Serif,9,-1,0,50,0,0,0,0,0" pretext="+" role="710" width="142" isinstance="0" posttext="" usefillcolor="1" fillcolor="none" xmi.id="miCaOZVyxX30" height="18"/>
+          <floatingtext linecolor="none" usesdiagramfillcolor="1" linewidth="none" usesdiagramusefillcolor="1" x="1560" showstereotype="1" y="138" text="mandatoryTeachingPeriod" font="Sans Serif,9,-1,0,50,0,0,0,0,0" pretext="+" role="710" width="174" isinstance="0" posttext="" usefillcolor="1" fillcolor="none" xmi.id="lqAGCP67GLSu" height="18"/>
          </assocwidget>
          <assocwidget indexa="3" indexb="3" visibilityA="0" widgetaid="Xfx7y78lzEEq" visibilityB="0" linecolor="none" changeabilityA="900" totalcounta="4" xmi.id="vk5OybkOLios" changeabilityB="900" widgetbid="rqc552Cex6IS" totalcountb="4" type="510" linewidth="none">
           <linepath>
            <startpoint startx="1525" starty="136"/>
            <endpoint endx="1701" endy="136"/>
           </linepath>
-          <floatingtext linecolor="none" usesdiagramfillcolor="1" linewidth="none" usesdiagramusefillcolor="1" x="1572" showstereotype="1" y="114" text="periodosOptativos" font="Sans Serif,9,-1,0,50,0,0,0,0,0" pretext="+" role="710" width="126" isinstance="0" posttext="" usefillcolor="1" fillcolor="none" xmi.id="FDu6EyQJHorr" height="18"/>
+          <floatingtext linecolor="none" usesdiagramfillcolor="1" linewidth="none" usesdiagramusefillcolor="1" x="1572" showstereotype="1" y="114" text="ElectiveTeachingPeriod" font="Sans Serif,9,-1,0,50,0,0,0,0,0" pretext="+" role="710" width="155" isinstance="0" posttext="" usefillcolor="1" fillcolor="none" xmi.id="L2RIcAff9K8T" height="18"/>
          </assocwidget>
         </associations>
        </diagram>
@@ -851,7 +852,7 @@
   </UML:Model>
  </XMI.content>
  <XMI.extensions xmi.extender="umbrello">
-  <docsettings viewid="HX9CSe2jSKEc" uniqueid="CYZGnxVS5p9Y" documentation=""/>
+  <docsettings viewid="HX9CSe2jSKEc" uniqueid="CAqobGZjoW05" documentation=""/>
   <listview>
    <listitem open="1" type="800" id="Views">
     <listitem open="1" type="801" id="Logical View">
@@ -889,6 +890,7 @@
       <listitem open="0" type="814" id="D2owyL8s4FbB"/>
       <listitem open="0" type="814" id="gXzRPnQ9I5W4"/>
       <listitem open="0" type="814" id="vk5OybkOLios"/>
+      <listitem open="0" type="814" id="CAqobGZjoW05"/>
       <listitem open="0" type="815" id="UTH5Nsdj4ZvV"/>
       <listitem open="0" type="815" id="ToAr01UCamiy"/>
       <listitem open="0" type="815" id="10TvwG8ijwXC"/>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<XMI verified="false" xmi.version="1.2" timestamp="2013-02-05T14:13:56" xmlns:UML="http://schema.omg.org/spec/UML/1.3">
+<XMI verified="false" xmi.version="1.2" timestamp="2013-02-05T14:23:21" xmlns:UML="http://schema.omg.org/spec/UML/1.3">
  <XMI.header>
   <XMI.documentation>
    <XMI.exporter>umbrello uml modeller http://uml.sf.net</XMI.exporter>
@@ -729,6 +729,7 @@
         <UML:Attribute visibility="public" isSpecification="false" xmi.id="yYJC7VyMWSs7" type="rmBGvkcQRXIc" comment="It's true if this offer is a practical class, and false if it is a theoretical class" name="practical"/>
         <UML:Attribute visibility="public" isSpecification="false" xmi.id="Xjyd3Zd8E44A" type="FtEhJUJgZeKq" comment="the course related to this offer" name="course"/>
         <UML:Attribute visibility="public" isSpecification="false" xmi.id="UwJa8MfI3Tb0" type="J8Mt6F9CkV4k" comment="the time period related to this offer" name="timePeriod"/>
+        <UML:Attribute visibility="public" isSpecification="false" xmi.id="fJBoaspCAnIi" type="XgxsDc7M4FEo" comment="the number of max students allowed in this offer" name="numberOfRegistration"/>
         <UML:Operation visibility="public" isSpecification="false" isQuery="false" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="QT0oYQBGu5XV" comment="search an offer with the same id as the value of the parameter idOffer.&#xa;&#xa;Return: one object of the class Offer if successful or none, if unsuccessful" name="pickById">
          <UML:BehavioralFeature.parameter>
           <UML:Parameter kind="return" xmi.id="d9fxukhriYGb" type="iYb80gczGsi4"/>
@@ -739,16 +740,17 @@
          <UML:BehavioralFeature.parameter>
           <UML:Parameter kind="return" xmi.id="" type="AC4B1mC4RzY6"/>
           <UML:Parameter visibility="private" isSpecification="false" xmi.id="PiRmY4hriOrT" type="FtEhJUJgZeKq" value="" comment="the course related to the offers you are searching for" name="course"/>
-          <UML:Parameter visibility="private" isSpecification="false" xmi.id="6YTfP9d0mMiu" type="nRxB6MWKaIic" value="" comment="the time period related to this offers you are searching for" name="timePeriod"/>
+          <UML:Parameter visibility="private" isSpecification="false" xmi.id="KVpfVezJp9gA" type="J8Mt6F9CkV4k" value="" comment="the time period related to this offers you are searching for" name="timePeriod"/>
          </UML:BehavioralFeature.parameter>
         </UML:Operation>
-        <UML:Operation visibility="public" isSpecification="false" isQuery="false" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="pYdPCcydw5lG" comment="To create an offer you need a time period, a course, a college class number, specify if it's a practical class or not, and a professor responsable for this offer. The professor can be changed later using the method setProfessor()" name="__init__">
+        <UML:Operation visibility="public" isSpecification="false" isQuery="false" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="pYdPCcydw5lG" comment="To create an offer you need a time period, a course, a college class number, specify if it's a practical class or not, a professor responsable for this offer and the number of registration. If the number of registration is not important" name="__init__">
          <UML:BehavioralFeature.parameter>
-          <UML:Parameter visibility="private" isSpecification="false" xmi.id="fXdBeCcHZlua" type="nRxB6MWKaIic" value="" comment="the offer's time period " name="timePeriod"/>
+          <UML:Parameter visibility="private" isSpecification="false" xmi.id="loDESCXFMDPH" type="J8Mt6F9CkV4k" value="" comment="the offer's time period " name="timePeriod"/>
           <UML:Parameter visibility="private" isSpecification="false" xmi.id="tYlNIlzDg1Fx" type="FtEhJUJgZeKq" value="" comment="the offer's course" name="course"/>
           <UML:Parameter visibility="private" isSpecification="false" xmi.id="IjiEFT0UDShw" type="XgxsDc7M4FEo" value="" comment="The college class's number of the offer" name="classNumber"/>
           <UML:Parameter visibility="private" isSpecification="false" xmi.id="RKoZIHrQxyA7" type="rmBGvkcQRXIc" value="" comment="It's true if the offer is a practical class, and false if it is a theoretical class" name="pratica"/>
           <UML:Parameter visibility="private" isSpecification="false" xmi.id="HmSDjGsAvabk" type="4g86aeAB2dvE" value="" comment="the professor responsable for this offer" name="professor"/>
+          <UML:Parameter visibility="private" isSpecification="false" xmi.id="Y4pA7pBj3vY2" type="XgxsDc7M4FEo" value="" comment="the number of max students allowed in this offer" name="numberOfRegistration"/>
          </UML:BehavioralFeature.parameter>
         </UML:Operation>
         <UML:Operation visibility="public" isSpecification="false" isQuery="false" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="EmymNZ2tjllV" comment="associate a new professor with the offer" name="setProfessor">
@@ -771,7 +773,7 @@
      </UML:Namespace.ownedElement>
      <XMI.extension xmi.extender="umbrello">
       <diagrams>
-       <diagram showopsig="1" linecolor="#000080" snapx="10" showattribassocs="1" snapy="10" linewidth="0" showattsig="1" isopen="1" showpackage="1" showpubliconly="1" showstereotype="1" name="class diagram" font="Sans Serif,9,-1,0,50,0,0,0,0,0" canvasheight="1012" canvaswidth="2324" localid="-1" snapcsgrid="0" showgrid="0" showops="1" griddotcolor="#a0a0a4" backgroundcolor="#c3c3c3" usefillcolor="1" fillcolor="#add2fd" zoom="100" xmi.id="HX9CSe2jSKEc" documentation="" showscope="1" snapgrid="0" showatts="1" type="1">
+       <diagram showopsig="1" linecolor="#000080" snapx="10" showattribassocs="1" snapy="10" linewidth="0" showattsig="1" isopen="1" showpackage="1" showpubliconly="1" showstereotype="1" name="class diagram" font="Sans Serif,9,-1,0,50,0,0,0,0,0" canvasheight="1012" canvaswidth="2433" localid="-1" snapcsgrid="0" showgrid="0" showops="1" griddotcolor="#a0a0a4" backgroundcolor="#c3c3c3" usefillcolor="1" fillcolor="#add2fd" zoom="100" xmi.id="HX9CSe2jSKEc" documentation="" showscope="1" snapgrid="0" showatts="1" type="1">
         <widgets>
          <classwidget linecolor="#000080" usesdiagramfillcolor="0" linewidth="none" showoperations="1" usesdiagramusefillcolor="0" showpubliconly="1" showpackage="1" x="1400" showattsigs="601" showstereotype="1" y="896" showattributes="1" font="Sans Serif,9,-1,0,75,0,0,0,0,0" width="248" isinstance="0" usefillcolor="1" fillcolor="#add2fd" xmi.id="4g86aeAB2dvE" showscope="1" height="112" showopsigs="601"/>
          <classwidget linecolor="#000080" usesdiagramfillcolor="0" linewidth="none" showoperations="1" usesdiagramusefillcolor="0" showpubliconly="1" showpackage="1" x="60" showattsigs="601" showstereotype="1" y="568" showattributes="1" font="Sans Serif,9,-1,0,75,0,0,0,0,0" width="338" isinstance="0" usefillcolor="1" fillcolor="#add2fd" xmi.id="YMFgx5BC7EhW" showscope="1" height="112" showopsigs="601"/>
@@ -785,8 +787,8 @@
          <classwidget linecolor="#000080" usesdiagramfillcolor="0" linewidth="none" showoperations="1" usesdiagramusefillcolor="0" showpubliconly="1" showpackage="1" x="1122" showattsigs="601" showstereotype="1" y="818" showattributes="1" font="Sans Serif,9,-1,0,75,0,0,0,0,0" width="166" isinstance="0" usefillcolor="1" fillcolor="#add2fd" xmi.id="FteCMS8LonWM" showscope="1" height="134" showopsigs="601"/>
          <classwidget linecolor="#000080" usesdiagramfillcolor="0" linewidth="none" showoperations="1" usesdiagramusefillcolor="0" showpubliconly="1" showpackage="1" x="561" showattsigs="601" showstereotype="1" y="810" showattributes="1" font="Sans Serif,9,-1,5,75,0,0,0,0,0" width="507" isinstance="0" usefillcolor="1" fillcolor="#add2fd" xmi.id="yoLz9hOxJ5ZM" showscope="1" height="156" showopsigs="601"/>
          <classwidget linecolor="#000080" usesdiagramfillcolor="0" linewidth="none" showoperations="1" usesdiagramusefillcolor="0" showpubliconly="1" showpackage="1" x="1003" showattsigs="601" showstereotype="1" y="362" showattributes="1" font="Sans Serif,9,-1,5,75,0,0,0,0,0" width="468" isinstance="0" usefillcolor="1" fillcolor="#add2fd" xmi.id="u8Gevsq0N1sX" showscope="1" height="137" showopsigs="601"/>
-         <classwidget linecolor="none" usesdiagramfillcolor="1" linewidth="none" showoperations="1" usesdiagramusefillcolor="1" showpubliconly="1" showpackage="1" x="1981" showattsigs="601" showstereotype="1" y="626" showattributes="1" font="Sans Serif,9,-1,0,75,0,0,0,0,0" width="271" isinstance="0" usefillcolor="1" fillcolor="none" xmi.id="J8Mt6F9CkV4k" showscope="1" height="112" showopsigs="601"/>
-         <classwidget linecolor="#000080" usesdiagramfillcolor="0" linewidth="none" showoperations="1" usesdiagramusefillcolor="0" showpubliconly="1" showpackage="1" x="1233" showattsigs="601" showstereotype="1" y="606" showattributes="1" font="Sans Serif,9,-1,5,75,0,0,0,0,0" width="630" isinstance="0" usefillcolor="1" fillcolor="#add2fd" xmi.id="iYb80gczGsi4" showscope="1" height="182" showopsigs="601"/>
+         <classwidget linecolor="none" usesdiagramfillcolor="1" linewidth="none" showoperations="1" usesdiagramusefillcolor="1" showpubliconly="1" showpackage="1" x="2158" showattsigs="601" showstereotype="1" y="638" showattributes="1" font="Sans Serif,9,-1,0,75,0,0,0,0,0" width="271" isinstance="0" usefillcolor="1" fillcolor="none" xmi.id="J8Mt6F9CkV4k" showscope="1" height="112" showopsigs="601"/>
+         <classwidget linecolor="#000080" usesdiagramfillcolor="0" linewidth="none" showoperations="1" usesdiagramusefillcolor="0" showpubliconly="1" showpackage="1" x="1228" showattsigs="601" showstereotype="1" y="606" showattributes="1" font="Sans Serif,9,-1,5,75,0,0,0,0,0" width="820" isinstance="0" usefillcolor="1" fillcolor="#add2fd" xmi.id="iYb80gczGsi4" showscope="1" height="196" showopsigs="601"/>
         </widgets>
         <messages/>
         <associations>
@@ -880,7 +882,7 @@
          </assocwidget>
          <assocwidget indexa="1" linecolor="none" indexb="1" usesdiagramfillcolor="0" widgetbid="4g86aeAB2dvE" linewidth="none" usesdiagramusefillcolor="0" totalcounta="2" totalcountb="2" widgetaid="iYb80gczGsi4" visibilityA="0" visibilityB="0" usefillcolor="0" fillcolor="#000000" changeabilityA="900" xmi.id="X8In1yMc6KIh" changeabilityB="900" type="510">
           <linepath>
-           <startpoint startx="1400" starty="788"/>
+           <startpoint startx="1400" starty="802"/>
            <endpoint endx="1400" endy="896"/>
           </linepath>
           <floatingtext linecolor="none" usesdiagramfillcolor="1" linewidth="none" usesdiagramusefillcolor="1" x="1334" showstereotype="1" y="876" text="professor" font="Sans Serif,9,-1,0,50,0,0,0,0,0" pretext="+" role="710" width="74" isinstance="0" posttext="" usefillcolor="1" fillcolor="none" xmi.id="p6cl4Z50W2Va" height="18"/>
@@ -894,10 +896,10 @@
          </assocwidget>
          <assocwidget indexa="1" linecolor="none" indexb="1" usesdiagramfillcolor="0" widgetbid="J8Mt6F9CkV4k" linewidth="none" usesdiagramusefillcolor="0" totalcounta="2" totalcountb="2" widgetaid="iYb80gczGsi4" visibilityA="0" visibilityB="0" usefillcolor="0" fillcolor="#000000" changeabilityA="900" xmi.id="UwJa8MfI3Tb0" changeabilityB="900" type="510">
           <linepath>
-           <startpoint startx="1863" starty="689"/>
-           <endpoint endx="1981" endy="689"/>
+           <startpoint startx="2048" starty="689"/>
+           <endpoint endx="2158" endy="689"/>
           </linepath>
-          <floatingtext linecolor="none" usesdiagramfillcolor="1" linewidth="none" usesdiagramusefillcolor="1" x="1887" showstereotype="1" y="692" text="timePeriod" font="Sans Serif,9,-1,0,50,0,0,0,0,0" pretext="+" role="710" width="83" isinstance="0" posttext="" usefillcolor="1" fillcolor="none" xmi.id="OQCP65snqqj1" height="18"/>
+          <floatingtext linecolor="none" usesdiagramfillcolor="1" linewidth="none" usesdiagramusefillcolor="1" x="2064" showstereotype="1" y="692" text="timePeriod" font="Sans Serif,9,-1,0,50,0,0,0,0,0" pretext="+" role="710" width="83" isinstance="0" posttext="" usefillcolor="1" fillcolor="none" xmi.id="OQCP65snqqj1" height="18"/>
          </assocwidget>
         </associations>
        </diagram>
@@ -920,7 +922,7 @@
   </UML:Model>
  </XMI.content>
  <XMI.extensions xmi.extender="umbrello">
-  <docsettings viewid="HX9CSe2jSKEc" uniqueid="OQCP65snqqj1" documentation=""/>
+  <docsettings viewid="HX9CSe2jSKEc" uniqueid="Y4pA7pBj3vY2" documentation=""/>
   <listview>
    <listitem open="1" type="800" id="Views">
     <listitem open="1" type="821" id="Component View"/>
@@ -1073,6 +1075,7 @@
       <listitem open="0" type="814" id="Xjyd3Zd8E44A"/>
       <listitem open="0" type="815" id="QtgDE0ExlEU6"/>
       <listitem open="0" type="814" id="5eRwyhoDFGX7"/>
+      <listitem open="0" type="814" id="fJBoaspCAnIi"/>
       <listitem open="0" type="815" id="QT0oYQBGu5XV"/>
       <listitem open="0" type="814" id="yYJC7VyMWSs7"/>
       <listitem open="0" type="814" id="X8In1yMc6KIh"/>

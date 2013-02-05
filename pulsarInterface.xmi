@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<XMI verified="false" xmi.version="1.2" timestamp="2013-02-05T15:44:33" xmlns:UML="http://schema.omg.org/spec/UML/1.3">
+<XMI verified="false" xmi.version="1.2" timestamp="2013-02-05T16:31:04" xmlns:UML="http://schema.omg.org/spec/UML/1.3">
  <XMI.header>
   <XMI.documentation>
    <XMI.exporter>umbrello uml modeller http://uml.sf.net</XMI.exporter>
@@ -250,8 +250,8 @@
         <UML:Attribute visibility="public" isSpecification="false" xmi.id="jPTdLW3FOBBs" type="D24c908A7qNN" comment="Date of start of this course, in the form year-month-day “xxxx-xx-xx”. Start is defined as the start of the curriculum in this University. " name="startDate"/>
         <UML:Attribute visibility="public" isSpecification="false" xmi.id="ACLeJI5fBVUR" type="D24c908A7qNN" comment="Date of the end of this curriculum, in the form year-month-day “xxxx-xx-xx”. It's value is null if the curriculum is not over. Over is defined as the last time this curriculum was given in this University." name="endDate"/>
         <UML:Attribute visibility="public" isSpecification="false" xmi.id="8eZZFu3I9RRJ" type="D24c908A7qNN" comment="It represents the type of curriculum, (e.g general area, basic cycle ...)." name="curriculumType"/>
-        <UML:Attribute visibility="public" isSpecification="false" xmi.id="X03oG9TRcwsY" type="XgxsDc7M4FEo" comment="código da habilitação (vide júpiter)" name="codHab"/>
-        <UML:Attribute visibility="public" isSpecification="false" xmi.id="LY6gCVBCXxTe" type="D24c908A7qNN" comment="String representing the time period division (&quot;quarter&quot; or &quot;semester&quot;)" name="timePeriodType"/>
+        <UML:Attribute visibility="public" isSpecification="false" xmi.id="X03oG9TRcwsY" type="XgxsDc7M4FEo" comment="The code representing the curriculum" name="curriculumCode"/>
+        <UML:Attribute visibility="public" isSpecification="false" xmi.id="LY6gCVBCXxTe" type="D24c908A7qNN" comment="String representing the time period division (&quot;quarter&quot; or &quot;semester&quot;)" name="termLenght"/>
         <UML:Attribute visibility="public" isSpecification="false" xmi.id="D2owyL8s4FbB" type="u8Gevsq0N1sX" comment="The curriculum's faculty. " name="faculty"/>
         <UML:Attribute visibility="public" isSpecification="false" xmi.id="gXzRPnQ9I5W4" type="UjwX4TYrXjC5" comment="List of Idealterm where each one contains a set of mandatory courses of this curriculum." name="mandatoryIdealTerms"/>
         <UML:Attribute visibility="public" isSpecification="false" xmi.id="vk5OybkOLios" type="UjwX4TYrXjC5" comment="List of IdealTerm where each one contains a set of elective courses of this curriculum." name="electiveIdealTerms"/>
@@ -260,8 +260,8 @@
          <UML:BehavioralFeature.parameter>
           <UML:Parameter visibility="private" isSpecification="false" xmi.id="z0VkHwqPTSAS" type="D24c908A7qNN" value="" comment="Curriculum's name" name="name"/>
           <UML:Parameter visibility="private" isSpecification="false" xmi.id="h33h4XRLRHis" type="D24c908A7qNN" value="" comment="It represents the type of curriculum, (e.g general area, basic cycle,... )." name="curriculumType"/>
-          <UML:Parameter visibility="private" isSpecification="false" xmi.id="DcWDWaoDepug" type="D24c908A7qNN" value="" comment="codigo da habilitação (vide jupiter)" name="codHab"/>
-          <UML:Parameter visibility="private" isSpecification="false" xmi.id="VgqEjud52bN1" type="D24c908A7qNN" value="" comment="String representing the period division (&quot;quarter&quot; or &quot;semester&quot;)." name="timePeriodType"/>
+          <UML:Parameter visibility="private" isSpecification="false" xmi.id="zYnuWlANFTuy" type="XgxsDc7M4FEo" value="" comment="The code representing the curriculum" name="curriculumCode"/>
+          <UML:Parameter visibility="private" isSpecification="false" xmi.id="rUJZkFD7Pyvc" type="D24c908A7qNN" value="" comment="String representing the period division (&quot;quarter&quot; or &quot;semester&quot;)." name="termLenght"/>
           <UML:Parameter visibility="private" isSpecification="false" xmi.id="NyZSGSYU4UMu" type="u8Gevsq0N1sX" value="" comment="The curriculum's faculty. " name="faculty"/>
          </UML:BehavioralFeature.parameter>
         </UML:Operation>
@@ -278,7 +278,7 @@
         </UML:Operation>
         <UML:Operation visibility="public" isSpecification="false" isQuery="false" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="PSlwg1XjA46S" comment="Returns a list of curricula that belong to the chosen faculty." name="filterFaculty">
          <UML:BehavioralFeature.parameter>
-          <UML:Parameter kind="return" xmi.id="" type="RdkNEEn67bRe"/>
+          <UML:Parameter kind="return" xmi.id="" type="u8Gevsq0N1sX"/>
           <UML:Parameter visibility="private" isSpecification="false" xmi.id="iFvQPMIAYUT2" type="u8Gevsq0N1sX" value="" comment="The wanted faculty." name="faculty"/>
          </UML:BehavioralFeature.parameter>
         </UML:Operation>
@@ -779,7 +779,7 @@
          <classwidget linecolor="#000080" usesdiagramfillcolor="0" linewidth="none" showoperations="1" usesdiagramusefillcolor="0" showpubliconly="1" showpackage="1" x="60" showattsigs="601" showstereotype="1" y="568" showattributes="1" font="Sans Serif,9,-1,0,75,0,0,0,0,0" width="338" isinstance="0" usefillcolor="1" fillcolor="#add2fd" xmi.id="YMFgx5BC7EhW" showscope="1" height="112" showopsigs="601"/>
          <classwidget linecolor="#000080" usesdiagramfillcolor="0" linewidth="none" showoperations="1" usesdiagramusefillcolor="0" showpubliconly="1" showpackage="1" x="81" showattsigs="601" showstereotype="1" y="327" showattributes="1" font="Sans Serif,9,-1,0,75,0,0,0,0,0" width="361" isinstance="0" usefillcolor="1" fillcolor="#add2fd" xmi.id="a8m5M50oqmDt" showscope="1" height="140" showopsigs="601"/>
          <classwidget linecolor="#000080" usesdiagramfillcolor="0" linewidth="none" showoperations="1" usesdiagramusefillcolor="0" showpubliconly="1" showpackage="1" x="73" showattsigs="601" showstereotype="1" y="107" showattributes="1" font="Sans Serif,9,-1,0,75,0,0,0,0,0" width="611" isinstance="0" usefillcolor="1" fillcolor="#add2fd" xmi.id="3VJvqGk8BzkR" showscope="1" height="140" showopsigs="601"/>
-         <classwidget linecolor="#000080" usesdiagramfillcolor="0" linewidth="none" showoperations="1" usesdiagramusefillcolor="0" showpubliconly="1" showpackage="1" x="916" showattsigs="601" showstereotype="1" y="9" showattributes="1" font="Sans Serif,9,-1,5,75,0,0,0,0,0" width="650" isinstance="0" usefillcolor="1" fillcolor="#add2fd" xmi.id="Xfx7y78lzEEq" showscope="1" height="294" showopsigs="601"/>
+         <classwidget linecolor="#000080" usesdiagramfillcolor="0" linewidth="none" showoperations="1" usesdiagramusefillcolor="0" showpubliconly="1" showpackage="1" x="916" showattsigs="601" showstereotype="1" y="9" showattributes="1" font="Sans Serif,9,-1,5,75,0,0,0,0,0" width="658" isinstance="0" usefillcolor="1" fillcolor="#add2fd" xmi.id="Xfx7y78lzEEq" showscope="1" height="294" showopsigs="601"/>
          <classwidget linecolor="#000080" usesdiagramfillcolor="0" linewidth="none" showoperations="1" usesdiagramusefillcolor="0" showpubliconly="1" showpackage="1" x="562" showattsigs="601" showstereotype="1" y="531" showattributes="1" font="Sans Serif,9,-1,5,75,0,0,0,0,0" width="522" isinstance="0" usefillcolor="1" fillcolor="#add2fd" xmi.id="Nvjzd5DpqHuS" showscope="1" height="216" showopsigs="601"/>
          <classwidget linecolor="#000080" usesdiagramfillcolor="0" linewidth="none" showoperations="1" usesdiagramusefillcolor="0" showpubliconly="1" showpackage="1" x="1701" showattsigs="601" showstereotype="1" y="52" showattributes="1" font="Sans Serif,9,-1,5,75,0,0,0,0,0" width="619" isinstance="0" usefillcolor="1" fillcolor="#add2fd" xmi.id="rqc552Cex6IS" showscope="1" height="168" showopsigs="601"/>
          <classwidget linecolor="#000080" usesdiagramfillcolor="0" linewidth="none" showoperations="1" usesdiagramusefillcolor="0" showpubliconly="1" showpackage="1" x="2" showattsigs="601" showstereotype="1" y="824" showattributes="1" font="Sans Serif,9,-1,5,75,0,0,0,0,0" width="519" isinstance="0" usefillcolor="1" fillcolor="#add2fd" xmi.id="YwITpSeYzf2y" showscope="1" height="106" showopsigs="601"/>
@@ -788,7 +788,7 @@
          <classwidget linecolor="#000080" usesdiagramfillcolor="0" linewidth="none" showoperations="1" usesdiagramusefillcolor="0" showpubliconly="1" showpackage="1" x="1175" showattsigs="601" showstereotype="1" y="386" showattributes="1" font="Sans Serif,9,-1,5,75,0,0,0,0,0" width="468" isinstance="0" usefillcolor="1" fillcolor="#add2fd" xmi.id="u8Gevsq0N1sX" showscope="1" height="137" showopsigs="601"/>
          <classwidget linecolor="none" usesdiagramfillcolor="1" linewidth="none" showoperations="1" usesdiagramusefillcolor="1" showpubliconly="1" showpackage="1" x="2158" showattsigs="601" showstereotype="1" y="638" showattributes="1" font="Sans Serif,9,-1,0,75,0,0,0,0,0" width="271" isinstance="0" usefillcolor="1" fillcolor="none" xmi.id="J8Mt6F9CkV4k" showscope="1" height="112" showopsigs="601"/>
          <classwidget linecolor="#000080" usesdiagramfillcolor="0" linewidth="none" showoperations="1" usesdiagramusefillcolor="0" showpubliconly="1" showpackage="1" x="1228" showattsigs="601" showstereotype="1" y="606" showattributes="1" font="Sans Serif,9,-1,5,75,0,0,0,0,0" width="826" isinstance="0" usefillcolor="1" fillcolor="#add2fd" xmi.id="iYb80gczGsi4" showscope="1" height="196" showopsigs="601"/>
-         <classwidget linecolor="none" usesdiagramfillcolor="1" linewidth="none" showoperations="1" usesdiagramusefillcolor="1" showpubliconly="1" showpackage="1" x="1791" showattsigs="601" showstereotype="1" y="274" showattributes="1" font="Sans Serif,9,-1,0,75,0,0,0,0,0" width="456" isinstance="0" usefillcolor="1" fillcolor="none" xmi.id="FtEhJUJgZeKq" showscope="1" height="294" showopsigs="601"/>
+         <classwidget linecolor="#000080" usesdiagramfillcolor="0" linewidth="none" showoperations="1" usesdiagramusefillcolor="0" showpubliconly="1" showpackage="1" x="1791" showattsigs="601" showstereotype="1" y="274" showattributes="1" font="Sans Serif,9,-1,5,75,0,0,0,0,0" width="456" isinstance="0" usefillcolor="1" fillcolor="#add2fd" xmi.id="FtEhJUJgZeKq" showscope="1" height="294" showopsigs="601"/>
         </widgets>
         <messages/>
         <associations>
@@ -809,7 +809,7 @@
          </assocwidget>
          <assocwidget indexa="1" indexb="1" usesdiagramusefillcolor="1" widgetaid="Xfx7y78lzEEq" usesdiagramfillcolor="1" fillcolor="none" linecolor="none" totalcounta="4" xmi.id="12EsXY9AxNls" widgetbid="rqc552Cex6IS" totalcountb="4" type="501" usefillcolor="1" linewidth="none">
           <linepath>
-           <startpoint startx="1566" starty="136"/>
+           <startpoint startx="1574" starty="136"/>
            <endpoint endx="1701" endy="136"/>
           </linepath>
          </assocwidget>
@@ -847,14 +847,14 @@
          </assocwidget>
          <assocwidget indexa="2" linecolor="none" indexb="2" usesdiagramfillcolor="1" widgetbid="rqc552Cex6IS" linewidth="none" usesdiagramusefillcolor="1" totalcounta="4" totalcountb="4" widgetaid="Xfx7y78lzEEq" visibilityA="0" visibilityB="0" usefillcolor="1" fillcolor="none" changeabilityA="900" xmi.id="gXzRPnQ9I5W4" changeabilityB="900" type="510">
           <linepath>
-           <startpoint startx="1566" starty="136"/>
+           <startpoint startx="1574" starty="136"/>
            <endpoint endx="1701" endy="136"/>
           </linepath>
           <floatingtext linecolor="none" usesdiagramfillcolor="1" linewidth="none" usesdiagramusefillcolor="1" x="1560" showstereotype="1" y="138" text="mandatoryIdealTerms" font="Sans Serif,9,-1,0,50,0,0,0,0,0" pretext="+" role="710" width="148" isinstance="0" posttext="" usefillcolor="1" fillcolor="none" xmi.id="q41aFtag6xMP" height="18"/>
          </assocwidget>
          <assocwidget indexa="3" linecolor="none" indexb="3" usesdiagramfillcolor="1" widgetbid="rqc552Cex6IS" linewidth="none" usesdiagramusefillcolor="1" totalcounta="4" totalcountb="4" widgetaid="Xfx7y78lzEEq" visibilityA="0" visibilityB="0" usefillcolor="1" fillcolor="none" changeabilityA="900" xmi.id="vk5OybkOLios" changeabilityB="900" type="510">
           <linepath>
-           <startpoint startx="1566" starty="136"/>
+           <startpoint startx="1574" starty="136"/>
            <endpoint endx="1701" endy="136"/>
           </linepath>
           <floatingtext linecolor="none" usesdiagramfillcolor="1" linewidth="none" usesdiagramusefillcolor="1" x="1572" showstereotype="1" y="114" text="electiveIdealTerms" font="Sans Serif,9,-1,0,50,0,0,0,0,0" pretext="+" role="710" width="130" isinstance="0" posttext="" usefillcolor="1" fillcolor="none" xmi.id="eyhRj8Zs8rZJ" height="18"/>
@@ -908,7 +908,7 @@
   </UML:Model>
  </XMI.content>
  <XMI.extensions xmi.extender="umbrello">
-  <docsettings viewid="HX9CSe2jSKEc" uniqueid="0EoEkGVPncmT" documentation=""/>
+  <docsettings viewid="HX9CSe2jSKEc" uniqueid="zYnuWlANFTuy" documentation=""/>
   <listview>
    <listitem open="1" type="800" id="Views">
     <listitem open="1" type="821" id="Component View"/>
@@ -941,9 +941,9 @@
      <listitem open="0" type="813" id="Xfx7y78lzEEq">
       <listitem open="0" type="815" id="UTH5Nsdj4ZvV"/>
       <listitem open="0" type="814" id="CAqobGZjoW05"/>
-      <listitem open="0" type="814" id="X03oG9TRcwsY"/>
       <listitem open="0" type="815" id="Xq6HZLI61ZEJ"/>
       <listitem open="0" type="815" id="DWG3lAUt6YIp"/>
+      <listitem open="0" type="814" id="X03oG9TRcwsY"/>
       <listitem open="0" type="814" id="8eZZFu3I9RRJ"/>
       <listitem open="0" type="814" id="vk5OybkOLios"/>
       <listitem open="0" type="814" id="ACLeJI5fBVUR"/>

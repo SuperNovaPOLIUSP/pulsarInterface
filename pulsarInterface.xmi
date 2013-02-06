@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<XMI verified="false" xmi.version="1.2" timestamp="2013-02-05T16:49:38" xmlns:UML="http://schema.omg.org/spec/UML/1.3">
+<XMI verified="false" xmi.version="1.2" timestamp="2013-02-06T10:14:19" xmlns:UML="http://schema.omg.org/spec/UML/1.3">
  <XMI.header>
   <XMI.documentation>
    <XMI.exporter>umbrello uml modeller http://uml.sf.net</XMI.exporter>
@@ -193,50 +193,135 @@
       <UML:Class visibility="public" isSpecification="false" namespace="Logical View" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="HOzvzLOExet8" name="Pergunta[]"/>
       <UML:Class visibility="public" isSpecification="false" namespace="Logical View" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="ilWRYrldb1dH" name="string[]"/>
       <UML:Class visibility="public" isSpecification="false" namespace="Logical View" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="e8GPpePeIIvg" name="teste"/>
+      <UML:Class visibility="public" isSpecification="false" namespace="Logical View" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="FtEhJUJgZeKq" comment="Representation of a course in the data base." name="Course">
+       <UML:Classifier.feature>
+        <UML:Attribute visibility="public" isSpecification="false" xmi.id="GKmKJpbQNpkd" type="XgxsDc7M4FEo" comment="Associated data base key." name="idCourse"/>
+        <UML:Attribute visibility="public" isSpecification="false" xmi.id="bc0DuqR28FQa" type="D24c908A7qNN" comment="7 character code that represents the course." name="courseCode"/>
+        <UML:Attribute visibility="public" isSpecification="false" xmi.id="RqBB8SzjsMXb" type="D24c908A7qNN" comment="Abbreviation of the course's name." name="abbreviation"/>
+        <UML:Attribute visibility="public" isSpecification="false" xmi.id="FA1rk14epUhx" type="D24c908A7qNN" comment="Complete name of a course" name="name"/>
+        <UML:Attribute visibility="public" isSpecification="false" xmi.id="h5VYWLigSAfB" type="ETo5X3bl522W" comment="List of offers associated with this course." name="offers"/>
+        <UML:Attribute visibility="public" isSpecification="false" xmi.id="OvbMIAILMDJh" type="D24c908A7qNN" comment="Date of start of this course, in the form year-month-day “xxxx-xx-xx”. Start is defined as the start of the course in general, not only in this year, but the first time it was in this University. " name="startDate"/>
+        <UML:Attribute visibility="public" isSpecification="false" xmi.id="JWCb6224d6ld" type="D24c908A7qNN" comment="Date of the end of this course, in the form year-month-day “xxxx-xx-xx”. It's value is null if the course is not over. Over is defined as the last time this discipline is given was this University" name="endDate"/>
+        <UML:Operation visibility="public" isSpecification="false" isQuery="false" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="rrCmv93mIHyI" name="findCourseCode">
+         <UML:BehavioralFeature.parameter>
+          <UML:Parameter kind="return" xmi.id="t2dvU0FuMXn5" type="FtEhJUJgZeKq"/>
+          <UML:Parameter visibility="private" isSpecification="false" xmi.id="CYZGnxVS5p9Y" type="D24c908A7qNN" value="" comment="A 7 character code that represents the course. " name="courseCode"/>
+         </UML:BehavioralFeature.parameter>
+        </UML:Operation>
+        <UML:Operation visibility="public" isSpecification="false" isQuery="false" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="LcHn6nxDhrhT" comment="Returns a course from its course code&#xa;retorna um objeto disciplina a partir da sigla" name="pickByCourseCode">
+         <UML:BehavioralFeature.parameter>
+          <UML:Parameter kind="return" xmi.id="H4zCtY9GK6Ry" type="FtEhJUJgZeKq"/>
+          <UML:Parameter visibility="private" isSpecification="false" xmi.id="Fh8KhTw0QJZy" type="D24c908A7qNN" value="" comment="A 7 character code that represents the course. " name="courseCode"/>
+         </UML:BehavioralFeature.parameter>
+        </UML:Operation>
+        <UML:Operation visibility="public" isSpecification="false" isQuery="false" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="pdv6ekm7Zolc" comment="Saves or alters a course in the data base, returns True if it is successful. If the offers list is not empty, alters it in the data base." name="store"/>
+        <UML:Operation visibility="public" isSpecification="false" isQuery="false" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="NPMd6dDRB6z5" comment="A course is defined by a name and a 7 character code. " name="__init__">
+         <UML:BehavioralFeature.parameter>
+          <UML:Parameter visibility="private" isSpecification="false" xmi.id="s3nDl63nkpVD" type="D24c908A7qNN" value="" comment="A 7 character code that represents the course." name="courseCode"/>
+          <UML:Parameter visibility="private" isSpecification="false" xmi.id="NBiq559v8u8t" type="D24c908A7qNN" value="" comment="Complete name of a discipline." name="name"/>
+         </UML:BehavioralFeature.parameter>
+        </UML:Operation>
+        <UML:Operation visibility="public" isSpecification="false" isQuery="false" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="8NBOSOcBVs8Y" comment="Set the endDate of this course ." name="setEndDate">
+         <UML:BehavioralFeature.parameter>
+          <UML:Parameter kind="return" xmi.id="1NyyNHp1Tyi6" type="D24c908A7qNN"/>
+          <UML:Parameter visibility="private" isSpecification="false" xmi.id="SM4Z2GeAZeXc" type="D24c908A7qNN" value="" comment="String difining the end  date of this course, in the form year-month-day “xxxx-xx-xx”." name="endDate"/>
+         </UML:BehavioralFeature.parameter>
+        </UML:Operation>
+        <UML:Operation visibility="public" isSpecification="false" isQuery="false" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="Pp4Pw0FCIDo1" comment="Set the abbreviation of this course." name="setAbbreviation">
+         <UML:BehavioralFeature.parameter>
+          <UML:Parameter kind="return" xmi.id="CXtNq5UfSVyB" type="D24c908A7qNN"/>
+          <UML:Parameter visibility="private" isSpecification="false" xmi.id="qn5vA5XcRbBT" type="D24c908A7qNN" value="" comment="Abbreviation of the course's name." name="abbreviation"/>
+         </UML:BehavioralFeature.parameter>
+        </UML:Operation>
+        <UML:Operation visibility="public" isSpecification="false" isQuery="false" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="Gsqfppsz55o4" comment="Set the startDate of this course ." name="setStartDate">
+         <UML:BehavioralFeature.parameter>
+          <UML:Parameter visibility="private" isSpecification="false" xmi.id="3wVvyoWmbbij" type="D24c908A7qNN" value="" comment="String defining the criation date of this course, in the form year-month-day “xxxx-xx-xx”." name="startDate"/>
+         </UML:BehavioralFeature.parameter>
+        </UML:Operation>
+        <UML:Operation visibility="public" isSpecification="false" isQuery="false" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="2b1jEBEZLsZU" comment="Adds a set of offers to this course." name="addOffers">
+         <UML:BehavioralFeature.parameter>
+          <UML:Parameter kind="return" xmi.id="PkQsyYhQbBHb" type="rmBGvkcQRXIc"/>
+          <UML:Parameter visibility="private" isSpecification="false" xmi.id="I2dKW57Z1aUx" type="ETo5X3bl522W" value="" comment="List of offers to be associated to this course." name="offers"/>
+         </UML:BehavioralFeature.parameter>
+        </UML:Operation>
+        <UML:Operation visibility="public" isSpecification="false" isQuery="false" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="81MPhCOgQ0dJ" comment="Returns a single course with the chosen ID." name="pickById">
+         <UML:BehavioralFeature.parameter>
+          <UML:Parameter kind="return" xmi.id="u3zHtBEC0KXA" type="XgxsDc7M4FEo"/>
+          <UML:Parameter visibility="private" isSpecification="false" xmi.id="pX2j9DUOuf2a" type="XgxsDc7M4FEo" value="" comment="Associated data base key." name="idCourse"/>
+         </UML:BehavioralFeature.parameter>
+        </UML:Operation>
+        <UML:Operation visibility="public" isSpecification="false" isQuery="false" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="Kq6LCT0Mqglq" comment="Returns a list of courses with the chosen name." name="findName">
+         <UML:BehavioralFeature.parameter>
+          <UML:Parameter kind="return" xmi.id="gnyZzX8kmakD" type="FtEhJUJgZeKq"/>
+          <UML:Parameter visibility="private" isSpecification="false" xmi.id="IJzZ3U9Jd7qu" type="D24c908A7qNN" value="" comment="Complete name of a discipline." name="name"/>
+         </UML:BehavioralFeature.parameter>
+        </UML:Operation>
+        <UML:Operation visibility="public" isSpecification="false" isQuery="false" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="CwKx1yVNpz1G" comment="Removes an offer with the chosen id from the list offers." name="removeOfferById">
+         <UML:BehavioralFeature.parameter>
+          <UML:Parameter visibility="private" isSpecification="false" xmi.id="s5h16NH80be5" type="XgxsDc7M4FEo" value="" comment="The id of the offer chosen to be removed from this course." name="idOffer"/>
+         </UML:BehavioralFeature.parameter>
+        </UML:Operation>
+        <UML:Operation visibility="public" isSpecification="false" isQuery="false" isAbstract="false" isLeaf="false" ownerScope="classifier" isRoot="false" xmi.id="8tk1EVBEpzVr" comment="Static function. Receives a list of offers and returns the name associated with this set. Ex. Fisica IV (T)[professor's name]." name="specifyDiscipline">
+         <UML:BehavioralFeature.parameter>
+          <UML:Parameter kind="return" xmi.id="7GdBdWhFxqny" type="D24c908A7qNN"/>
+          <UML:Parameter visibility="private" isSpecification="false" xmi.id="4ZstCMR0ZEE8" type="ETo5X3bl522W" value="" comment="List of offers" name="offers"/>
+         </UML:BehavioralFeature.parameter>
+        </UML:Operation>
+        <UML:Operation visibility="public" isSpecification="false" isQuery="false" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="A2BzlQ8lZkHu" comment="Fills the object's list of offers using parameters practical ,professor and teaching period; plus the number of parameter may change." name="fillOffers">
+         <UML:BehavioralFeature.parameter>
+          <UML:Parameter visibility="private" isSpecification="false" xmi.id="fKUuQbN9e8M6" type="rmBGvkcQRXIc" value="" comment="True if the chosen offers are practical, False otherwise." name="practical"/>
+          <UML:Parameter visibility="private" isSpecification="false" xmi.id="wuTKv6JaOnSp" type="4g86aeAB2dvE" value="" comment="The professor of the chosen offers" name="professor"/>
+          <UML:Parameter visibility="private" isSpecification="false" xmi.id="v93iK83hubBR" type="J8Mt6F9CkV4k" value="" comment="the time Period of the offers chosen" name="timePeriod"/>
+         </UML:BehavioralFeature.parameter>
+        </UML:Operation>
+       </UML:Classifier.feature>
+      </UML:Class>
       <UML:Class visibility="public" isSpecification="false" namespace="Logical View" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="8Bqy8oSJzvMH" name="LOST_8Bqy8oSJzvMH"/>
       <UML:Class visibility="public" isSpecification="false" namespace="Logical View" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="rqc552Cex6IS" comment="It is the group of disciplines that belongs to a curriculum's term." name="IdealTerm">
        <UML:Classifier.feature>
         <UML:Attribute visibility="public" isSpecification="false" xmi.id="O5aDfgIfqxau" type="XgxsDc7M4FEo" comment="Associated data base key." name="idCurriculum"/>
         <UML:Attribute visibility="public" isSpecification="false" xmi.id="xK2ei5FvktCP" type="XgxsDc7M4FEo" comment="The term (number of the curriculum's semester or  quadmester) of the relation.&#xa;" name="term"/>
-        <UML:Attribute visibility="public" isSpecification="false" xmi.id="9xbMz8FpJgCO" type="e5m0Ovcc85P8" comment="List of disciplines that belong to this relation.&#xa;" name="disciplines"/>
-        <UML:Attribute visibility="public" isSpecification="false" xmi.id="3wIKfMYS9tcp" type="rmBGvkcQRXIc" comment="Boolean that means True if the disciplines's list are mandatory or False if if the discilpines's list are all optative. &#xa;&#xa;" name="mandatory"/>
+        <UML:Attribute visibility="public" isSpecification="false" xmi.id="9xbMz8FpJgCO" type="e5m0Ovcc85P8" comment="List of course that belong to this relation.&#xa;" name="course"/>
+        <UML:Attribute visibility="public" isSpecification="false" xmi.id="3wIKfMYS9tcp" type="XgxsDc7M4FEo" comment="It says if the course is mandatory, elective or free elective." name="requisitionType"/>
+        <UML:Attribute visibility="public" isSpecification="false" xmi.id="aOc8QrfAeiPl" type="D24c908A7qNN" comment="Date of start of this ideal term , in the form year-month-day “xxxx-xx-xx”. Start is defined as the start of the ideal term in this University. " name="startDate "/>
+        <UML:Attribute visibility="public" isSpecification="false" xmi.id="Vmi4Idku5KIh" type="D24c908A7qNN" comment="Date of the end of this ideal term, in the form year-month-day “xxxx-xx-xx”. It's value is null if the ideal term is not over. Over is defined as the last time this ideal term was given in this University." name="endDate"/>
         <UML:Operation visibility="public" isSpecification="false" isQuery="false" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="RuVobcmAzjHC" comment="Constructor method." name="__init__">
          <UML:BehavioralFeature.parameter>
-          <UML:Parameter visibility="private" isSpecification="false" xmi.id="0eCHm4E5j18u" type="XgxsDc7M4FEo" value="" comment="Associated data base key." name="idCurriculum"/>
-          <UML:Parameter visibility="private" isSpecification="false" xmi.id="8DSoyGSzsdGf" type="XgxsDc7M4FEo" value="" name="term"/>
+          <UML:Parameter visibility="private" isSpecification="false" xmi.id="ffy7zVqAPOEA" type="XgxsDc7M4FEo" value="" comment="Associated data base key." name="idCurriculum"/>
+          <UML:Parameter visibility="private" isSpecification="false" xmi.id="Bwa5kfjDe4EV" type="XgxsDc7M4FEo" value="" comment="Term of the ideal term." name="term"/>
          </UML:BehavioralFeature.parameter>
         </UML:Operation>
-        <UML:Operation visibility="public" isSpecification="false" isQuery="false" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="mPHa6EHiT8kI" comment="Adds disciplines to a relation." name="addDiscipline">
+        <UML:Operation visibility="public" isSpecification="false" isQuery="false" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="mPHa6EHiT8kI" comment="Adds courses to a relation." name="addCourse">
          <UML:BehavioralFeature.parameter>
-          <UML:Parameter visibility="private" isSpecification="false" xmi.id="rvCdPbK6pGCg" type="e5m0Ovcc85P8" value="" comment="Disciplines's list to be added to the relation." name="disciplines"/>
+          <UML:Parameter visibility="private" isSpecification="false" xmi.id="782TWdO5fZFs" type="1rfis01pUKFk" value="" comment="Disciplines's list to be added to the relation." name="course"/>
          </UML:BehavioralFeature.parameter>
         </UML:Operation>
-        <UML:Operation visibility="public" isSpecification="false" isQuery="false" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="yxQ4fgBAP1qH" comment="Saves or alters rel_curriculo_disciplina in the data base and returns True if it works, and False if it does not work." name="store">
+        <UML:Operation visibility="public" isSpecification="false" isQuery="false" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="yxQ4fgBAP1qH" comment="Saves or alters rel_curriculum_course in the data base and returns True if it works, and False if it does not work." name="store">
          <UML:BehavioralFeature.parameter>
           <UML:Parameter kind="return" xmi.id="O37upR0KFfps" type="rmBGvkcQRXIc"/>
          </UML:BehavioralFeature.parameter>
         </UML:Operation>
-        <UML:Operation visibility="public" isSpecification="false" isQuery="false" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="0hs9WKwPBIAf" comment="Removes a discipline from its list." name="removeDiscipline">
+        <UML:Operation visibility="public" isSpecification="false" isQuery="false" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="0hs9WKwPBIAf" comment="Removes a course from its list." name="removeCourse">
          <UML:BehavioralFeature.parameter>
           <UML:Parameter kind="return" xmi.id="axrg3cfHpVoE" type="rmBGvkcQRXIc"/>
-          <UML:Parameter visibility="private" isSpecification="false" xmi.id="xjzOgo0CyE3F" type="FtEhJUJgZeKq" value="" comment="Discipline to be removed.&#xa;" name="discipline"/>
+          <UML:Parameter visibility="private" isSpecification="false" xmi.id="oOgaV6zdD16j" type="FtEhJUJgZeKq" value="" comment="Course to be removed.&#xa;" name="course"/>
          </UML:BehavioralFeature.parameter>
         </UML:Operation>
-        <UML:Operation visibility="public" isSpecification="false" isQuery="false" isAbstract="false" isLeaf="false" ownerScope="classifier" isRoot="false" xmi.id="KzSzSJmYC51c" comment="Returns a list of ideal term from a curriculum with a compulsory or optative disciplines's list.&#xa;" name="findByCurriculumMandatory">
+        <UML:Operation visibility="public" isSpecification="false" isQuery="false" isAbstract="false" isLeaf="false" ownerScope="classifier" isRoot="false" xmi.id="KzSzSJmYC51c" comment="Returns a list of ideal term from a curriculum with a compulsory or optative courses's list.&#xa;" name="findByCurriculumRequisitionType">
          <UML:BehavioralFeature.parameter>
-          <UML:Parameter visibility="private" isSpecification="false" xmi.id="aSiFHzAOy9nn" type="Xfx7y78lzEEq" value="" comment="Curriculum to which belongs the ideal time period.&#xa;" name="curriculum"/>
-          <UML:Parameter visibility="private" isSpecification="false" xmi.id="90yRrPImxX1F" type="rmBGvkcQRXIc" value="" comment="Boolean that means True if the list's disciplines are mandatory or False if if the list's disciplines are all optative. &#xa;" name="mandatory"/>
+          <UML:Parameter visibility="private" isSpecification="false" xmi.id="YvRgrF4VnYZl" type="Xfx7y78lzEEq" value="" comment="Curriculum to which belongs the ideal term.&#xa;" name="curriculum"/>
+          <UML:Parameter visibility="private" isSpecification="false" xmi.id="Y4idAVEBjT18" type="XgxsDc7M4FEo" value="" comment="It says if the course is mandatory, elective or free elective." name="requisitionType"/>
          </UML:BehavioralFeature.parameter>
         </UML:Operation>
-        <UML:Operation visibility="public" isSpecification="false" isQuery="false" isAbstract="false" isLeaf="false" ownerScope="classifier" isRoot="false" xmi.id="XFKncQ7rLkzV" comment="Returns a curriculum's ideal term with a list of mandatory or optative disciplines." name="pickByCurriculumMandatoryTerm">
+        <UML:Operation visibility="public" isSpecification="false" isQuery="false" isAbstract="false" isLeaf="false" ownerScope="classifier" isRoot="false" xmi.id="XFKncQ7rLkzV" comment="Returns a curriculum's ideal term with a list of mandatory or elective courses." name="pickByCurriculumRequisitionTypeTerm">
          <UML:BehavioralFeature.parameter>
           <UML:Parameter kind="return" xmi.id="uwm1JNo19KCb" type="rqc552Cex6IS"/>
-          <UML:Parameter visibility="private" isSpecification="false" xmi.id="ysmVAol07MxS" type="Xfx7y78lzEEq" value="" comment="Curriculum to which the ideal time period belongs." name="curriculum"/>
-          <UML:Parameter visibility="private" isSpecification="false" xmi.id="Aqdchmwefg9n" type="rmBGvkcQRXIc" value="" comment="Boolean that means True if the list's disciplines are compulsory or False if if the list's disciplines are all optative. " name="mandatory"/>
-          <UML:Parameter visibility="private" isSpecification="false" xmi.id="nJh57I7F6kro" type="XgxsDc7M4FEo" value="" comment="Term to which the ideal time period belongs." name="term"/>
+          <UML:Parameter visibility="private" isSpecification="false" xmi.id="zc5fDG8PRprR" type="Xfx7y78lzEEq" value="" comment="Curriculum to which the ideal term belongs." name="curriculum"/>
+          <UML:Parameter visibility="private" isSpecification="false" xmi.id="qP7WcLmJcc7Q" type="D24c908A7qNN" value="" comment="It says if the course is mandatory, elective or free elective." name="requisitionType"/>
+          <UML:Parameter visibility="private" isSpecification="false" xmi.id="EFhJqqq75RMI" type="XgxsDc7M4FEo" value="" comment="Term to which the ideal term belongs." name="term"/>
          </UML:BehavioralFeature.parameter>
         </UML:Operation>
-        <UML:Operation visibility="public" isSpecification="false" isQuery="false" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="17BXo5Ta7mvt" comment="Fill the list of disciplines from the ideal time period." name="preencherDisciplinas">
+        <UML:Operation visibility="public" isSpecification="false" isQuery="false" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="17BXo5Ta7mvt" comment="Fill the list of courses from the ideal term." name="preencherDisciplinas">
          <UML:BehavioralFeature.parameter>
           <UML:Parameter kind="return" xmi.id="n4slemUbJudR" type="rmBGvkcQRXIc"/>
          </UML:BehavioralFeature.parameter>
@@ -247,11 +332,11 @@
        <UML:Classifier.feature>
         <UML:Attribute visibility="public" isSpecification="false" xmi.id="G9Aty3Stu8wU" type="XgxsDc7M4FEo" comment="Associated data base key." name="idCurriculum"/>
         <UML:Attribute visibility="public" isSpecification="false" xmi.id="0W7xTOuPpGRL" type="D24c908A7qNN" comment="Curriculum's name." name="name"/>
-        <UML:Attribute visibility="public" isSpecification="false" xmi.id="jPTdLW3FOBBs" type="D24c908A7qNN" comment="Date of start of this course, in the form year-month-day “xxxx-xx-xx”. Start is defined as the start of the curriculum in this University. " name="startDate"/>
+        <UML:Attribute visibility="public" isSpecification="false" xmi.id="jPTdLW3FOBBs" type="D24c908A7qNN" comment="Date of start of this curriculum, in the form year-month-day “xxxx-xx-xx”. Start is defined as the start of the curriculum in this University. " name="startDate"/>
         <UML:Attribute visibility="public" isSpecification="false" xmi.id="ACLeJI5fBVUR" type="D24c908A7qNN" comment="Date of the end of this curriculum, in the form year-month-day “xxxx-xx-xx”. It's value is null if the curriculum is not over. Over is defined as the last time this curriculum was given in this University." name="endDate"/>
         <UML:Attribute visibility="public" isSpecification="false" xmi.id="8eZZFu3I9RRJ" type="D24c908A7qNN" comment="It represents the type of curriculum, (e.g general area, basic cycle ...)." name="curriculumType"/>
-        <UML:Attribute visibility="public" isSpecification="false" xmi.id="X03oG9TRcwsY" type="XgxsDc7M4FEo" comment="The code representing the curriculum" name="curriculumCode"/>
-        <UML:Attribute visibility="public" isSpecification="false" xmi.id="LY6gCVBCXxTe" type="D24c908A7qNN" comment="String representing the time period division (&quot;quarter&quot; or &quot;semester&quot;)" name="termLenght"/>
+        <UML:Attribute visibility="public" isSpecification="false" xmi.id="X03oG9TRcwsY" type="XgxsDc7M4FEo" comment="código da habilitação (vide júpiter)" name="codHab"/>
+        <UML:Attribute visibility="public" isSpecification="false" xmi.id="LY6gCVBCXxTe" type="D24c908A7qNN" comment="String representing the time period division (&quot;quarter&quot; or &quot;semester&quot;)" name="timePeriodType"/>
         <UML:Attribute visibility="public" isSpecification="false" xmi.id="D2owyL8s4FbB" type="u8Gevsq0N1sX" comment="The curriculum's faculty. " name="faculty"/>
         <UML:Attribute visibility="public" isSpecification="false" xmi.id="gXzRPnQ9I5W4" type="UjwX4TYrXjC5" comment="List of Idealterm where each one contains a set of mandatory courses of this curriculum." name="mandatoryIdealTerms"/>
         <UML:Attribute visibility="public" isSpecification="false" xmi.id="vk5OybkOLios" type="UjwX4TYrXjC5" comment="List of IdealTerm where each one contains a set of elective courses of this curriculum." name="electiveIdealTerms"/>
@@ -260,8 +345,8 @@
          <UML:BehavioralFeature.parameter>
           <UML:Parameter visibility="private" isSpecification="false" xmi.id="z0VkHwqPTSAS" type="D24c908A7qNN" value="" comment="Curriculum's name" name="name"/>
           <UML:Parameter visibility="private" isSpecification="false" xmi.id="h33h4XRLRHis" type="D24c908A7qNN" value="" comment="It represents the type of curriculum, (e.g general area, basic cycle,... )." name="curriculumType"/>
-          <UML:Parameter visibility="private" isSpecification="false" xmi.id="zYnuWlANFTuy" type="XgxsDc7M4FEo" value="" comment="The code representing the curriculum" name="curriculumCode"/>
-          <UML:Parameter visibility="private" isSpecification="false" xmi.id="rUJZkFD7Pyvc" type="D24c908A7qNN" value="" comment="String representing the period division (&quot;quarter&quot; or &quot;semester&quot;)." name="termLenght"/>
+          <UML:Parameter visibility="private" isSpecification="false" xmi.id="DcWDWaoDepug" type="D24c908A7qNN" value="" comment="codigo da habilitação (vide jupiter)" name="codHab"/>
+          <UML:Parameter visibility="private" isSpecification="false" xmi.id="VgqEjud52bN1" type="D24c908A7qNN" value="" comment="String representing the period division (&quot;quarter&quot; or &quot;semester&quot;)." name="timePeriodType"/>
           <UML:Parameter visibility="private" isSpecification="false" xmi.id="NyZSGSYU4UMu" type="u8Gevsq0N1sX" value="" comment="The curriculum's faculty. " name="faculty"/>
          </UML:BehavioralFeature.parameter>
         </UML:Operation>
@@ -278,7 +363,7 @@
         </UML:Operation>
         <UML:Operation visibility="public" isSpecification="false" isQuery="false" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="PSlwg1XjA46S" comment="Returns a list of curricula that belong to the chosen faculty." name="filterFaculty">
          <UML:BehavioralFeature.parameter>
-          <UML:Parameter kind="return" xmi.id="" type="u8Gevsq0N1sX"/>
+          <UML:Parameter kind="return" xmi.id="" type="RdkNEEn67bRe"/>
           <UML:Parameter visibility="private" isSpecification="false" xmi.id="iFvQPMIAYUT2" type="u8Gevsq0N1sX" value="" comment="The wanted faculty." name="faculty"/>
          </UML:BehavioralFeature.parameter>
         </UML:Operation>
@@ -646,7 +731,7 @@
         <UML:Attribute visibility="public" isSpecification="false" xmi.id="yYJC7VyMWSs7" type="rmBGvkcQRXIc" comment="It's true if this offer is a practical class, and false if it is a theoretical class" name="practical"/>
         <UML:Attribute visibility="public" isSpecification="false" xmi.id="Xjyd3Zd8E44A" type="FtEhJUJgZeKq" comment="the course related to this offer" name="course"/>
         <UML:Attribute visibility="public" isSpecification="false" xmi.id="UwJa8MfI3Tb0" type="J8Mt6F9CkV4k" comment="the time period related to this offer" name="timePeriod"/>
-        <UML:Attribute visibility="public" isSpecification="false" xmi.id="fJBoaspCAnIi" type="XgxsDc7M4FEo" comment="the number of max students allowed in this offer" name="numberOfRegistrations"/>
+        <UML:Attribute visibility="public" isSpecification="false" xmi.id="fJBoaspCAnIi" type="XgxsDc7M4FEo" comment="the number of max students allowed in this offer" name="numberOfRegistration"/>
         <UML:Operation visibility="public" isSpecification="false" isQuery="false" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="QT0oYQBGu5XV" comment="search an offer with the same id as the value of the parameter idOffer.&#xa;&#xa;Return: one object of the class Offer if successful or none, if unsuccessful" name="pickById">
          <UML:BehavioralFeature.parameter>
           <UML:Parameter kind="return" xmi.id="d9fxukhriYGb" type="iYb80gczGsi4"/>
@@ -660,14 +745,14 @@
           <UML:Parameter visibility="private" isSpecification="false" xmi.id="KVpfVezJp9gA" type="J8Mt6F9CkV4k" value="" comment="the time period related to this offers you are searching for" name="timePeriod"/>
          </UML:BehavioralFeature.parameter>
         </UML:Operation>
-        <UML:Operation visibility="public" isSpecification="false" isQuery="false" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="pYdPCcydw5lG" comment="To create an offer you need a time period, a course, a college class number, specify if it's a practical class or not, a professor responsable for this offer and the number of registrations. If the number of registrations is not important" name="__init__">
+        <UML:Operation visibility="public" isSpecification="false" isQuery="false" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="pYdPCcydw5lG" comment="To create an offer you need a time period, a course, a college class number, specify if it's a practical class or not, a professor responsable for this offer and the number of registration. If the number of registration is not important" name="__init__">
          <UML:BehavioralFeature.parameter>
           <UML:Parameter visibility="private" isSpecification="false" xmi.id="loDESCXFMDPH" type="J8Mt6F9CkV4k" value="" comment="the offer's time period " name="timePeriod"/>
           <UML:Parameter visibility="private" isSpecification="false" xmi.id="tYlNIlzDg1Fx" type="FtEhJUJgZeKq" value="" comment="the offer's course" name="course"/>
           <UML:Parameter visibility="private" isSpecification="false" xmi.id="IjiEFT0UDShw" type="XgxsDc7M4FEo" value="" comment="The college class's number of the offer" name="classNumber"/>
           <UML:Parameter visibility="private" isSpecification="false" xmi.id="RKoZIHrQxyA7" type="rmBGvkcQRXIc" value="" comment="It's true if the offer is a practical class, and false if it is a theoretical class" name="pratica"/>
           <UML:Parameter visibility="private" isSpecification="false" xmi.id="HmSDjGsAvabk" type="4g86aeAB2dvE" value="" comment="the professor responsable for this offer" name="professor"/>
-          <UML:Parameter visibility="private" isSpecification="false" xmi.id="0EoEkGVPncmT" type="XgxsDc7M4FEo" value="" comment="the number of max students allowed in this offer" name="numberOfRegistrations"/>
+          <UML:Parameter visibility="private" isSpecification="false" xmi.id="Y4pA7pBj3vY2" type="XgxsDc7M4FEo" value="" comment="the number of max students allowed in this offer" name="numberOfRegistration"/>
          </UML:BehavioralFeature.parameter>
         </UML:Operation>
         <UML:Operation visibility="public" isSpecification="false" isQuery="false" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="EmymNZ2tjllV" comment="associate a new professor with the offer" name="setProfessor">
@@ -687,109 +772,26 @@
         </UML:Operation>
        </UML:Classifier.feature>
       </UML:Class>
-      <UML:Class visibility="public" isSpecification="false" namespace="Logical View" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="FtEhJUJgZeKq" comment="Representation of a course in the data base." name="Course">
-       <UML:Classifier.feature>
-        <UML:Attribute visibility="public" isSpecification="false" xmi.id="GKmKJpbQNpkd" type="XgxsDc7M4FEo" comment="Associated data base key." name="idCourse"/>
-        <UML:Attribute visibility="public" isSpecification="false" xmi.id="bc0DuqR28FQa" type="D24c908A7qNN" comment="7 character code that represents the course." name="courseCode"/>
-        <UML:Attribute visibility="public" isSpecification="false" xmi.id="RqBB8SzjsMXb" type="D24c908A7qNN" comment="Abbreviation of the course's name." name="abbreviation"/>
-        <UML:Attribute visibility="public" isSpecification="false" xmi.id="FA1rk14epUhx" type="D24c908A7qNN" comment="Complete name of a course" name="name"/>
-        <UML:Attribute visibility="public" isSpecification="false" xmi.id="h5VYWLigSAfB" type="ETo5X3bl522W" comment="List of offers associated with this course." name="offers"/>
-        <UML:Attribute visibility="public" isSpecification="false" xmi.id="OvbMIAILMDJh" type="D24c908A7qNN" comment="Date of start of this course, in the form year-month-day “xxxx-xx-xx”. Start is defined as the start of the course in general, not only in this year, but the first time it was given in this University. " name="startDate"/>
-        <UML:Attribute visibility="public" isSpecification="false" xmi.id="JWCb6224d6ld" type="D24c908A7qNN" comment="Date of the end of this course, in the form year-month-day “xxxx-xx-xx”. Its value is null if the course is not over. Over is defined as the last time this discipline was given in this University" name="endDate"/>
-        <UML:Attribute visibility="public" isSpecification="false" xmi.id="qoWL09E5WPeO" type="D24c908A7qNN" name="syllabus"/>
-        <UML:Operation visibility="public" isSpecification="false" isQuery="false" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="rrCmv93mIHyI" name="findCourseCode">
-         <UML:BehavioralFeature.parameter>
-          <UML:Parameter kind="return" xmi.id="t2dvU0FuMXn5" type="FtEhJUJgZeKq"/>
-          <UML:Parameter visibility="private" isSpecification="false" xmi.id="4TH5OvpJ9Ksv" type="D24c908A7qNN" value="" comment="A 7 character code that represents the course. " name="courseCode"/>
-         </UML:BehavioralFeature.parameter>
-        </UML:Operation>
-        <UML:Operation visibility="public" isSpecification="false" isQuery="false" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="LcHn6nxDhrhT" comment="Returns a course from its course code" name="pickByCourseCode">
-         <UML:BehavioralFeature.parameter>
-          <UML:Parameter kind="return" xmi.id="H4zCtY9GK6Ry" type="FtEhJUJgZeKq"/>
-          <UML:Parameter visibility="private" isSpecification="false" xmi.id="mBeVD7kJUf6n" type="D24c908A7qNN" value="" comment="A 7 character code that represents the course. " name="courseCode"/>
-         </UML:BehavioralFeature.parameter>
-        </UML:Operation>
-        <UML:Operation visibility="public" isSpecification="false" isQuery="false" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="pdv6ekm7Zolc" comment="Saves or alters a course in the data base, returns True if it is successful. If the offers list is not empty, alters it in the data base." name="store"/>
-        <UML:Operation visibility="public" isSpecification="false" isQuery="false" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="NPMd6dDRB6z5" comment="A course is defined by a name and a 7 character code. " name="__init__">
-         <UML:BehavioralFeature.parameter>
-          <UML:Parameter visibility="private" isSpecification="false" xmi.id="PRNQGMjySdYO" type="D24c908A7qNN" value="" comment="A 7 character code that represents the course." name="courseCode"/>
-          <UML:Parameter visibility="private" isSpecification="false" xmi.id="QXJJDtqaKDyY" type="D24c908A7qNN" value="" comment="Complete name of a discipline." name="name"/>
-         </UML:BehavioralFeature.parameter>
-        </UML:Operation>
-        <UML:Operation visibility="public" isSpecification="false" isQuery="false" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="8NBOSOcBVs8Y" comment="Set the endDate of this course ." name="setEndDate">
-         <UML:BehavioralFeature.parameter>
-          <UML:Parameter kind="return" xmi.id="1NyyNHp1Tyi6" type="D24c908A7qNN"/>
-          <UML:Parameter visibility="private" isSpecification="false" xmi.id="7cNjlmE55Pwv" type="D24c908A7qNN" value="" comment="String that defines the end  date of this course, in the form year-month-day “xxxx-xx-xx”." name="endDate"/>
-         </UML:BehavioralFeature.parameter>
-        </UML:Operation>
-        <UML:Operation visibility="public" isSpecification="false" isQuery="false" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="Pp4Pw0FCIDo1" comment="Set the abbreviation of this course." name="setAbbreviation">
-         <UML:BehavioralFeature.parameter>
-          <UML:Parameter kind="return" xmi.id="CXtNq5UfSVyB" type="D24c908A7qNN"/>
-          <UML:Parameter visibility="private" isSpecification="false" xmi.id="wwFA1AwelBFd" type="D24c908A7qNN" value="" comment="Abbreviation of the course's name." name="abbreviation"/>
-         </UML:BehavioralFeature.parameter>
-        </UML:Operation>
-        <UML:Operation visibility="public" isSpecification="false" isQuery="false" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="Gsqfppsz55o4" comment="Set the startDate of this course ." name="setStartDate">
-         <UML:BehavioralFeature.parameter>
-          <UML:Parameter visibility="private" isSpecification="false" xmi.id="3aH0WUAVf59Q" type="D24c908A7qNN" value="" comment="String that defines the creation date of this course, in the form year-month-day “xxxx-xx-xx”." name="startDate"/>
-         </UML:BehavioralFeature.parameter>
-        </UML:Operation>
-        <UML:Operation visibility="public" isSpecification="false" isQuery="false" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="2b1jEBEZLsZU" comment="Adds a set of offers to this course." name="addOffers">
-         <UML:BehavioralFeature.parameter>
-          <UML:Parameter kind="return" xmi.id="PkQsyYhQbBHb" type="rmBGvkcQRXIc"/>
-          <UML:Parameter visibility="private" isSpecification="false" xmi.id="PKWFnDX6jaOj" type="ETo5X3bl522W" value="" comment="List of offers to be associated to this course." name="offers"/>
-         </UML:BehavioralFeature.parameter>
-        </UML:Operation>
-        <UML:Operation visibility="public" isSpecification="false" isQuery="false" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="81MPhCOgQ0dJ" comment="Returns a single course with the chosen ID." name="pickById">
-         <UML:BehavioralFeature.parameter>
-          <UML:Parameter kind="return" xmi.id="u3zHtBEC0KXA" type="XgxsDc7M4FEo"/>
-          <UML:Parameter visibility="private" isSpecification="false" xmi.id="1LdW8OSME0f9" type="XgxsDc7M4FEo" value="" comment="Associated data base key." name="idCourse"/>
-         </UML:BehavioralFeature.parameter>
-        </UML:Operation>
-        <UML:Operation visibility="public" isSpecification="false" isQuery="false" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="Kq6LCT0Mqglq" comment="Returns a list of courses with the chosen name." name="findName">
-         <UML:BehavioralFeature.parameter>
-          <UML:Parameter kind="return" xmi.id="gnyZzX8kmakD" type="FtEhJUJgZeKq"/>
-          <UML:Parameter visibility="private" isSpecification="false" xmi.id="VQZiWZTXv441" type="D24c908A7qNN" value="" comment="Complete name of a discipline." name="name"/>
-         </UML:BehavioralFeature.parameter>
-        </UML:Operation>
-        <UML:Operation visibility="public" isSpecification="false" isQuery="false" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="CwKx1yVNpz1G" comment="Removes an offer with the chosen id from the list offers." name="removeOfferById">
-         <UML:BehavioralFeature.parameter>
-          <UML:Parameter visibility="private" isSpecification="false" xmi.id="L72ivYoUvR0R" type="XgxsDc7M4FEo" value="" comment="The id of the offer chosen to be removed from this course." name="idOffer"/>
-         </UML:BehavioralFeature.parameter>
-        </UML:Operation>
-        <UML:Operation visibility="public" isSpecification="false" isQuery="false" isAbstract="false" isLeaf="false" ownerScope="classifier" isRoot="false" xmi.id="8tk1EVBEpzVr" comment="Static function. Receives a list of offers and returns the name associated with this set. Ex. Fisica IV (T)[professor's name]." name="specifyDiscipline">
-         <UML:BehavioralFeature.parameter>
-          <UML:Parameter kind="return" xmi.id="7GdBdWhFxqny" type="D24c908A7qNN"/>
-          <UML:Parameter visibility="private" isSpecification="false" xmi.id="bNfXY4uqYAbl" type="ETo5X3bl522W" value="" comment="List of offers" name="offers"/>
-         </UML:BehavioralFeature.parameter>
-        </UML:Operation>
-        <UML:Operation visibility="public" isSpecification="false" isQuery="false" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="A2BzlQ8lZkHu" comment="Fills the object's list of offers using parameters practical ,professor and teaching period; plus the number of parameter may change." name="fillOffers">
-         <UML:BehavioralFeature.parameter>
-          <UML:Parameter visibility="private" isSpecification="false" xmi.id="cAv8fs1WX3xz" type="rmBGvkcQRXIc" value="" comment="True if the chosen offers are practical, False otherwise." name="practical"/>
-          <UML:Parameter visibility="private" isSpecification="false" xmi.id="pnzWZd8Bl3JP" type="4g86aeAB2dvE" value="" comment="The professor of the chosen offers" name="professor"/>
-          <UML:Parameter visibility="private" isSpecification="false" xmi.id="96sSjILW3I0c" type="J8Mt6F9CkV4k" value="" comment="the time Period of the offers chosen" name="timePeriod"/>
-         </UML:BehavioralFeature.parameter>
-        </UML:Operation>
-       </UML:Classifier.feature>
-      </UML:Class>
+      <UML:Class visibility="public" isSpecification="false" namespace="Logical View" isAbstract="false" isLeaf="false" isRoot="false" xmi.id="1rfis01pUKFk" name="Course[]"/>
      </UML:Namespace.ownedElement>
      <XMI.extension xmi.extender="umbrello">
       <diagrams>
-       <diagram showopsig="1" linecolor="#000080" snapx="10" showattribassocs="1" snapy="10" linewidth="0" showattsig="1" isopen="1" showpackage="1" showpubliconly="1" showstereotype="1" name="class diagram" font="Sans Serif,9,-1,0,50,0,0,0,0,0" canvasheight="1012" canvaswidth="2433" localid="-1" snapcsgrid="0" showgrid="0" showops="1" griddotcolor="#a0a0a4" backgroundcolor="#c3c3c3" usefillcolor="1" fillcolor="#add2fd" zoom="104" xmi.id="HX9CSe2jSKEc" documentation="" showscope="1" snapgrid="0" showatts="1" type="1">
+       <diagram showopsig="1" linecolor="#000080" snapx="10" showattribassocs="1" snapy="10" linewidth="0" showattsig="1" isopen="1" showpackage="1" showpubliconly="1" showstereotype="1" name="class diagram" font="Sans Serif,9,-1,0,50,0,0,0,0,0" canvasheight="1012" canvaswidth="2433" localid="-1" snapcsgrid="0" showgrid="0" showops="1" griddotcolor="#a0a0a4" backgroundcolor="#c3c3c3" usefillcolor="1" fillcolor="#add2fd" zoom="100" xmi.id="HX9CSe2jSKEc" documentation="" showscope="1" snapgrid="0" showatts="1" type="1">
         <widgets>
          <classwidget linecolor="#000080" usesdiagramfillcolor="0" linewidth="none" showoperations="1" usesdiagramusefillcolor="0" showpubliconly="1" showpackage="1" x="1400" showattsigs="601" showstereotype="1" y="896" showattributes="1" font="Sans Serif,9,-1,0,75,0,0,0,0,0" width="248" isinstance="0" usefillcolor="1" fillcolor="#add2fd" xmi.id="4g86aeAB2dvE" showscope="1" height="112" showopsigs="601"/>
          <classwidget linecolor="#000080" usesdiagramfillcolor="0" linewidth="none" showoperations="1" usesdiagramusefillcolor="0" showpubliconly="1" showpackage="1" x="60" showattsigs="601" showstereotype="1" y="568" showattributes="1" font="Sans Serif,9,-1,0,75,0,0,0,0,0" width="338" isinstance="0" usefillcolor="1" fillcolor="#add2fd" xmi.id="YMFgx5BC7EhW" showscope="1" height="112" showopsigs="601"/>
          <classwidget linecolor="#000080" usesdiagramfillcolor="0" linewidth="none" showoperations="1" usesdiagramusefillcolor="0" showpubliconly="1" showpackage="1" x="81" showattsigs="601" showstereotype="1" y="327" showattributes="1" font="Sans Serif,9,-1,0,75,0,0,0,0,0" width="361" isinstance="0" usefillcolor="1" fillcolor="#add2fd" xmi.id="a8m5M50oqmDt" showscope="1" height="140" showopsigs="601"/>
          <classwidget linecolor="#000080" usesdiagramfillcolor="0" linewidth="none" showoperations="1" usesdiagramusefillcolor="0" showpubliconly="1" showpackage="1" x="73" showattsigs="601" showstereotype="1" y="107" showattributes="1" font="Sans Serif,9,-1,0,75,0,0,0,0,0" width="611" isinstance="0" usefillcolor="1" fillcolor="#add2fd" xmi.id="3VJvqGk8BzkR" showscope="1" height="140" showopsigs="601"/>
-         <classwidget linecolor="#000080" usesdiagramfillcolor="0" linewidth="none" showoperations="1" usesdiagramusefillcolor="0" showpubliconly="1" showpackage="1" x="916" showattsigs="601" showstereotype="1" y="9" showattributes="1" font="Sans Serif,9,-1,5,75,0,0,0,0,0" width="658" isinstance="0" usefillcolor="1" fillcolor="#add2fd" xmi.id="Xfx7y78lzEEq" showscope="1" height="294" showopsigs="601"/>
+         <classwidget linecolor="#000080" usesdiagramfillcolor="0" linewidth="none" showoperations="1" usesdiagramusefillcolor="0" showpubliconly="1" showpackage="1" x="1629" showattsigs="601" showstereotype="1" y="246" showattributes="1" font="Sans Serif,9,-1,5,75,0,0,0,0,0" width="494" isinstance="0" usefillcolor="1" fillcolor="#add2fd" xmi.id="FtEhJUJgZeKq" showscope="1" height="303" showopsigs="601"/>
+         <classwidget linecolor="#000080" usesdiagramfillcolor="0" linewidth="none" showoperations="1" usesdiagramusefillcolor="0" showpubliconly="1" showpackage="1" x="916" showattsigs="601" showstereotype="1" y="9" showattributes="1" font="Sans Serif,9,-1,5,75,0,0,0,0,0" width="650" isinstance="0" usefillcolor="1" fillcolor="#add2fd" xmi.id="Xfx7y78lzEEq" showscope="1" height="294" showopsigs="601"/>
          <classwidget linecolor="#000080" usesdiagramfillcolor="0" linewidth="none" showoperations="1" usesdiagramusefillcolor="0" showpubliconly="1" showpackage="1" x="562" showattsigs="601" showstereotype="1" y="531" showattributes="1" font="Sans Serif,9,-1,5,75,0,0,0,0,0" width="522" isinstance="0" usefillcolor="1" fillcolor="#add2fd" xmi.id="Nvjzd5DpqHuS" showscope="1" height="216" showopsigs="601"/>
-         <classwidget linecolor="#000080" usesdiagramfillcolor="0" linewidth="none" showoperations="1" usesdiagramusefillcolor="0" showpubliconly="1" showpackage="1" x="1701" showattsigs="601" showstereotype="1" y="52" showattributes="1" font="Sans Serif,9,-1,5,75,0,0,0,0,0" width="619" isinstance="0" usefillcolor="1" fillcolor="#add2fd" xmi.id="rqc552Cex6IS" showscope="1" height="168" showopsigs="601"/>
+         <classwidget linecolor="#000080" usesdiagramfillcolor="0" linewidth="none" showoperations="1" usesdiagramusefillcolor="0" showpubliconly="1" showpackage="1" x="1708" showattsigs="601" showstereotype="1" y="21" showattributes="1" font="Sans Serif,9,-1,5,75,0,0,0,0,0" width="682" isinstance="0" usefillcolor="1" fillcolor="#add2fd" xmi.id="rqc552Cex6IS" showscope="1" height="196" showopsigs="601"/>
          <classwidget linecolor="#000080" usesdiagramfillcolor="0" linewidth="none" showoperations="1" usesdiagramusefillcolor="0" showpubliconly="1" showpackage="1" x="2" showattsigs="601" showstereotype="1" y="824" showattributes="1" font="Sans Serif,9,-1,5,75,0,0,0,0,0" width="519" isinstance="0" usefillcolor="1" fillcolor="#add2fd" xmi.id="YwITpSeYzf2y" showscope="1" height="106" showopsigs="601"/>
          <classwidget linecolor="#000080" usesdiagramfillcolor="0" linewidth="none" showoperations="1" usesdiagramusefillcolor="0" showpubliconly="1" showpackage="1" x="1122" showattsigs="601" showstereotype="1" y="818" showattributes="1" font="Sans Serif,9,-1,0,75,0,0,0,0,0" width="166" isinstance="0" usefillcolor="1" fillcolor="#add2fd" xmi.id="FteCMS8LonWM" showscope="1" height="134" showopsigs="601"/>
          <classwidget linecolor="#000080" usesdiagramfillcolor="0" linewidth="none" showoperations="1" usesdiagramusefillcolor="0" showpubliconly="1" showpackage="1" x="561" showattsigs="601" showstereotype="1" y="810" showattributes="1" font="Sans Serif,9,-1,5,75,0,0,0,0,0" width="507" isinstance="0" usefillcolor="1" fillcolor="#add2fd" xmi.id="yoLz9hOxJ5ZM" showscope="1" height="156" showopsigs="601"/>
-         <classwidget linecolor="#000080" usesdiagramfillcolor="0" linewidth="none" showoperations="1" usesdiagramusefillcolor="0" showpubliconly="1" showpackage="1" x="1175" showattsigs="601" showstereotype="1" y="386" showattributes="1" font="Sans Serif,9,-1,5,75,0,0,0,0,0" width="468" isinstance="0" usefillcolor="1" fillcolor="#add2fd" xmi.id="u8Gevsq0N1sX" showscope="1" height="137" showopsigs="601"/>
+         <classwidget linecolor="#000080" usesdiagramfillcolor="0" linewidth="none" showoperations="1" usesdiagramusefillcolor="0" showpubliconly="1" showpackage="1" x="1003" showattsigs="601" showstereotype="1" y="362" showattributes="1" font="Sans Serif,9,-1,5,75,0,0,0,0,0" width="468" isinstance="0" usefillcolor="1" fillcolor="#add2fd" xmi.id="u8Gevsq0N1sX" showscope="1" height="137" showopsigs="601"/>
          <classwidget linecolor="none" usesdiagramfillcolor="1" linewidth="none" showoperations="1" usesdiagramusefillcolor="1" showpubliconly="1" showpackage="1" x="2158" showattsigs="601" showstereotype="1" y="638" showattributes="1" font="Sans Serif,9,-1,0,75,0,0,0,0,0" width="271" isinstance="0" usefillcolor="1" fillcolor="none" xmi.id="J8Mt6F9CkV4k" showscope="1" height="112" showopsigs="601"/>
-         <classwidget linecolor="#000080" usesdiagramfillcolor="0" linewidth="none" showoperations="1" usesdiagramusefillcolor="0" showpubliconly="1" showpackage="1" x="1228" showattsigs="601" showstereotype="1" y="606" showattributes="1" font="Sans Serif,9,-1,5,75,0,0,0,0,0" width="826" isinstance="0" usefillcolor="1" fillcolor="#add2fd" xmi.id="iYb80gczGsi4" showscope="1" height="196" showopsigs="601"/>
-         <classwidget linecolor="none" usesdiagramfillcolor="1" linewidth="none" showoperations="1" usesdiagramusefillcolor="1" showpubliconly="1" showpackage="1" x="1765" showattsigs="601" showstereotype="1" y="259" showattributes="1" font="Sans Serif,9,-1,0,75,0,0,0,0,0" width="456" isinstance="0" usefillcolor="1" fillcolor="none" xmi.id="FtEhJUJgZeKq" showscope="1" height="308" showopsigs="601"/>
+         <classwidget linecolor="#000080" usesdiagramfillcolor="0" linewidth="none" showoperations="1" usesdiagramusefillcolor="0" showpubliconly="1" showpackage="1" x="1228" showattsigs="601" showstereotype="1" y="606" showattributes="1" font="Sans Serif,9,-1,5,75,0,0,0,0,0" width="820" isinstance="0" usefillcolor="1" fillcolor="#add2fd" xmi.id="iYb80gczGsi4" showscope="1" height="196" showopsigs="601"/>
         </widgets>
         <messages/>
         <associations>
@@ -798,20 +800,34 @@
            <startpoint startx="338" starty="467"/>
            <endpoint endx="338" endy="568"/>
           </linepath>
-          <floatingtext linecolor="none" usesdiagramfillcolor="1" linewidth="none" usesdiagramusefillcolor="1" x="336" showstereotype="1" y="509" text="tipoResposta" font="Sans Serif,9,-1,0,50,0,0,0,0,0" pretext="+" role="710" width="95" isinstance="0" posttext="" usefillcolor="1" fillcolor="none" xmi.id="kQ0f9n2S9gkA" height="18"/>
+          <floatingtext linecolor="none" usesdiagramfillcolor="1" linewidth="none" usesdiagramusefillcolor="1" x="336" showstereotype="1" y="509" text="tipoResposta" font="Sans Serif,9,-1,0,50,0,0,0,0,0" pretext="+" role="710" width="95" isinstance="0" posttext="" usefillcolor="1" fillcolor="none" xmi.id="5dJ1wQPQr7DD" height="18"/>
          </assocwidget>
          <assocwidget indexa="1" linecolor="none" indexb="1" usesdiagramfillcolor="1" widgetbid="a8m5M50oqmDt" linewidth="none" usesdiagramusefillcolor="1" totalcounta="4" totalcountb="2" widgetaid="3VJvqGk8BzkR" visibilityA="0" visibilityB="0" usefillcolor="1" fillcolor="none" changeabilityA="900" xmi.id="7FVExJvQeLpc" changeabilityB="900" type="501">
           <linepath>
            <startpoint startx="361" starty="247"/>
            <endpoint endx="361" endy="327"/>
           </linepath>
-          <floatingtext linecolor="none" usesdiagramfillcolor="1" linewidth="none" usesdiagramusefillcolor="1" x="363" showstereotype="1" y="307" text="0..1" font="Sans Serif,9,-1,0,50,0,0,0,0,0" pretext="" role="702" width="31" isinstance="0" posttext="" usefillcolor="1" fillcolor="none" xmi.id="TgvM7PlrnlUu" height="18"/>
-          <floatingtext linecolor="none" usesdiagramfillcolor="1" linewidth="none" usesdiagramusefillcolor="1" x="280" showstereotype="1" y="307" text="perguntas" font="Sans Serif,9,-1,0,50,0,0,0,0,0" pretext="+" role="710" width="79" isinstance="0" posttext="" usefillcolor="1" fillcolor="none" xmi.id="lmTcS2V5coc3" height="18"/>
+          <floatingtext linecolor="none" usesdiagramfillcolor="1" linewidth="none" usesdiagramusefillcolor="1" x="363" showstereotype="1" y="307" text="0..1" font="Sans Serif,9,-1,0,50,0,0,0,0,0" pretext="" role="702" width="31" isinstance="0" posttext="" usefillcolor="1" fillcolor="none" xmi.id="xYnxYPmd06dw" height="18"/>
+          <floatingtext linecolor="none" usesdiagramfillcolor="1" linewidth="none" usesdiagramusefillcolor="1" x="280" showstereotype="1" y="307" text="perguntas" font="Sans Serif,9,-1,0,50,0,0,0,0,0" pretext="+" role="710" width="79" isinstance="0" posttext="" usefillcolor="1" fillcolor="none" xmi.id="AjCAGopcWIhB" height="18"/>
+         </assocwidget>
+         <assocwidget indexa="1" indexb="1" usesdiagramusefillcolor="1" widgetaid="rqc552Cex6IS" usesdiagramfillcolor="1" fillcolor="none" linecolor="none" totalcounta="3" xmi.id="sn9Jtegv5S3A" widgetbid="FtEhJUJgZeKq" totalcountb="3" type="501" usefillcolor="1" linewidth="none">
+          <linepath>
+           <startpoint startx="1796" starty="217"/>
+           <endpoint endx="1796" endy="246"/>
+          </linepath>
+         </assocwidget>
+         <assocwidget indexa="2" linecolor="none" indexb="2" usesdiagramfillcolor="1" widgetbid="FtEhJUJgZeKq" linewidth="none" usesdiagramusefillcolor="1" totalcounta="3" totalcountb="3" widgetaid="rqc552Cex6IS" visibilityA="0" visibilityB="0" usefillcolor="1" fillcolor="none" changeabilityA="900" xmi.id="9xbMz8FpJgCO" changeabilityB="900" type="501">
+          <linepath>
+           <startpoint startx="1796" starty="217"/>
+           <endpoint endx="1796" endy="246"/>
+          </linepath>
+          <floatingtext linecolor="none" usesdiagramfillcolor="1" linewidth="none" usesdiagramusefillcolor="1" x="1798" showstereotype="1" y="226" text="0..1" font="Sans Serif,9,-1,0,50,0,0,0,0,0" pretext="" role="702" width="31" isinstance="0" posttext="" usefillcolor="1" fillcolor="none" xmi.id="VC71UoCSLyPt" height="18"/>
+          <floatingtext linecolor="none" usesdiagramfillcolor="1" linewidth="none" usesdiagramusefillcolor="1" x="1723" showstereotype="1" y="226" text="course" font="Sans Serif,9,-1,0,50,0,0,0,0,0" pretext="+" role="710" width="58" isinstance="0" posttext="" usefillcolor="1" fillcolor="none" xmi.id="W2KM7YXHHjPV" height="18"/>
          </assocwidget>
          <assocwidget indexa="1" indexb="1" usesdiagramusefillcolor="1" widgetaid="Xfx7y78lzEEq" usesdiagramfillcolor="1" fillcolor="none" linecolor="none" totalcounta="4" xmi.id="12EsXY9AxNls" widgetbid="rqc552Cex6IS" totalcountb="4" type="501" usefillcolor="1" linewidth="none">
           <linepath>
-           <startpoint startx="1574" starty="136"/>
-           <endpoint endx="1701" endy="136"/>
+           <startpoint startx="1566" starty="136"/>
+           <endpoint endx="1708" endy="136"/>
           </linepath>
          </assocwidget>
          <assocwidget indexa="1" indexb="2" usesdiagramusefillcolor="1" widgetaid="Nvjzd5DpqHuS" usesdiagramfillcolor="1" fillcolor="none" linecolor="none" totalcounta="3" xmi.id="qS4j0ijHLNZu" widgetbid="3VJvqGk8BzkR" totalcountb="4" type="501" usefillcolor="1" linewidth="none">
@@ -825,8 +841,8 @@
            <startpoint startx="684" starty="531"/>
            <endpoint endx="684" endy="247"/>
           </linepath>
-          <floatingtext linecolor="none" usesdiagramfillcolor="1" linewidth="none" usesdiagramusefillcolor="1" x="686" showstereotype="1" y="249" text="0..1" font="Sans Serif,9,-1,0,50,0,0,0,0,0" pretext="" role="702" width="31" isinstance="0" posttext="" usefillcolor="1" fillcolor="none" xmi.id="F2MsowvIcocj" height="18"/>
-          <floatingtext linecolor="none" usesdiagramfillcolor="1" linewidth="none" usesdiagramusefillcolor="1" x="583" showstereotype="1" y="249" text="questionarios" font="Sans Serif,9,-1,0,50,0,0,0,0,0" pretext="+" role="710" width="99" isinstance="0" posttext="" usefillcolor="1" fillcolor="none" xmi.id="WXMfB5nwrFWH" height="18"/>
+          <floatingtext linecolor="none" usesdiagramfillcolor="1" linewidth="none" usesdiagramusefillcolor="1" x="686" showstereotype="1" y="249" text="0..1" font="Sans Serif,9,-1,0,50,0,0,0,0,0" pretext="" role="702" width="31" isinstance="0" posttext="" usefillcolor="1" fillcolor="none" xmi.id="8bUPItun50nZ" height="18"/>
+          <floatingtext linecolor="none" usesdiagramfillcolor="1" linewidth="none" usesdiagramusefillcolor="1" x="583" showstereotype="1" y="249" text="questionarios" font="Sans Serif,9,-1,0,50,0,0,0,0,0" pretext="+" role="710" width="99" isinstance="0" posttext="" usefillcolor="1" fillcolor="none" xmi.id="N9VND8Ik8c4F" height="18"/>
          </assocwidget>
          <assocwidget indexa="1" indexb="1" usesdiagramusefillcolor="1" widgetaid="yoLz9hOxJ5ZM" usesdiagramfillcolor="1" fillcolor="none" linecolor="none" totalcounta="2" xmi.id="3qL7ZTMYdXLB" widgetbid="Nvjzd5DpqHuS" totalcountb="2" type="500" usefillcolor="1" linewidth="none">
           <linepath>
@@ -848,45 +864,45 @@
          </assocwidget>
          <assocwidget indexa="2" linecolor="none" indexb="2" usesdiagramfillcolor="1" widgetbid="rqc552Cex6IS" linewidth="none" usesdiagramusefillcolor="1" totalcounta="4" totalcountb="4" widgetaid="Xfx7y78lzEEq" visibilityA="0" visibilityB="0" usefillcolor="1" fillcolor="none" changeabilityA="900" xmi.id="gXzRPnQ9I5W4" changeabilityB="900" type="510">
           <linepath>
-           <startpoint startx="1574" starty="136"/>
-           <endpoint endx="1701" endy="136"/>
+           <startpoint startx="1566" starty="136"/>
+           <endpoint endx="1708" endy="136"/>
           </linepath>
-          <floatingtext linecolor="none" usesdiagramfillcolor="1" linewidth="none" usesdiagramusefillcolor="1" x="1560" showstereotype="1" y="138" text="mandatoryIdealTerms" font="Sans Serif,9,-1,0,50,0,0,0,0,0" pretext="+" role="710" width="148" isinstance="0" posttext="" usefillcolor="1" fillcolor="none" xmi.id="ENYz63uaaEEj" height="18"/>
+          <floatingtext linecolor="none" usesdiagramfillcolor="1" linewidth="none" usesdiagramusefillcolor="1" x="1567" showstereotype="1" y="138" text="mandatoryIdealTerms" font="Sans Serif,9,-1,0,50,0,0,0,0,0" pretext="+" role="710" width="148" isinstance="0" posttext="" usefillcolor="1" fillcolor="none" xmi.id="ozz7xMzIWUgj" height="18"/>
          </assocwidget>
          <assocwidget indexa="3" linecolor="none" indexb="3" usesdiagramfillcolor="1" widgetbid="rqc552Cex6IS" linewidth="none" usesdiagramusefillcolor="1" totalcounta="4" totalcountb="4" widgetaid="Xfx7y78lzEEq" visibilityA="0" visibilityB="0" usefillcolor="1" fillcolor="none" changeabilityA="900" xmi.id="vk5OybkOLios" changeabilityB="900" type="510">
           <linepath>
-           <startpoint startx="1574" starty="136"/>
-           <endpoint endx="1701" endy="136"/>
+           <startpoint startx="1566" starty="136"/>
+           <endpoint endx="1708" endy="136"/>
           </linepath>
-          <floatingtext linecolor="none" usesdiagramfillcolor="1" linewidth="none" usesdiagramusefillcolor="1" x="1572" showstereotype="1" y="114" text="electiveIdealTerms" font="Sans Serif,9,-1,0,50,0,0,0,0,0" pretext="+" role="710" width="130" isinstance="0" posttext="" usefillcolor="1" fillcolor="none" xmi.id="H1g6GCNWEhM1" height="18"/>
+          <floatingtext linecolor="none" usesdiagramfillcolor="1" linewidth="none" usesdiagramusefillcolor="1" x="1579" showstereotype="1" y="114" text="electiveIdealTerms" font="Sans Serif,9,-1,0,50,0,0,0,0,0" pretext="+" role="710" width="130" isinstance="0" posttext="" usefillcolor="1" fillcolor="none" xmi.id="awRiYVvf4P4K" height="18"/>
          </assocwidget>
          <assocwidget indexa="1" linecolor="none" indexb="1" usesdiagramfillcolor="1" widgetbid="u8Gevsq0N1sX" linewidth="none" usesdiagramusefillcolor="1" totalcounta="2" totalcountb="2" widgetaid="Xfx7y78lzEEq" visibilityA="0" visibilityB="0" usefillcolor="1" fillcolor="none" changeabilityA="900" xmi.id="D2owyL8s4FbB" changeabilityB="900" type="510">
           <linepath>
-           <startpoint startx="1468" starty="303"/>
-           <endpoint endx="1468" endy="386"/>
+           <startpoint startx="1248" starty="303"/>
+           <endpoint endx="1248" endy="362"/>
           </linepath>
-          <floatingtext linecolor="none" usesdiagramfillcolor="1" linewidth="none" usesdiagramusefillcolor="1" x="1434" showstereotype="1" y="352" text="faculty" font="Sans Serif,9,-1,0,50,0,0,0,0,0" pretext="+" role="710" width="59" isinstance="0" posttext="" usefillcolor="1" fillcolor="none" xmi.id="eFJE4vyGGUFK" height="18"/>
+          <floatingtext linecolor="none" usesdiagramfillcolor="1" linewidth="none" usesdiagramusefillcolor="1" x="1214" showstereotype="1" y="328" text="faculty" font="Sans Serif,9,-1,0,50,0,0,0,0,0" pretext="+" role="710" width="59" isinstance="0" posttext="" usefillcolor="1" fillcolor="none" xmi.id="Ix6Lvtsjsqpo" height="18"/>
          </assocwidget>
          <assocwidget indexa="1" linecolor="none" indexb="1" usesdiagramfillcolor="0" widgetbid="4g86aeAB2dvE" linewidth="none" usesdiagramusefillcolor="0" totalcounta="2" totalcountb="2" widgetaid="iYb80gczGsi4" visibilityA="0" visibilityB="0" usefillcolor="0" fillcolor="#000000" changeabilityA="900" xmi.id="X8In1yMc6KIh" changeabilityB="900" type="510">
           <linepath>
            <startpoint startx="1400" starty="802"/>
            <endpoint endx="1400" endy="896"/>
           </linepath>
-          <floatingtext linecolor="none" usesdiagramfillcolor="1" linewidth="none" usesdiagramusefillcolor="1" x="1334" showstereotype="1" y="876" text="professor" font="Sans Serif,9,-1,0,50,0,0,0,0,0" pretext="+" role="710" width="74" isinstance="0" posttext="" usefillcolor="1" fillcolor="none" xmi.id="X7u5K8pbATgO" height="18"/>
+          <floatingtext linecolor="none" usesdiagramfillcolor="1" linewidth="none" usesdiagramusefillcolor="1" x="1334" showstereotype="1" y="876" text="professor" font="Sans Serif,9,-1,0,50,0,0,0,0,0" pretext="+" role="710" width="74" isinstance="0" posttext="" usefillcolor="1" fillcolor="none" xmi.id="Co6gGkQqgpWD" height="18"/>
+         </assocwidget>
+         <assocwidget indexa="1" linecolor="none" indexb="1" usesdiagramfillcolor="0" widgetbid="FtEhJUJgZeKq" linewidth="none" usesdiagramusefillcolor="0" totalcounta="2" totalcountb="2" widgetaid="iYb80gczGsi4" visibilityA="0" visibilityB="0" usefillcolor="0" fillcolor="#000000" changeabilityA="900" xmi.id="Xjyd3Zd8E44A" changeabilityB="900" type="510">
+          <linepath>
+           <startpoint startx="1629" starty="606"/>
+           <endpoint endx="1629" endy="549"/>
+          </linepath>
+          <floatingtext linecolor="none" usesdiagramfillcolor="1" linewidth="none" usesdiagramusefillcolor="1" x="1563" showstereotype="1" y="551" text="course" font="Sans Serif,9,-1,0,50,0,0,0,0,0" pretext="+" role="710" width="58" isinstance="0" posttext="" usefillcolor="1" fillcolor="none" xmi.id="JRsLqug6pmRk" height="18"/>
          </assocwidget>
          <assocwidget indexa="1" linecolor="none" indexb="1" usesdiagramfillcolor="0" widgetbid="J8Mt6F9CkV4k" linewidth="none" usesdiagramusefillcolor="0" totalcounta="2" totalcountb="2" widgetaid="iYb80gczGsi4" visibilityA="0" visibilityB="0" usefillcolor="0" fillcolor="#000000" changeabilityA="900" xmi.id="UwJa8MfI3Tb0" changeabilityB="900" type="510">
           <linepath>
-           <startpoint startx="2054" starty="689"/>
+           <startpoint startx="2048" starty="689"/>
            <endpoint endx="2158" endy="689"/>
           </linepath>
-          <floatingtext linecolor="none" usesdiagramfillcolor="1" linewidth="none" usesdiagramusefillcolor="1" x="2064" showstereotype="1" y="692" text="timePeriod" font="Sans Serif,9,-1,0,50,0,0,0,0,0" pretext="+" role="710" width="83" isinstance="0" posttext="" usefillcolor="1" fillcolor="none" xmi.id="d3sqjErLUAZY" height="18"/>
-         </assocwidget>
-         <assocwidget indexa="1" linecolor="none" indexb="1" usesdiagramfillcolor="4" widgetbid="FtEhJUJgZeKq" linewidth="none" usesdiagramusefillcolor="0" totalcounta="2" totalcountb="2" widgetaid="iYb80gczGsi4" visibilityA="0" visibilityB="0" usefillcolor="4" fillcolor="none" changeabilityA="900" xmi.id="Xjyd3Zd8E44A" changeabilityB="900" type="510">
-          <linepath>
-           <startpoint startx="2017" starty="606"/>
-           <endpoint endx="2017" endy="567"/>
-          </linepath>
-          <floatingtext linecolor="none" usesdiagramfillcolor="1" linewidth="none" usesdiagramusefillcolor="1" x="1957" showstereotype="1" y="569" text="course" font="Sans Serif,9,-1,0,50,0,0,0,0,0" pretext="+" role="710" width="58" isinstance="0" posttext="" usefillcolor="1" fillcolor="none" xmi.id="hyw9Fn90Ansf" height="18"/>
+          <floatingtext linecolor="none" usesdiagramfillcolor="1" linewidth="none" usesdiagramusefillcolor="1" x="2064" showstereotype="1" y="692" text="timePeriod" font="Sans Serif,9,-1,0,50,0,0,0,0,0" pretext="+" role="710" width="83" isinstance="0" posttext="" usefillcolor="1" fillcolor="none" xmi.id="fHSV7HHI5OyL" height="18"/>
          </assocwidget>
         </associations>
        </diagram>
@@ -909,7 +925,7 @@
   </UML:Model>
  </XMI.content>
  <XMI.extensions xmi.extender="umbrello">
-  <docsettings viewid="HX9CSe2jSKEc" uniqueid="hyw9Fn90Ansf" documentation=""/>
+  <docsettings viewid="HX9CSe2jSKEc" uniqueid="qP7WcLmJcc7Q" documentation=""/>
   <listview>
    <listitem open="1" type="800" id="Views">
     <listitem open="1" type="821" id="Component View"/>
@@ -917,7 +933,7 @@
     <listitem open="1" type="836" id="Entity Relationship Model"/>
     <listitem open="1" type="801" id="Logical View">
      <listitem open="0" type="807" id="HX9CSe2jSKEc" label="class diagram"/>
-     <listitem open="1" type="813" id="FtEhJUJgZeKq">
+     <listitem open="0" type="813" id="FtEhJUJgZeKq">
       <listitem open="0" type="815" id="NPMd6dDRB6z5"/>
       <listitem open="0" type="814" id="RqBB8SzjsMXb"/>
       <listitem open="0" type="815" id="2b1jEBEZLsZU"/>
@@ -938,14 +954,14 @@
       <listitem open="0" type="815" id="8tk1EVBEpzVr"/>
       <listitem open="0" type="814" id="OvbMIAILMDJh"/>
       <listitem open="0" type="815" id="pdv6ekm7Zolc"/>
-      <listitem open="0" type="814" id="qoWL09E5WPeO"/>
      </listitem>
+     <listitem open="1" type="813" id="1rfis01pUKFk"/>
      <listitem open="0" type="813" id="Xfx7y78lzEEq">
       <listitem open="0" type="815" id="UTH5Nsdj4ZvV"/>
       <listitem open="0" type="814" id="CAqobGZjoW05"/>
+      <listitem open="0" type="814" id="X03oG9TRcwsY"/>
       <listitem open="0" type="815" id="Xq6HZLI61ZEJ"/>
       <listitem open="0" type="815" id="DWG3lAUt6YIp"/>
-      <listitem open="0" type="814" id="X03oG9TRcwsY"/>
       <listitem open="0" type="814" id="8eZZFu3I9RRJ"/>
       <listitem open="0" type="814" id="vk5OybkOLios"/>
       <listitem open="0" type="814" id="ACLeJI5fBVUR"/>
@@ -1039,12 +1055,14 @@
       <listitem open="0" type="815" id="RuVobcmAzjHC"/>
       <listitem open="0" type="815" id="mPHa6EHiT8kI"/>
       <listitem open="0" type="814" id="9xbMz8FpJgCO"/>
+      <listitem open="0" type="814" id="Vmi4Idku5KIh"/>
       <listitem open="0" type="815" id="KzSzSJmYC51c"/>
       <listitem open="0" type="814" id="O5aDfgIfqxau"/>
-      <listitem open="0" type="814" id="3wIKfMYS9tcp"/>
       <listitem open="0" type="815" id="XFKncQ7rLkzV"/>
       <listitem open="0" type="815" id="17BXo5Ta7mvt"/>
       <listitem open="0" type="815" id="0hs9WKwPBIAf"/>
+      <listitem open="0" type="814" id="3wIKfMYS9tcp"/>
+      <listitem open="0" type="814" id="aOc8QrfAeiPl"/>
       <listitem open="0" type="815" id="yxQ4fgBAP1qH"/>
       <listitem open="0" type="814" id="xK2ei5FvktCP"/>
      </listitem>

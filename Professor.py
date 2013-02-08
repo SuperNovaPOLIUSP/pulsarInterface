@@ -1,5 +1,5 @@
 #encoding: utf8
-from ae2012.models import *
+from tools.MySQLConnection import MySQLConnection
 
 class Professor(object):
 
@@ -43,7 +43,12 @@ class Professor(object):
         @return Professor :
         @author
         """
-        name = docente.objects.filter(id = idProfessor).values('nome')[0]['nome']
+        
+        cursor = MySQLConnection()
+        query = '''SELECT * FROM professor
+        WHERE idProfessor = 
+        ''' + str(idProfessor)
+        name = cursor.execute(query)[0][2]
         professor = Professor(name)
         professor.idProfessor = idProfessor
         return professor        
@@ -57,8 +62,12 @@ class Professor(object):
         @return Professor :
         @author
         """
+        cursor = MySQLConnection()
+        query = '''SELECT * FROM professor
+        WHERE name = 
+        ''' + '"'+ name +'"'
         professor = Professor(name)
-        professor.idProfessor = docente.objects.filter(nome = name).values('id')[0]['id']
+        professor.idProfessor = cursor.execute(query)[0][0]
         return professor
 
     @staticmethod
@@ -70,11 +79,15 @@ class Professor(object):
         @return  :
         @author
         """
-        professorData = docente.objects.filter(nome__contains = name).values('nome','id')
+        cursor = MySQLConnection()
+        query = '''SELECT * FROM professor
+        WHERE name LIKE 
+        ''' + '"%'+ name +'%"'
         professorTargets = []
+        professorData = cursor.execute(query)
         for professorDatum in professorData:
-            professorTarget = Professor(professorDatum['nome'])
-            professorTarget.idProfessor = professorDatum['id']
+            professorTarget = Professor(professorDatum[2])
+            professorTarget.idProfessor = professorDatum[0]
             professorTargets.append(professorTarget)
         return professorTargets
 

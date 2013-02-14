@@ -98,7 +98,43 @@ class Professor(object):
         @return  :
         @author
         """
-        pass
-
-
-
+        cursor = MySQLConnection()
+        column = [memberId, name]
+        values = []
+        try:
+            self.memberID
+        except:
+            self.memberID = 0
+        values.append(self.memberID)
+        values.append(self.name)
+        try:
+            self.office
+            column.append(office)
+            values.append(self.office)
+        except:
+            print "'office' column set as null"
+        try:
+            self.email
+            column.append(email)
+            values.append(self.email)
+        except:
+            print "'email' column set as null"
+        try:
+            self.phoneNumber
+            column.append(phoneNumber)
+            values.append(self.phoneNumber)
+        except:
+            print "'phoneNumber' column set as null"
+        try:
+            self.cellphoneNumber
+            column.append(cellphoneNumber)
+            values.append(self.cellphoneNumber)
+        except:
+            print "'cellphoneNumber' column set as null"
+        query = "INSERT INTO professor " + str(column) + " VALUES " + str(values)
+        #returns 0 if insertion is ok, returns 1 if error
+        try:
+            cursor.execute(query)
+            return 0
+        except:
+            return 1

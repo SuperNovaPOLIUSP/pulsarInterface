@@ -1,10 +1,11 @@
 #encoding: utf8
 from tools.MySQLConnection import MySQLConnection
+from Department import *
 
 class Professor(object):
 
     """
-     A professor
+     Representation of a professor in the data base.
 
     :version:
     :author:
@@ -19,6 +20,10 @@ class Professor(object):
      Associated data base key.
 
     idProfessor  (public)
+
+     Associated database key of the professor's department.
+
+    idDepartment  (private)
 
     """
 
@@ -35,7 +40,7 @@ class Professor(object):
         self.idProfessor = None
 
     @staticmethod
-    def pickById(idProfessor):
+    def pickById(self, idProfessor):
         """
          Returns a single professor with the chosen ID.
 
@@ -46,57 +51,17 @@ class Professor(object):
         if not isinstance(idProfessor,int):
             return None
         cursor = MySQLConnection()
-        query = '''SELECT * FROM professor
-        WHERE idProfessor = 
-        ''' + str(idProfessor)
+        query = 'SELECT * FROM professor WHERE idProfessor =  '+ str(idProfessor)
         name = cursor.execute(query)[0][2]
         professor = Professor(name)
         professor.idProfessor = idProfessor
-        return professor        
-
-    @staticmethod
-    def pickByName(name):
-        """
-         Returns a single professor with the chosen name.
-
-        @param string name : The professor's name
-        @return Professor :
-        @author
-        """
-        cursor = MySQLConnection()
-        query = '''SELECT * FROM professor
-        WHERE name = 
-        ''' + '"'+ name +'"'
-        professor = Professor(name)
-        professor.idProfessor = cursor.execute(query)[0][0]
         return professor
-
-    @staticmethod
-    def findName(name):
-        """
-         Returns a list of professors with the name that contains the chosen one.
-
-        @param string name : The professor's name.
-        @return  :
-        @author
-        """
-        cursor = MySQLConnection()
-        query = '''SELECT * FROM professor
-        WHERE name LIKE 
-        ''' + '"%'+ name +'%"'
-        professorTargets = []
-        professorData = cursor.execute(query)
-        for professorDatum in professorData:
-            professorTarget = Professor(professorDatum[2])
-            professorTarget.idProfessor = professorDatum[0]
-            professorTargets.append(professorTarget)
-        return professorTargets
 
     def store(self):
         """
          Creates or alters the professor's data in the data base.
 
-        @return  :
+        @return bool :
         @author
         """
         cursor = MySQLConnection()
@@ -139,3 +104,69 @@ class Professor(object):
             return True
         except:
             return False
+
+    def delete(self):
+        """
+         Deletes the professor's data in the data base.
+         
+         Return: true if succesful or false otherwise
+
+        @return bool :
+        @author
+        """
+        cursor = MySQLConnection()
+        query = "DELETE FROM professor WHERE name = " + str(self.name) + " AND idProfessor = " + str(self.idProfessor)
+        try:
+            cursor.execute(query)
+            return True
+        except:
+            return False
+
+    def setDepartment(self, department):
+        """
+         With the Department objects given set the idDepartment.
+
+        @param Department department : 
+        @return  :
+        @author
+        """
+        pass
+
+    def getDepartment(self):
+        """
+         Returns the Department object associated with the idDepartment of this object.
+
+        @return Department :
+        @author
+        """
+        pass
+
+    def find(self, _kwargs):
+        """
+         Searches the database to find one or more objects that fit the description
+         sepcified by the method's parameters. It is possible to perform two kinds of
+         search when passing a string as a parameter: a search for the exact string
+         (EQUAL operator) and a search for at least part of the string (LIKE operator).
+         
+         Returns:
+         All the objects that are related to existing offers in the database, if there
+         are not any parameters passed.
+         
+         A list of objects that match the specifications made by one (or more) of the
+         folowing parameters:
+         > idProfessor
+         > name_equal or name_like
+         > department
+         The parameters must be identified by their names when the method is called, and
+         those which are strings must be followed by "_like" or by "_equal", in order to
+         determine the kind of search to be done.
+         E. g. Professor.find(name_like = "Some Na", department = departmentObject)
+
+        @param {} _kwargs : Dictionary of arguments to be used as parameters for the search.
+        @return  :
+        @author
+        """
+        pass
+
+
+

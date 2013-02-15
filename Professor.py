@@ -131,10 +131,10 @@ class Professor(object):
             values.append(self.cellphoneNumber)
         except:
             print "'cellphoneNumber' column set as null"
-        query = "INSERT INTO professor " + str(column) + " VALUES " + str(values)
+        query = "INSERT INTO professor " + str(tuple(column)) + " VALUES " + str(tuple(values))
         #returns 0 if insertion is ok, returns 1 if error
         try:
             cursor.execute(query)
             return 0
         except:
-            return 1
+            return False

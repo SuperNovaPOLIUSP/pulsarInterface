@@ -72,9 +72,9 @@ class TimePeriod(object):
         WHERE idTimePeriod = 
         ''' + str(idTimePeriod)
         timePeriod_sql = cursor.execute(query)
-        print timePeriod_sql
-        #timePeriod.idTimePeriod = idTimePeriod
-        #return timePeriod
+        timePeriod = TimePeriod(timePeriod_sql[0][1], timePeriod_sql[0][2], timePeriod_sql[0][3])
+        timePeriod.idTimePeriod = idTimePeriod
+        return timePeriod
 
     def remove(self):
         """

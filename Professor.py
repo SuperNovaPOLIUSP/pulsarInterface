@@ -115,9 +115,10 @@ class Professor(object):
         @author
         """
         cursor = MySQLConnection()
-        query = "DELETE FROM professor WHERE name = " + str(self.name) + " AND idProfessor = " + str(self.idProfessor)
+        query = "DELETE FROM professor WHERE idProfessor = " + str(self.idProfessor) + " AND name = " + str(self.name)
         try:
             cursor.execute(query)
+            cursor.commit()
             return True
         except:
             return False

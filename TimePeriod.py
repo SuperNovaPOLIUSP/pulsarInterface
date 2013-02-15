@@ -70,7 +70,6 @@ class TimePeriod(object):
         if not isinstance(idTimePeriod,int):
             return None
         cursor = MySQLConnection()
-        cursor = MySQLConnection()
         query = 'SELECT * FROM timePeriod WHERE idTimePeriod = ' + str(idTimePeriod)
         timePeriod_sql = cursor.execute(query)
         timePeriod = TimePeriod(timePeriod_sql[0][1], timePeriod_sql[0][2], timePeriod_sql[0][3])
@@ -87,9 +86,10 @@ class TimePeriod(object):
         @author
         """
         cursor = MySQLConnection()
-        query = "DELETE FROM timePeriod WHERE length = " + str(self.length) + " AND year = " + str(self.year) + " AND session = " + str(self.session)
+        query = "DELETE FROM timePeriod WHERE idTimePeriod = " + str(self.idTimePeriod) + " AND length = " + str(self.length) + " AND year = " + str(self.year) + " AND session = " + str(self.session)
         try:
             cursor.execute(query)
+            cursor.commit()
             return True
         except:
             return False
@@ -113,6 +113,7 @@ class TimePeriod(object):
         query = "INSERT INTO timePeriod " + str(tuple(column)) + " VALUES " + str(tuple(values))
         try:
             cursor.execute(query)
+            cursor.commit()
             return True
         except:
             return False

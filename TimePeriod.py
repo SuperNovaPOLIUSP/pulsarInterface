@@ -1,4 +1,4 @@
-from Course import *
+from tools.MySQLConnection import MySQLConnection
 
 class TimePeriod(object):
 
@@ -52,13 +52,14 @@ class TimePeriod(object):
         @return string :
         @author
         """
-        length_str = ("semester", "quarter")
-        session_str = ("First", "Second", "Third", "Fourth")
-        str_timePeriod = session_str[self.session -1] + length_str[self.length -1] + "of" + str(self.year)
+        length_str = ("semester ", "quarter ")
+        session_str = ("First ", "Second ", "Third ", "Fourth ")
+        str_timePeriod = session_str[self.session -1] + length_str[self.length -1] + "of " + str(self.year)
         return str_timePeriod
         
-        
-    def pickById(self, idTimePeriod):
+    
+    @staticmethod    
+    def pickById(idTimePeriod):
         """
          Returns a TimePeriod object once given its idTimePeriod.
 
@@ -66,7 +67,14 @@ class TimePeriod(object):
         @return TimePeriod :
         @author
         """
-        pass
+        cursor = MySQLConnection()
+        query = '''SELECT * FROM timePeriod
+        WHERE idTimePeriod = 
+        ''' + str(idTimePeriod)
+        timePeriod_sql = cursor.execute(query)
+        print timePeriod_sql
+        #timePeriod.idTimePeriod = idTimePeriod
+        #return timePeriod
 
     def remove(self):
         """

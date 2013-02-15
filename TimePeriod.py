@@ -67,16 +67,17 @@ class TimePeriod(object):
         @return TimePeriod :
         @author
         """
+        if not isinstance(idTimePeriod,int):
+            return None
         cursor = MySQLConnection()
-        query = '''SELECT * FROM timePeriod
-        WHERE idTimePeriod = 
-        ''' + str(idTimePeriod)
+        cursor = MySQLConnection()
+        query = 'SELECT * FROM timePeriod WHERE idTimePeriod = ' + str(idTimePeriod)
         timePeriod_sql = cursor.execute(query)
         timePeriod = TimePeriod(timePeriod_sql[0][1], timePeriod_sql[0][2], timePeriod_sql[0][3])
         timePeriod.idTimePeriod = idTimePeriod
         return timePeriod
 
-    def remove(self):
+    def delete(self):
         """
          Removes the time period's data in the data base.
          
@@ -85,7 +86,13 @@ class TimePeriod(object):
         @return bool :
         @author
         """
-        pass
+        cursor = MySQLConnection()
+        query = "DELETE FROM timePeriod WHERE length = " + str(self.length) + " AND year = " + str(self.year) + " AND session = " + str(self.session)
+        try:
+            cursor.execute(query)
+            return True
+        except:
+            return False
 
     def store(self):
         """
@@ -96,7 +103,6 @@ class TimePeriod(object):
         @return bool :
         @author
         """
-        #returns 0 if insertion is ok, returns 1 if error
         cursor = MySQLConnection()
         column = [length, year, session]
         try:
@@ -107,9 +113,9 @@ class TimePeriod(object):
         query = "INSERT INTO timePeriod " + str(tuple(column)) + " VALUES " + str(tuple(values))
         try:
             cursor.execute(query)
-            return 0
+            return True
         except:
-            return 1
+            return False
 
 
 

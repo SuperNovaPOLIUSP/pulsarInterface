@@ -43,7 +43,8 @@ class Professor(object):
         @return Professor :
         @author
         """
-        
+        if not isinstance(idProfessor,int):
+            return None
         cursor = MySQLConnection()
         query = '''SELECT * FROM professor
         WHERE idProfessor = 
@@ -132,9 +133,9 @@ class Professor(object):
         except:
             print "'cellphoneNumber' column set as null"
         query = "INSERT INTO professor " + str(tuple(column)) + " VALUES " + str(tuple(values))
-        #returns 0 if insertion is ok, returns 1 if error
+        #returns True if insertion is ok, returns False if error
         try:
             cursor.execute(query)
-            return 0
+            return True
         except:
             return False

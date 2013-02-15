@@ -96,7 +96,20 @@ class TimePeriod(object):
         @return bool :
         @author
         """
-        pass
+        #returns 0 if insertion is ok, returns 1 if error
+        cursor = MySQLConnection()
+        column = [length, year, session]
+        try:
+            values = [self.length, self.year, self.session]
+        except:
+            print "Values error"
+            return 1        
+        query = "INSERT INTO timePeriod " + str(tuple(column)) + " VALUES " + str(tuple(values))
+        try:
+            cursor.execute(query)
+            return 0
+        except:
+            return 1
 
 
 

@@ -38,6 +38,10 @@ class Professor(object):
         """
         self.name = name
         self.idProfessor = None
+        self.office = None
+        self.email = None
+        self.phoneNumber = None
+        self.cellphoneNumber = None
 
     @staticmethod
     def pickById(self, idProfessor):
@@ -67,36 +71,22 @@ class Professor(object):
         cursor = MySQLConnection()
         column = [memberId, name]
         values = []
-        try:
-            self.memberID
-        except:
+        if self.memberID is None:
             self.memberID = 0
         values.append(self.memberID)
         values.append(self.name)
-        try:
-            self.office
+        if self.office is not None:
             column.append(office)
             values.append(self.office)
-        except:
-            print "'office' column set as null"
-        try:
-            self.email
+        if self.email is not None:
             column.append(email)
             values.append(self.email)
-        except:
-            print "'email' column set as null"
-        try:
-            self.phoneNumber
+        if self.phoneNumber is not None:
             column.append(phoneNumber)
             values.append(self.phoneNumber)
-        except:
-            print "'phoneNumber' column set as null"
-        try:
-            self.cellphoneNumber
+        if self.cellphoneNumber is not None:
             column.append(cellphoneNumber)
             values.append(self.cellphoneNumber)
-        except:
-            print "'cellphoneNumber' column set as null"
         query = "INSERT INTO professor " + str(tuple(column)) + " VALUES " + str(tuple(values))
         #returns True if insertion is ok, returns False if error
         try:
@@ -131,7 +121,10 @@ class Professor(object):
         @return  :
         @author
         """
-        pass
+        cursor = MySQLConnection()
+        #Checking if professor is already related to a department
+        if len(cursor.execute("SELECT idProfessor FROM rel_department_professor WHERE idProfessor = " +str(self.idProfessor))) > 0:
+            query = "UPDATE rel_department_professor SET idDepartment=" +str(department.idDepartment) +"WHERE idProfessor=" +str(self.idProfessor)
 
     def getDepartment(self):
         """

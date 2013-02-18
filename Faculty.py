@@ -109,6 +109,7 @@ class Faculty(object):
             possibleIds = cursor.execute(possibleIdsQuery)
             if len(possibleIds) > 0:
                 self.idFaculty = possibleIds[0][0]   #Since all results are the same faculty pick the first one.
+
             else:
                 #If there is no idFaculty create row
                 try:
@@ -134,10 +135,9 @@ class Faculty(object):
             complements.append('campus = "' + self.campus + '"')
         #Now join the complements with the query
         if len(complements)>0:
-            for complement in complements:
-                query = query + complement + ', '
-            query = query[:-2] #remove last ', '
+            query = query + ', '.join(complements)
             query = query + ' WHERE idFaculty = ' + str(self.idFaculty)
+            print query
             #Execute the changes
             try:
                 cursor.execute(query)
@@ -177,5 +177,10 @@ class Faculty(object):
         @return  :
         @author
         """
-        pass
+        cursor = MySQLConnection()
+        facultiesData = cursor.find('SELECT name, abbreviation, campus, city, idFaculty FROM faculty',kwargs)
+        faculties = []
+        for facultyData in facultiesData:
+            faculties.append(Faculty(facultyData[0], facultyData[1], facultyData[2], facultyData[3]))
+        return faculties
 

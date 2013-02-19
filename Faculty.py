@@ -69,99 +69,6 @@ class Faculty(object):
             return faculty
         else:
             return None 
-    
-    def delete(self):
-        """
-         Deletes the faculty's data in the data base.
-         
-         Return: true if succesful or false otherwise
-
-        @return bool :
-        @author
-        """
-        if self.idFaculty != None:
-            cursor = MySQLConnection()
-            try:
-                #First check if the object is correct in the database, if it was changed it goes to the except
-                self.dFaculty = self.find(name_equal = self.name, abbreviation_equal = self.abbreviation, city_equal = self.city, campus_equal = self.campus,idFaculty = self.idFaculty)[0].idFaculty
-                #Now delete it
-                cursor.execute('DELETE FROM faculty WHERE idFaculty = ' + str(self.idFaculty))
-                cursor.commit()
-                return True
-            except:
-                pass
-        return False
-
-    def store(self):
-        """
-         Creates or changes the faculty's data in the data base.
-         
-         Return: true if succesful or false otherwise
-
-        @return bool :
-        @author
-        """
-                
-        cursor = MySQLConnection()
-        if self.idFaculty == None:
-            #Search for idFaculty
-            possibleIds = self.find(name_equal = self.name, abbreviation_equal = self.abbreviation, city_equal = self.city, campus_equal = self.campus)
-            if len(possibleIds) > 0:
-                self.idFaculty = possibleIds[0].idFaculty   #Since all results are the same faculty pick the first one.
-                return True
-            else:
-                #If there is no idFaculty create row
-                try:
-                    data = []
-                    keys = []
-                    data.append('"'+self.name+'"')
-                    keys.append('name')
-                    data.append('"'+self.abbreviation+'"')
-                    keys.append('abbreviation')
-                    if self.campus != None:
-                        data.append('"'+self.campus+'"')
-                        keys.append('campus')
-                    if self.city != None:
-                        data.append('"'+self.city+'"')
-                        keys.append('city')
-                    query = 'INSERT INTO faculty ('
-                    query = query + ', '.join(keys) + ') VALUES(' + ', '.join(data) + ')'
-                    cursor.execute(query)
-                    cursor.commit()
-                    self.idFaculty = self.find(name_equal = self.name, abbreviation_equal = self.abbreviation, city_equal = self.city, campus_equal = self.campus)[0].idFaculty
-                    return True
-                except:
-                   return False
-        else:
-            #If there is an idFaculty try to update row
-            oldFaculty = Faculty.pickById(self.idFaculty)
-            print oldFaculty
-            query = 'UPDATE faculty SET '
-            #Find the complements to be added to the query
-            complements=[]
-            if oldFaculty.name != self.name:
-                complements.append('name = "' + self.name + '"') 
-            if oldFaculty.abbreviation != self.abbreviation:
-                complements.append('abbreviation = "' + self.abbreviation + '"')
-            if oldFaculty.city != self.city:
-                complements.append('city = "' + self.city + '"')
-            if oldFaculty.campus != self.campus:
-                complements.append('campus = "' + self.campus + '"')
-            #Now join the complements with the query
-            if len(complements)>0:
-                query = query + ', '.join(complements)
-                query = query + ' WHERE idFaculty = ' + str(self.idFaculty)
-                print query
-                #Execute the changes
-                try:
-                    cursor.execute(query)
-                    cursor.commit()
-                    return True
-                except:
-                    return False 
-            else:
-                #Nothing to change
-                return True
 
     @staticmethod
     def find(**kwargs):
@@ -199,3 +106,92 @@ class Faculty(object):
             faculties.append(faculty)
         return faculties
 
+    def store(self):
+        """
+         Creates or changes the faculty's data in the data base.
+         
+         Return: true if succesful or false otherwise
+
+        @return bool :
+        @author
+        """
+                
+        cursor = MySQLConnection()
+        if self.idFaculty == None:
+            #Search for idFaculty
+            possibleIds = self.find(name_equal = self.name, abbreviation_equal = self.abbreviation, city_equal = self.city, campus_equal = self.campus)
+            if len(possibleIds) > 0:
+                self.idFaculty = possibleIds[0].idFaculty   #Since all results are the same faculty pick the first one.
+                return True
+            else:
+                #If there is no idFaculty create row
+#                try:
+                    if self.campus == None:
+                        campus = 'NULL' #MySQL None is NULL
+                    else:
+                        campus = '"' + self.campus + '"'
+                    if self.city == None:
+                        city = 'NULL'
+                    else:
+                        city = '"' + self.city + '"'
+                    query = 'INSERT INTO faculty (name, abbreviation, city, campus) VALUES("' + self.name + '", "' + self.abbreviation + '", ' + city + ', ' + campus + ')'
+                    cursor.execute(query)
+                    cursor.commit()
+                    self.idFaculty = self.find(name_equal = self.name, abbreviation_equal = self.abbreviation, city_equal = self.city, campus_equal = self.campus)[0].idFaculty
+                    return True
+#                except:
+                    return False
+        else:
+            #If there is an idFaculty try to update row
+            oldFaculty = Faculty.pickById(self.idFaculty)
+            print oldFaculty
+            query = 'UPDATE faculty SET '
+            #Find the complements to be added to the query
+            complements=[]
+            if oldFaculty.name != self.name:
+                complements.append('name = "' + self.name + '"') 
+            if oldFaculty.abbreviation != self.abbreviation:
+                complements.append('abbreviation = "' + self.abbreviation + '"')
+            if oldFaculty.city != self.city:
+                complements.append('city = "' + self.city + '"')
+            if oldFaculty.campus != self.campus:
+                complements.append('campus = "' + self.campus + '"')
+            #Now join the complements with the query
+            if len(complements)>0:
+                query = query + ', '.join(complements)
+                query = query + ' WHERE idFaculty = ' + str(self.idFaculty)
+                print query
+                #Execute the changes
+                try:
+                    cursor.execute(query)
+                    cursor.commit()
+                    return True
+                except:
+                    return False 
+            else:
+                #Nothing to change
+                return True
+
+    def delete(self):
+        """
+         Deletes the faculty's data in the data base.
+         
+         Return: true if succesful or false otherwise
+
+        @return bool :
+        @author
+        """
+        if self.idFaculty != None:
+            cursor = MySQLConnection()
+            try:
+                #First check if the object is correct in the database, if it was changed it goes to the except
+                self.dFaculty = self.find(name_equal = self.name, abbreviation_equal = self.abbreviation, city_equal = self.city, campus_equal = self.campus,idFaculty = self.idFaculty)[0].idFaculty
+                #Now delete it
+                cursor.execute('DELETE FROM faculty WHERE idFaculty = ' + str(self.idFaculty))
+                cursor.commit()
+                return True
+            except:
+                pass
+        return False
+
+   

@@ -52,7 +52,7 @@ class Professor(object):
         @return Professor :
         @author
         """
-        if not (isinstance(idProfessor,int) or isinstance(idProfessor,float)):
+        if not (isinstance(idProfessor,int) or isinstance(idProfessor,long)):
             return None
         cursor = MySQLConnection()
         query = 'SELECT * FROM professor WHERE idProfessor =  '+ str(idProfessor)

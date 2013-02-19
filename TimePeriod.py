@@ -67,12 +67,13 @@ class TimePeriod(object):
         @return TimePeriod :
         @author
         """
-        if not (isinstance(idTimePeriod,int) or isinstance(idTimePeriod,long)):
-            return None
         cursor = MySQLConnection()
         query = 'SELECT * FROM timePeriod WHERE idTimePeriod = ' + str(idTimePeriod)
-        timePeriod_sql = cursor.execute(query)
-        timePeriod = TimePeriod(timePeriod_sql[0][1], timePeriod_sql[0][2], timePeriod_sql[0][3])
+        try:
+            timePeriod_sql = cursor.execute(query)[0]
+        except:
+            return None
+        timePeriod = TimePeriod(timePeriod_sql[1], timePeriod_sql[2], timePeriod_sql[3])
         timePeriod.idTimePeriod = idTimePeriod
         return timePeriod
 

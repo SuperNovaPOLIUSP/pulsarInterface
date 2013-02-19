@@ -43,6 +43,7 @@ class TimePeriod(object):
         self.length = length
         self.year = year
         self.session = session
+        self.idTimePeriod = None
         
         
     def __str__(self):
@@ -105,13 +106,15 @@ class TimePeriod(object):
         @author
         """
         cursor = MySQLConnection()
-        column = [length, year, session]
         try:
             values = [self.length, self.year, self.session]
         except:
             print "Values error"
-            return 1        
-        query = "INSERT INTO timePeriod " + str(tuple(column)) + " VALUES " + str(tuple(values))
+            return 1
+        if self.idTimePeriod is None:
+            query = "INSERT INTO timePeriod (length, year, session) VALUES " + str(tuple(values))
+        else:
+            query = "UPDATE timePeriod SET length = " +str(self.length) +", year = " +str(self.year) +", session = " +str(self.session) +" WHERE idTimePeriod = " +str(self.idTimePeriod)
         try:
             cursor.execute(query)
             cursor.commit()

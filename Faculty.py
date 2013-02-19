@@ -59,8 +59,7 @@ class Faculty(object):
         @author
         """
         cursor = MySQLConnection()
-        print type(idFaculty)
-        if isinstance(idFaculty,long):
+        if isinstance(idFaculty,long) or isinstance(idFaculty,int):
             try:
                 facultyData = cursor.execute('SELECT name,abbreviation,campus,city,idFaculty FROM faculty WHERE idFaculty = ' + str(idFaculty))[0]
             except:

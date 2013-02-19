@@ -67,7 +67,7 @@ class TimePeriod(object):
         @return TimePeriod :
         @author
         """
-        if not isinstance(idTimePeriod,int):
+        if not (isinstance(idTimePeriod,int) or isinstance(idTimePeriod,long)):
             return None
         cursor = MySQLConnection()
         query = 'SELECT * FROM timePeriod WHERE idTimePeriod = ' + str(idTimePeriod)

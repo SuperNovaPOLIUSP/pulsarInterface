@@ -52,7 +52,6 @@ class Professor(object):
         @return Professor :
         @author
         """
-            return None
         cursor = MySQLConnection()
         query = 'SELECT * FROM professor WHERE idProfessor =  '+ str(idProfessor)
         try:

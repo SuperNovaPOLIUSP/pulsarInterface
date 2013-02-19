@@ -59,7 +59,8 @@ class Faculty(object):
         @author
         """
         cursor = MySQLConnection()
-        if isinstance(idFaculty,int):
+        print type(idFaculty)
+        if isinstance(idFaculty,long):
             try:
                 facultyData = cursor.execute('SELECT name,abbreviation,campus,city,idFaculty FROM faculty WHERE idFaculty = ' + str(idFaculty))[0]
             except:
@@ -82,6 +83,9 @@ class Faculty(object):
         if self.idFaculty != None:
             cursor = MySQLConnection()
             try:
+                #First check if the object is correct in the database, if it was changed it goes to the except
+                self.dFaculty = self.find(name_equal = self.name, abbreviation_equal = self.abbreviation, city_equal = self.city, campus_equal = self.campus,idFaculty = self.idFaculty)[0].idFaculty
+                #Now delete it
                 cursor.execute('DELETE FROM faculty WHERE idFaculty = ' + str(self.idFaculty))
                 cursor.commit()
                 return True
@@ -98,57 +102,67 @@ class Faculty(object):
         @return bool :
         @author
         """
+                
         cursor = MySQLConnection()
         if self.idFaculty == None:
             #Search for idFaculty
-            possibleIdsQuery = 'SELECT idFaculty FROM faculty WHERE name = "'+self.name+'"'
-            if self.campus != None:
-                possibleIdsQuery = possibleIdsQuery + ' AND campus = "' + self.campus + '"'
-            if self.city != None:
-                possibleIdsQuery = possibleIdsQuery + ' AND city = "' + self.city + '"' 
-            possibleIds = cursor.execute(possibleIdsQuery)
+            possibleIds = self.find(name_equal = self.name, abbreviation_equal = self.abbreviation, city_equal = self.city, campus_equal = self.campus)
             if len(possibleIds) > 0:
-                self.idFaculty = possibleIds[0][0]   #Since all results are the same faculty pick the first one.
-
+                self.idFaculty = possibleIds[0].idFaculty   #Since all results are the same faculty pick the first one.
+                return True
             else:
                 #If there is no idFaculty create row
                 try:
-                    cursor.execute('INSERT INTO faculty (name, abbreviation, campus, city) VALUES("'+self.name+'", "'+self.abbreviation+'", "'+self.campus+'", "'+self.city+'")')
+                    data = []
+                    keys = []
+                    data.append('"'+self.name+'"')
+                    keys.append('name')
+                    data.append('"'+self.abbreviation+'"')
+                    keys.append('abbreviation')
+                    if self.campus != None:
+                        data.append('"'+self.campus+'"')
+                        keys.append('campus')
+                    if self.city != None:
+                        data.append('"'+self.city+'"')
+                        keys.append('city')
+                    query = 'INSERT INTO faculty ('
+                    query = query + ', '.join(keys) + ') VALUES(' + ', '.join(data) + ')'
+                    cursor.execute(query)
                     cursor.commit()
-                    self.idFaculty = cursor.execute('SELECT idFaculty FROM faculty WHERE name = "'+self.name+'" AND abbreviation = "'+self.abbreviation+'" AND campus = "'+self.campus+'" AND city = "'+self.city+'"')[0][0]
+                    self.idFaculty = self.find(name_equal = self.name, abbreviation_equal = self.abbreviation, city_equal = self.city, campus_equal = self.campus)[0].idFaculty
                     return True
                 except:
                    return False
- 
-        #If there is an idFaculty try to update row
-        oldData = cursor.execute('SELECT name, abbreviation, city, campus FROM faculty WHERE idFaculty = ' + str(self.idFaculty))[0] #in a search for id there is only one row
-        query = 'UPDATE faculty SET '
-        #Find the complements to be added to the query
-        complements = []
-        if oldData[0] != self.name:
-            complements.append('name = "' + self.name + '"') 
-        if oldData[1] != self.abbreviation:
-            complements.append('abbreviation = "' + self.abbreviation + '"')
-        if oldData[2] != self.city:
-            complements.append('city = "' + self.city + '"')
-        if oldData[3] != self.campus:
-            complements.append('campus = "' + self.campus + '"')
-        #Now join the complements with the query
-        if len(complements)>0:
-            query = query + ', '.join(complements)
-            query = query + ' WHERE idFaculty = ' + str(self.idFaculty)
-            print query
-            #Execute the changes
-            try:
-                cursor.execute(query)
-                cursor.commit()
-                return True
-            except:
-                pass
         else:
-            #Nothing to change
-            return True
-        return False
+            #If there is an idFaculty try to update row
+            oldFaculty = Faculty.pickById(self.idFaculty)
+            print oldFaculty
+            query = 'UPDATE faculty SET '
+            #Find the complements to be added to the query
+            complements=[]
+            if oldFaculty.name != self.name:
+                complements.append('name = "' + self.name + '"') 
+            if oldFaculty.abbreviation != self.abbreviation:
+                complements.append('abbreviation = "' + self.abbreviation + '"')
+            if oldFaculty.city != self.city:
+                complements.append('city = "' + self.city + '"')
+            if oldFaculty.campus != self.campus:
+                complements.append('campus = "' + self.campus + '"')
+            #Now join the complements with the query
+            if len(complements)>0:
+                query = query + ', '.join(complements)
+                query = query + ' WHERE idFaculty = ' + str(self.idFaculty)
+                print query
+                #Execute the changes
+                try:
+                    cursor.execute(query)
+                    cursor.commit()
+                    return True
+                except:
+                    return False 
+            else:
+                #Nothing to change
+                return True
 
     @staticmethod
     def find(**kwargs):
@@ -181,6 +195,8 @@ class Faculty(object):
         facultiesData = cursor.find('SELECT name, abbreviation, campus, city, idFaculty FROM faculty',kwargs)
         faculties = []
         for facultyData in facultiesData:
-            faculties.append(Faculty(facultyData[0], facultyData[1], facultyData[2], facultyData[3]))
+            faculty = Faculty(facultyData[0], facultyData[1], facultyData[2], facultyData[3])
+            faculty.idFaculty = facultyData[4]
+            faculties.append(faculty)
         return faculties
 

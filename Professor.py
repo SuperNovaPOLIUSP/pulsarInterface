@@ -52,11 +52,13 @@ class Professor(object):
         @return Professor :
         @author
         """
-        if not (isinstance(idProfessor,int) or isinstance(idProfessor,float)):
             return None
         cursor = MySQLConnection()
         query = 'SELECT * FROM professor WHERE idProfessor =  '+ str(idProfessor)
-        name = cursor.execute(query)[0][2]
+        try:
+            name = cursor.execute(query)[0][2]
+        except:
+            return None
         professor = Professor(name)
         professor.idProfessor = idProfessor
         return professor
@@ -179,7 +181,16 @@ WHERE idProfessor = ''' + str(self.idProfessor)
         @return  :
         @author
         """
-        pass
-
-
+        cursor = MySQLConnection()
+        professorData = cursor.find('SELECT name, idProfessor, office, email, phoneNumber, cellphoneNumber FROM faculty',kwargs)
+        professors = []
+        for professorData in professorsData:
+            professor = Professor(professorData[0])
+            professor.idProfessor = professorData[1]
+            professor.office = professorData[2]
+            professor.email = professorData[3]
+            professor.phoneNumber = professorData[4]
+            professor.cellphoneNumber = professorData[5]
+            professors.append(professor)
+        return professors
 

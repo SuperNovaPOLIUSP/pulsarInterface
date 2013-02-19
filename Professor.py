@@ -155,7 +155,8 @@ WHERE idProfessor = ''' + str(self.idProfessor)
         department.idDepartment = department_sql[0][0]
         return department
 
-    def find(self, _kwargs):
+    @staticmethod
+    def find(**kwargs):
         """
          Searches the database to find one or more objects that fit the description
          sepcified by the method's parameters. It is possible to perform two kinds of
@@ -181,7 +182,7 @@ WHERE idProfessor = ''' + str(self.idProfessor)
         @author
         """
         cursor = MySQLConnection()
-        professorData = cursor.find('SELECT name, idProfessor, office, email, phoneNumber, cellphoneNumber FROM faculty',kwargs)
+        professorsData = cursor.find('SELECT name, idProfessor, office, email, phoneNumber, cellphoneNumber FROM professor',kwargs)
         professors = []
         for professorData in professorsData:
             professor = Professor(professorData[0])

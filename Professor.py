@@ -52,7 +52,7 @@ class Professor(object):
         @return Professor :
         @author
         """
-        if not isinstance(idProfessor,int):
+        if not (isinstance(idProfessor,int) or isinstance(idProfessor,float)):
             return None
         cursor = MySQLConnection()
         query = 'SELECT * FROM professor WHERE idProfessor =  '+ str(idProfessor)
@@ -151,7 +151,8 @@ WHERE idProfessor = ''' + str(self.idProfessor)
         except:
             return None
         department = Department(professor_sql[0][1], professor_sql[0][2])
-        department.idDepartment
+        department.idDepartment = department_sql[0][0]
+        return department
 
     def find(self, _kwargs):
         """

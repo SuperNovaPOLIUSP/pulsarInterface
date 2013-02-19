@@ -44,7 +44,7 @@ class Professor(object):
         self.cellphoneNumber = None
 
     @staticmethod
-    def pickById(self, idProfessor):
+    def pickById(idProfessor):
         """
          Returns a single professor with the chosen ID.
 
@@ -125,6 +125,15 @@ class Professor(object):
         #Checking if professor is already related to a department
         if len(cursor.execute("SELECT idProfessor FROM rel_department_professor WHERE idProfessor = " +str(self.idProfessor))) > 0:
             query = "UPDATE rel_department_professor SET idDepartment=" +str(department.idDepartment) +"WHERE idProfessor=" +str(self.idProfessor)
+        else:
+            values = (self.idProfessor, department.idDepartment)
+            query = "INSERT INTO rel_department_professor (idProfessor, idDepartment) VALUES " +str(values)
+        try:
+            cursor.execute(query)
+            cursor.commit()
+            return True
+        except:
+            return False
 
     def getDepartment(self):
         """
@@ -133,7 +142,16 @@ class Professor(object):
         @return Department :
         @author
         """
-        pass
+        cursor = MySQLConnection()
+        query = '''SELECT idDepartment, name, departmentCode FROM rel_department_professor JOIN department
+ON rel_department_professor.idDepartment = department.idDepartment
+WHERE idProfessor = ''' + str(self.idProfessor)
+        try:
+            professor_sql = cursor.execute(query)
+        except:
+            return None
+        department = Department(professor_sql[0][1], professor_sql[0][2])
+        department.idDepartment
 
     def find(self, _kwargs):
         """

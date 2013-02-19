@@ -105,6 +105,9 @@ class TimePeriod(object):
         @return bool :
         @author
         """
+        if (self.length < 1 or self.session < 1):
+            print "Lengh and session atributes cannot be lower than 1"
+            return False
         cursor = MySQLConnection()
         try:
             values = [self.length, self.year, self.session]

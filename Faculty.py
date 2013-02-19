@@ -115,7 +115,15 @@ class Faculty(object):
         @return bool :
         @author
         """
-                
+        if self.campus == None:
+            campus = 'NULL' #MySQL None is NULL
+        else:
+            campus = '"' + self.campus + '"'
+        if self.city == None:
+            city = 'NULL'
+        else:
+            city = '"' + self.city + '"'
+
         cursor = MySQLConnection()
         if self.idFaculty == None:
             #Search for idFaculty
@@ -125,52 +133,23 @@ class Faculty(object):
                 return True
             else:
                 #If there is no idFaculty create row
-#                try:
-                    if self.campus == None:
-                        campus = 'NULL' #MySQL None is NULL
-                    else:
-                        campus = '"' + self.campus + '"'
-                    if self.city == None:
-                        city = 'NULL'
-                    else:
-                        city = '"' + self.city + '"'
+                try:
                     query = 'INSERT INTO faculty (name, abbreviation, city, campus) VALUES("' + self.name + '", "' + self.abbreviation + '", ' + city + ', ' + campus + ')'
                     cursor.execute(query)
                     cursor.commit()
                     self.idFaculty = self.find(name_equal = self.name, abbreviation_equal = self.abbreviation, city_equal = self.city, campus_equal = self.campus)[0].idFaculty
                     return True
-#                except:
+                except:
                     return False
         else:
             #If there is an idFaculty try to update row
-            oldFaculty = Faculty.pickById(self.idFaculty)
-            print oldFaculty
-            query = 'UPDATE faculty SET '
-            #Find the complements to be added to the query
-            complements=[]
-            if oldFaculty.name != self.name:
-                complements.append('name = "' + self.name + '"') 
-            if oldFaculty.abbreviation != self.abbreviation:
-                complements.append('abbreviation = "' + self.abbreviation + '"')
-            if oldFaculty.city != self.city:
-                complements.append('city = "' + self.city + '"')
-            if oldFaculty.campus != self.campus:
-                complements.append('campus = "' + self.campus + '"')
-            #Now join the complements with the query
-            if len(complements)>0:
-                query = query + ', '.join(complements)
-                query = query + ' WHERE idFaculty = ' + str(self.idFaculty)
-                print query
-                #Execute the changes
-                try:
-                    cursor.execute(query)
-                    cursor.commit()
-                    return True
-                except:
-                    return False 
-            else:
-                #Nothing to change
+            query = 'UPDATE faculty SET name = "' + self.name + '", abbreviation = "' + self.abbreviation + '", city = ' + city + ', campus = ' + campus + ' WHERE idFaculty = ' + str(self.idFaculty)
+            try:
+                cursor.execute(query)
+                cursor.commit()
                 return True
+            except:
+                return False 
 
     def delete(self):
         """

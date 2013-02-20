@@ -23,8 +23,12 @@ class Professor(object):
 
      Associated database key of the professor's department.
 
-    idDepartment  (private)
+    idDepartment  (public)
 
+     Professor's identification number
+
+    memberId  (public)
+    
     """
 
     def __init__(self, name):
@@ -38,10 +42,7 @@ class Professor(object):
         """
         self.name = name
         self.idProfessor = None
-        self.office = None
-        self.email = None
-        self.phoneNumber = None
-        self.cellphoneNumber = None
+        self.memberId = None
 
     @staticmethod
     def pickById(idProfessor):
@@ -55,11 +56,12 @@ class Professor(object):
         cursor = MySQLConnection()
         query = 'SELECT * FROM professor WHERE idProfessor =  '+ str(idProfessor)
         try:
-            name = cursor.execute(query)[0][2]
+            professor_sql = cursor.execute(query)[0]
         except:
             return None
-        professor = Professor(name)
-        professor.idProfessor = idProfessor
+        professor = Professor(professor_slq[2])
+        professor.idProfessor = professor_sql[0]
+        professor.memberId = professor_sql[1]
         return professor
 
     def store(self):
@@ -70,28 +72,33 @@ class Professor(object):
         @author
         """
         cursor = MySQLConnection()
-        column = [memberId, name]
-        values = []
-        if self.memberID is None:
-            self.memberID = 0
-        values.append(self.memberID)
-        values.append(self.name)
-        if self.office is not None:
-            column.append(office)
-            values.append(self.office)
-        if self.email is not None:
-            column.append(email)
-            values.append(self.email)
-        if self.phoneNumber is not None:
-            column.append(phoneNumber)
-            values.append(self.phoneNumber)
-        if self.cellphoneNumber is not None:
-            column.append(cellphoneNumber)
-            values.append(self.cellphoneNumber)
-        query = "INSERT INTO professor " + str(tuple(column)) + " VALUES " + str(tuple(values))
-        #returns True if insertion is ok, returns False if error
+        try:
+            Professor.name
+        except:
+            print "'Professor' object must have name atribute"
+            return False
+        if self.idProfessor is None:
+            possibleIds = self.find(name_equal = self.name, memberId = self.memberId)
+            if len(possibleIds) > 0:
+                self.idProfessor = possibleIds[0].idProfessor
+                return True
+            
+            not_None_att = ["name"]
+            not_None_values = [self.name]
+            not_None_att.append("memberId")
+            if self.memberId is None:
+                memberId = 0
+            not_None_values.append(self.memberId)
+            query = "INSERT INTO professor " +str(tuple(not_None_att)) +" VALUES " + str(tuple(not_None_values))
+            
+        else:
+            if self.memberId is None:
+                memberId = 0
+            query = "UPDATE professor SET name = " +self.name +", memberId = " +str(self.memberId)
+            query += " WHERE idTimePeriod = " +str(self.idTimePeriod)
         try:
             cursor.execute(query)
+            cursor.commit()
             return True
         except:
             return False
@@ -106,7 +113,7 @@ class Professor(object):
         @author
         """
         cursor = MySQLConnection()
-        query = "DELETE FROM professor WHERE idProfessor = " + str(self.idProfessor) + " AND name = " + str(self.name)
+        query = "DELETE FROM professor WHERE idProfessor = " +str(self.idProfessor) +" AND name = '" +self.name +"' AND memberId = " +str(self.membrerId)
         try:
             cursor.execute(query)
             cursor.commit()
@@ -182,15 +189,12 @@ WHERE idProfessor = ''' + str(self.idProfessor)
         @author
         """
         cursor = MySQLConnection()
-        professorsData = cursor.find('SELECT name, idProfessor, office, email, phoneNumber, cellphoneNumber FROM professor',kwargs)
+        professorsData = cursor.find('SELECT name, idProfessor, memberId FROM professor',kwargs)
         professors = []
         for professorData in professorsData:
             professor = Professor(professorData[0])
             professor.idProfessor = professorData[1]
-            professor.office = professorData[2]
-            professor.email = professorData[3]
-            professor.phoneNumber = professorData[4]
-            professor.cellphoneNumber = professorData[5]
+            professor.memberId = professorData[2]
             professors.append(professor)
         return professors
 

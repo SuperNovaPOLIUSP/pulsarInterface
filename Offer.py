@@ -142,8 +142,8 @@ class Offer(object):
          determine the kind of search to be done.
          E. g. Offer.find(classNumber = 3, practical = True)
 
-        @param {} _kwargs : Dictionary of arguments to be used as parameters for the search.
-        @return  :
+        @param {} **kwargs : Dictionary of arguments to be used as parameters for the search.
+        @return  Offer[]:
         @author
         """
         cursor = MySQLConnection()
@@ -167,6 +167,7 @@ class Offer(object):
             #offer.schedule = Schedule.find(idOffer = self.idOffer) #Not implemented
             offers.append(offer)
         return offers
+
     def store(self):
         """
          Creates or alters the professor's data in the data base.

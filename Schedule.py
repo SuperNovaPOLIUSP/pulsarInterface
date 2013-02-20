@@ -179,8 +179,8 @@ class Schedule(object):
         """
         scheduleData = cursor.find(query, kwargs)
         schedules = []
-        for schedule in scheduleData:
-            schedule = schedule(scheduleData[0], str(scheduleData[1]), scheduleData[2], str(scheduleData[3]))
+        for scheduleData in scheduleData:
+            schedule = Schedule(scheduleData[0], str(scheduleData[1]), scheduleData[2], str(scheduleData[3]))
             schedule.idschedule = scheduleData[4]
             schedules.append(schedule)
         return schedules

@@ -36,6 +36,7 @@ class Department(object):
         """
         self.name = name
         self.departmentCode = departmentCode
+        self.idDepartment = None
 
 
     @staticmethod
@@ -56,7 +57,8 @@ class Department(object):
         department.idDepartment = idDepartment
         return department
 
-    def find(self, **kwargs):
+    @staticmethod
+    def find(**kwargs):
         """
          Searches the database to find one or more objects that fit the description
          sepcified by the method's parameters. It is possible to perform two kinds of
@@ -82,7 +84,14 @@ class Department(object):
         @return  :
         @author
         """
-        pass
+        cursor = MySQLConnection()
+        departmentsData = cursor.find('SELECT name, departmentCode, idDepartment FROM department',kwargs)
+        departments = []
+        for departmentData in departmentsData:
+            department = Department(departmentData[0], departmentData[1])
+            department.idDepartment = departmentData[2]
+            departments.append(department)
+        return professors
 
     def store(self):
         """
@@ -94,12 +103,21 @@ class Department(object):
         """
         cursor = MySQLConnection()
         column = [name, departmentCode]
+        
         try:
             values = [self.name, self.departmentCode]
         except:
             print "Values error"
-            return 1        
-        query = "INSERT INTO department " + str(tuple(column)) + " VALUES " + str(tuple(values))
+            return False
+        if idDepartment = None:
+            possibleIds = self.find(name_equal = self.name, departmentCode_equal = self.departmentCode)
+            if len(possibleIds) > 0:
+                self.idDepartment = possibleIds[0].idDepartment
+                return True
+            query = "INSERT INTO department " + str(tuple(column)) + " VALUES " + str(tuple(values))
+        else:
+            query = "UPDATE department SET name = " +self.name +", departmentCode = " +str(self.departmentCode)
+            query += " WHERE idDepartment = " +str(self.idDepartment)
         try:
             cursor.execute(query)
             cursor.commit()

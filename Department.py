@@ -1,3 +1,4 @@
+#coding: utf8
 from tools.MySQLConnection import MySQLConnection
 
 class Department(object):
@@ -5,7 +6,7 @@ class Department(object):
     """
      
 
-    :version:
+    :version:tes
     :author:
     """
 
@@ -52,7 +53,6 @@ class Department(object):
         query = 'SELECT * FROM department WHERE idDepartment = ' + str(idDepartment)
         try:
             department_sql = cursor.execute(query)[0]
-            print department_sql
         except:
             return None
         department = Department(department_sql[1], department_sql[2])
@@ -93,7 +93,7 @@ class Department(object):
             department = Department(departmentData[0], departmentData[1])
             department.idDepartment = departmentData[2]
             departments.append(department)
-        return professors
+        return departments
 
     def store(self):
         """
@@ -104,22 +104,21 @@ class Department(object):
         @author
         """
         cursor = MySQLConnection()
-        column = [name, departmentCode]
         
         try:
             values = [self.name, self.departmentCode]
         except:
             print "Values error"
             return False
-        if idDepartment = None:
+        if self.idDepartment is None:
             possibleIds = self.find(name_equal = self.name, departmentCode_equal = self.departmentCode)
             if len(possibleIds) > 0:
                 self.idDepartment = possibleIds[0].idDepartment
                 return True
-            query = "INSERT INTO department " + str(tuple(column)) + " VALUES " + str(tuple(values))
+            query = "INSERT INTO department (name, departmentCode) VALUES " + str(tuple(values))
         else:
-            query = "UPDATE department SET name = " +self.name +", departmentCode = " +str(self.departmentCode)
-            query += " WHERE idDepartment = " +str(self.idDepartment)
+            query = "UPDATE department SET name = " + unicode(self.name, 'utf8') + ", departmentCode = " + str(self.departmentCode)
+            query += " WHERE idDepartment = " + str(self.idDepartment)
         try:
             cursor.execute(query)
             cursor.commit()
@@ -136,12 +135,13 @@ class Department(object):
         @author
         """
         cursor = MySQLConnection()
-        query = "DELETE FROM department WHERE idDepartment = " + str(self.idDepartment) + " AND name = " + str(self.name) + " AND departmentCode = " + str(self.departmentCode)
+        query = "DELETE FROM department WHERE idDepartment = " + str(self.idDepartment) + " AND name = '" + self.name + "' AND departmentCode = '" + self.departmentCode + "'"
         try:
             cursor.execute(query)
             cursor.commit()
             return True
         except:
+            print query
             return False
 
 

@@ -6,7 +6,7 @@ class AnswerType(object):
   
     """
      Class that represents a category of multiple choice answers that a question can
-     be related to (e. g. the category "hours" may refer to different ammounts of
+     be related to (e. g. the answer type "hours" may refer to different ammounts of
      hours specified by alternatives A to E).
   
     :version:
@@ -24,25 +24,25 @@ class AnswerType(object):
   
     alternativeMeaning  (public)
   
-     The name of  the AnswerType category (e.g. hours, frequency).
+     The name of the AnswerType related to a category of answers (e.g. hours, frequency).
   
-    category  (public)
+    name  (public)
   
     """
   
-    def __init__(self, category, alternativeMeaning):
+    def __init__(self, name, alternativeMeaning):
         """
          Constructor method.
          Name and meaning are the necessary data to create an AnswerType.
   
-        @param string category : The name of  the AnswerType category (e.g. hours, frequency).
+        @param string name : The name of  the AnswerType related to a category of answers (e.g. hours, frequency).
         @param string{} alternativeMeaning : A dictionary containing the meaning of the answers alternative choices in the form { 'A':'meaningA' , 'B':'meaningB' , ..., 'E':'meaningE'}
         @return  :
         @author
         """
-        # verifies if category is a proper parameter
-        if isinstance(category, unicode):
-            self.category = category
+        # verifies if name is a proper parameter
+        if isinstance(name, unicode):
+            self.name = name
             # verifies if alternativeMeaning is a proper parameter
             if isinstance(alternativeMeaning, dict):
                 if len(alternativeMeaning) is 5:
@@ -60,14 +60,19 @@ class AnswerType(object):
         @author
         """
 
-        databaseConnection = MySQLConnection() # gets connection with the mysql database
+        # gets connection with the mysql database
+        databaseConnection = MySQLConnection() 
 
-        category = databaseConnection.execute("SELECT name FROM answerType WHERE idAnswerType = " + str(idAnswerType))[0][0]
+        # finds the name of the answer type through the answerType table
+        name = databaseConnection.execute("SELECT name FROM answerType WHERE idAnswerType = " + str(idAnswerType))[0][0]
 
+        # finds the meaning of each alternative associated to the answer type through the alternativeMeaning table
         alternativeMeaning = databaseConnection.execute("SELECT alternative, meaning FROM alternativeMeaning WHERE idAnswerType = " + str(idAnswerType))
+        # turns de result found into a dictionary
         alternativeMeaning = {alternative : meaning for (alternative, meaning) in alternativeMeaning}
 
-        pickedAnswerType = AnswerType(category, alternativeMeaning)
+        # creates the AnswerType object to be returned
+        pickedAnswerType = AnswerType(name, alternativeMeaning)
         pickedAnswerType.idAnswerType = idAnswerType
 
         return pickedAnswerType
@@ -87,17 +92,29 @@ class AnswerType(object):
          A list of objects that match the specifications made by one (or more) of the
          folowing parameters:
          > idAnswerType
-         > category_equal or category_like
+         > name_equal or name_like
          The parameters must be identified by their names when the method is called, and
          those which are strings must be followed by "_like" or by "_equal", in order to
          determine the kind of search to be done.
-         E.g. AnswerType.find(category_equal = "time", campus_like = "Main")
+         E.g. AnswerType.find(name_equal = "time")
   
         @param {} **kwargs : Dictionary of arguments to be used as parameters for the search.
         @return AnswerType[] :
         @author
         """
-        pass
+
+        # gets connection with the mysql database
+        databaseConnection = MySQLConnection()
+
+        # finds the database IDs of the answer types that need to be found
+        foundAnswerTypeIds = databaseConnection.find("SELECT idAnswerType FROM answerType", kwargs)
+
+        # for each id found, creates an AnswerType object using the 'pickById' method
+        foundAnswerTypes = []
+        for Id in foundAnswerTypeIds:
+            foundAnswerTypes.append(AnswerType.pickById(Id[0]))
+
+        return foundAnswerTypes        
   
     def store(self):
         """

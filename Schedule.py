@@ -1,4 +1,5 @@
 from tools.MySQLConnection import *
+from tools.timeCheck import *
 from datetime import timedelta
 class Schedule(object):
 
@@ -48,7 +49,16 @@ class Schedule(object):
         if not isinstance(dayOfTheWeek, unicode):
             print 'dayOfTheWeek must be unicode'
             return None
-
+        else:
+            #check if dayOfTheWeek is in the database
+            try:
+                cursor = MySQLConnection()              
+                if not cursor.execute('select idDayOfTheWeek from minitableDayOfTheWeek where dayOfTheWeek = "' + dayOfTheWeek + '" '):
+                #if dayOfTheWeek isn't in the database
+                    print "dayOfTheWeek must be in the database"
+                    return None
+            except:
+                return None
         if not isinstance(end, str):
             if not isinstance(end, unicode):
                
@@ -63,48 +73,15 @@ class Schedule(object):
                 return None
         
         #check if the parameter 'end' is in the format HH:MM:SS
-        split_end = end.split(":")          
-        if len(split_end) == 3 and 0 < len(split_end[0]) < 3 and len(split_end[1]) == 2 and len(split_end[2]) == 2:
-            #check 'end' hour
-            if  int(split_end[0]) <0 or int(split_end[0])> 23:
-                print "Wrong format in end, hour must be between 0 and 23"
-                return None
-            if len(split_end[0]) == 1:
-                split_end[0] = "0" + split_end[0]
-            #check 'end' minute
-            if int(split_end[1]) <0 or int(split_end[1])> 59:
-                print "Wrong format in end, minute must be between 0 and 59"
-                return None
-            #check 'end' minute
-            if int(split_end[2]) <0 or int(split_end[2])> 59:
-                print "Wrong format in end, second must be between 0 and 59"
-                return None
-        else:
-            print "end must be in format 'HH:MM:SS'"
+        end = checkTimeString(end)
+        if not end:
+            print "Wrong end format"
             return None
-        end = split_end[0] + ":" + split_end[1] + ":" + split_end[2]
         #check if the parameter 'start' is in the format HH:MM:SS
-        split_start = start.split(":")          
-        if len(split_start) == 3 and 0 < len(split_start[0]) < 3 and len(split_start[1]) == 2 and len(split_start[2]) == 2:
-            #check 'start' hour
-            if  int(split_start[0]) <0 or int(split_start[0])> 23:
-                print "Wrong format in start, hour must be between 0 and 23"
-                return None
-            if len(split_start[0]) == 1:
-                split_start[0] = "0" + split_start[0]
-            #check 'start' minute
-            if int(split_start[1]) <0 or int(split_start[1])> 59:
-                print "Wrong format in start, minute must be between 0 and 59"
-                return None
-            #check 'start' minute
-            if int(split_start[2]) <0 or int(split_start[2])> 59:
-                print "Wrong format in start, second must be between 0 and 59"
-                return None
-        else:
-            print "start must be in format 'HH:MM:SS'"
-            return None
-        start = split_start[0] + ":" + split_start[1] + ":" + split_start[2]
-        
+        start = checkTimeString(start)
+        if not start:
+            print "Wrong start format"
+            return None        
 
         self.dayOfTheWeek = dayOfTheWeek
         self.end = end
@@ -120,7 +97,7 @@ class Schedule(object):
         @author
         """
         return self.dayOfTheWeek.encode('utf8') + ' '+ self.start[:5] + ' - ' + self.end[:5] 
-         
+    
     @staticmethod 
     def pickById(idSchedule):
         """
@@ -177,11 +154,11 @@ class Schedule(object):
         query = """SELECT mini.dayOfTheWeek, sch.end, sch.frequency, sch.start, sch.idSchedule FROM schedule AS sch
         JOIN minitableDayOfTheWeek AS mini ON mini.idDayOfTheWeek = sch.idDayOfTheWeek
         """
-        scheduleData = cursor.find(query, kwargs)
+        schedulesData = cursor.find(query, kwargs)
         schedules = []
-        for scheduleData in scheduleData:
+        for scheduleData in schedulesData:
             schedule = Schedule(scheduleData[0], str(scheduleData[1]), scheduleData[2], str(scheduleData[3]))
-            schedule.idschedule = scheduleData[4]
+            schedule.idSchedule = scheduleData[4]
             schedules.append(schedule)
         return schedules
         
@@ -196,9 +173,50 @@ class Schedule(object):
         @author
         """
         cursor = MySQLConnection()
-        #the object was not created with pickByID() or find()        
-        if not self.idSchedule:
-            pass
+        #check if dayOfTheWeek is in the database
+        try:
+            query = 'select idDayOfTheWeek from minitableDayOfTheWeek where dayOfTheWeek = "' + self.dayOfTheWeek + '" '
+            idDayOfTheWeek = cursor.execute(query)
+            if not idDayOfTheWeek:
+            #if dayOfTheWeek isn't in the database
+                print "dayOfTheWeek must be in the database"
+                return False
+            idDayOfTheWeek = idDayOfTheWeek[0][0]
+        except:
+            return False
+        #check if end is a value time
+        if not checkTimeString(self.end):
+            print "Wrong end value"
+            return False
+        #check if start is a value time
+        if not checkTimeString(self.start):
+            print "Wrong start value"
+            return False
+        if self.idSchedule == None:
+            #Search for idSchedule
+            possibleIds = self.find(dayOfTheWeek_equal = self.dayOfTheWeek, end_equal = self.end, frequency_equal = self.frequency, start_equal = self.start)
+            if not possibleIds :
+                #If there is no idSchedule, then create row
+                try:
+                    query = 'INSERT INTO schedule (idDayOfTheWeek, end, frequency, start) VALUES(' + str(idDayOfTheWeek) + ', "' + self.end + '", "' + self.frequency + '", "' + self.start + '")'
+                    cursor.execute(query)
+                    cursor.commit()
+                    self.idSchedule = self.find(dayOfTheWeek_equal = self.dayOfTheWeek, end_equal = self.end, frequency_equal = self.frequency, start_equal = self.start)[0].idSchedule                
+                    return True
+                except:
+                    return False 
+            else:
+                self.idSchedule = possibleIds[0].idSchedule   #Since all results are the same schedule pick the first one.
+                return True
+        else:
+            #If there is an idFaculty try to update row
+            query = 'UPDATE schedule SET idDayOfTheWeek = ' + str(idDayOfTheWeek) + ', end = "' + self.end + '", frequency = "' + self.frequency + '" , start = "' + self.start + '" WHERE idSchedule = ' + str(self.idSchedule)
+            try:
+                cursor.execute(query)
+                cursor.commit()
+                return True
+            except:
+                return False 
 
     def delete(self):
         """
@@ -210,13 +228,22 @@ class Schedule(object):
         @author
         """
         if self.idSchedule != None:
+            cursor = MySQLConnection()
+            dbobject = self.pickById(self.idSchedule)
+            if not dbobject:
+                print 'idSchedule must be in the database'
+                return False
+            if self.dayOfTheWeek != dbobject.dayOfTheWeek or self.end != dbobject.end or self.start != dbobject.start or self.frequency != dbobject.frequency:
+                print 'Attributes do not match in the database'
+                return False
             try:
-                cursor = MySQLConnection()
-                cursor.execute('DELETE FROM schedule WHERE idschedule = ' + str(self.idschedule))
+                cursor.execute('DELETE FROM schedule WHERE idSchedule = ' + str(self.idSchedule))
                 cursor.commit()
+                self = None
                 return True
             except:
                 pass
+        print "object has no idSchedule"
         return False
 
 

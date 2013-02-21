@@ -1,4 +1,6 @@
-from Offer import *
+#import header
+from Offer import Offer
+from tools.MySQLConnection import *
 
 class Course(object):
 
@@ -123,22 +125,36 @@ class Course(object):
         @return string :
         @author
         """
-        #check if the course, the professor and the practical is the same
+        #Check if the course, the professor and the practical is the same.
         idCourse = offers[0].idCourse
+        idTimePeriod = offers[0].timePeriod.idTimePeriod
         idProfessor = offers[0].professor.idProfessor
         practical = offers[0].practical
         for offer in offers[1:]:
+            if offer.timePeriod.idTimePeriod != idTimePeriod:
+                return None #if the timePeriod is diferent there is no name for this set of offers.
             if offer.idCourse != idCourse:
-                idCourse = None
-                return None #if the course is diferent there is no name for this set of offers
+                return None #if the course is diferent there is no name for this set of offers.
             if idProfessor != offer.professor.idProfessor:
                 idProfessor = None
             if practical != offer.practical:
                 practical = None
-        courseName = ''#offers[0].getCourse().name
-        if idProfessor != None:
+        courseName = offers[0].getCourse().name
+        #Now checks if there are other offers in this course that have diferent professors and practical from this set
+        otherOffers = Offer.find(idCourse = idCourse, timePeriod = offers[0].timePeriod)
+        otherProfessor = False
+        otherPractical = False
+        for otherOffer in otherOffers:
+            if idProfessor != None:
+                if otherOffer.professor.idProfessor != idProfessor:
+                    otherProfessor = True                    
+            if practical != None:
+                if otherOffer.practical != practical:
+                    otherPractical = True
+        #Now creats the name
+        if otherProfessor:
             courseName = courseName + '[' + offers[0].professor.name + ']'
-        if practical != None:
+        if otherPractical:
             if practical == 1:
                 courseName = courseName + '(P)'
             else:
@@ -157,20 +173,25 @@ class Course(object):
         pass
 
 
-    def fillOffers(self, practical, professor, timePeriod):
+    def fillOffers(self, **kwargs):
         """
-         Fills the object's list of offers using parameters practical, professor and time
-         period; plus the number of parameters may change.
+         Fills the object's list of offers, the parameters passed to kwargs may be:
+         >practical
+         >professor
+         >timePeriod
+         >classNumber
 
-        @param bool practical : True if the chosen offers are practical, False otherwise.
-        @param Professor professor : The professor of the chosen offers
-        @param TimePeriod timePeriod : the time Period of the offers chosen
+        @param {} **kwargs : Dictionary of arguments to be used as parameters for the search.
         @return  :
         @author
         """
-        pass
+        if self.idCourse != None:
+            kwargs['idCourse'] = self.idCourse
+            self.offers = Offer.find(**kwargs)
+        
 
-    def pickById(self, idCourse):
+    @staticmethod
+    def pickById(idCourse):
         """
          Returns a single course with the chosen ID.
 
@@ -178,9 +199,17 @@ class Course(object):
         @return int :
         @author
         """
-        pass
+        cursor = MySQLConnection()
+        try:
+            courseData = cursor.execute('SELECT courseCode, name FROM course WHERE idCourse = ' + str(idCourse))[0]
+        except:
+            return None
+        course = Course(courseData[0],courseData[1])
+        course.idCourse = idCourse
+        return course        
 
-    def find(self, _kwargs):
+    @staticmethod
+    def find(**kwargs):
         """
          Searches the database to find one or more objects that fit the description
          specified by the method's parameters. It is possible to perform two kinds of
@@ -204,11 +233,20 @@ class Course(object):
          determine the kind of search to be done.
          E. g. Course.find(name_like = "Computer", courseCode_equal = "MAC2166")
 
-        @param {} _kwargs : Dictionary of arguments to be used as parameters for the search.
-        @return  :
+        @param {} **kwargs : Dictionary of arguments to be used as parameters for the search.
+        @return course[] : 
         @author
         """
-        pass
+        cursor = MySQLConnection()
+        coursesData = cursor.find('SELECT idCourse, courseCode, abbreviation, name, startDate, endDate FROM course',kwargs)
+        courses = []
+        for courseData in coursesData:
+            course = Course(courseData[1],courseData[3])
+            course.setAbbreviation(courseData[2])
+            course.setStartDate(courseData[4])
+            course.setEndDate(courseData[5]) 
+            courses.append(course)
+        return courses
 
     def store(self):
         """

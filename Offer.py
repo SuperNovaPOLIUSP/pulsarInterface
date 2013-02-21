@@ -1,6 +1,7 @@
-from TimePeriod import *
-from Professor import *
-from tools.MySQLConnection import *
+from TimePeriod import TimePeriod
+from Professor import Professor
+import Course #To avoid cyclical import
+from tools.MySQLConnection import MySQLConnection 
 
 class Offer(object):
 
@@ -63,8 +64,7 @@ class Offer(object):
         @author
         """
         self.timePeriod = timePeriod
-        #self.idCourse = course.idCourse #ainda nao esta implementado
-        self.idCourse = course #temporary
+        self.idCourse = course.idCourse
         self.classNumber = classNumber
         self.practical = practical
         self.professor = professor
@@ -89,8 +89,7 @@ class Offer(object):
         @return Course :
         @author
         """
-        #return Course.pickById(self.idCourse)
-        pass
+        return Course.Course.pickById(self.idCourse)
 
     @staticmethod
     def pickById(idOffer):
@@ -109,8 +108,7 @@ class Offer(object):
             offerData = cursor.execute('SELECT idOffer, idTimePeriod, idCourse, classNumber, practical, idProfessor, numberOfRegistrations FROM aggr_offer WHERE idOffer = ' + str(idOffer))[0]
         except:
             return None
-        #                                                 temporary
-        offer = Offer(TimePeriod.pickById(offerData[1]), offerData[2],   offerData[3], offerData[4], Professor.pickById(offerData[5]), offerData[6])
+        offer = Offer(TimePeriod.pickById(offerData[1]), Course.Course.pickById(offerData[2]),   offerData[3], offerData[4], Professor.pickById(offerData[5]), offerData[6])
         #offer.schedule = Schedule.find(idOffer = offerData[0]) #Not implemented
         offer.idOffer = offerData[0]
         return offer
@@ -162,7 +160,7 @@ class Offer(object):
         offersData = cursor.find('SELECT idOffer, idTimePeriod, idCourse, classNumber, practical, idProfessor, numberOfRegistrations FROM aggr_offer',parameters)
         offers = []
         for offerData in offersData:
-            offer = Offer(TimePeriod.pickById(offerData[1]), offerData[2],   offerData[3], offerData[4], Professor.pickById(offerData[5]), offerData[6])
+            offer = Offer(TimePeriod.pickById(offerData[1]), Course.Course.pickById(offerData[2]),   offerData[3], offerData[4], Professor.pickById(offerData[5]), offerData[6])
             offer.idOffer = offerData[0]
             #offer.schedule = Schedule.find(idOffer = self.idOffer) #Not implemented
             offers.append(offer)

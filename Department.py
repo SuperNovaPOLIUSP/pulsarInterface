@@ -48,12 +48,14 @@ class Department(object):
         @return Department :
         @author
         """
-        if not isinstance(idDepartment,int):
-            return None
         cursor = MySQLConnection()
         query = 'SELECT * FROM department WHERE idDepartment = ' + str(idDepartment)
-        department_sql = cursor.execute(query)
-        department = Department(department_sql[0][1], department_sql[0][2])
+        try:
+            department_sql = cursor.execute(query)[0]
+            print department_sql
+        except:
+            return None
+        department = Department(department_sql[1], department_sql[2])
         department.idDepartment = idDepartment
         return department
 

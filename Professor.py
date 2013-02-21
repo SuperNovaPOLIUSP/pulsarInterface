@@ -59,7 +59,7 @@ class Professor(object):
             professor_sql = cursor.execute(query)[0]
         except:
             return None
-        professor = Professor(professor_slq[2])
+        professor = Professor(professor_sql[2])
         professor.idProfessor = professor_sql[0]
         professor.memberId = professor_sql[1]
         return professor

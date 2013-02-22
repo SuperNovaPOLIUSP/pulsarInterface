@@ -73,13 +73,11 @@ class Schedule(object):
                 return None
         
         #check if the parameter 'end' is in the format HH:MM:SS
-        end = checkTimeString(end)
-        if not end:
+        if not checkTimeString(end):
             print "Wrong end format"
             return None
         #check if the parameter 'start' is in the format HH:MM:SS
-        start = checkTimeString(start)
-        if not start:
+        if not checkTimeString(start):
             print "Wrong start format"
             return None        
 
@@ -244,6 +242,6 @@ class Schedule(object):
             except:
                 pass
         print "object has no idSchedule"
-        return False
+        raise MySQLQueryError("")
 
 

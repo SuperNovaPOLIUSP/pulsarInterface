@@ -149,9 +149,15 @@ class Offer(object):
         parameters = {}
         for key in kwargs:
             if key == 'professor':
-                parameters['idProfessor'] = kwargs['professor'].idProfessor
+                if Professor.pickById(kwargs['professor'].idProfessor).__dict__ == kwargs['professor'].__dict__:
+                    parameters['idProfessor'] = kwargs['professor'].idProfessor
+                else:
+                    raise MySQLError('Professor object was changed and not stored.')
             elif key == 'timePeriod':
-                parameters['idTimePeriod'] = kwargs['timePeriod'].idTimePeriod
+                if TimePeriod.pickById(kwargs['timePeriod'].idTimePeriod).__dict__ == kwargs['timePeriod'].__dict__:
+                    parameters['idTimePeriod'] = kwargs['timePeriod'].idTimePeriod
+                else:
+                    raise MySQLError('TimePeriod object was changed and not stored.')
             elif key == 'schedule': #COMPLETAR!!!!
                 pass
             else:

@@ -1,5 +1,6 @@
 #import header
 from Offer import Offer
+import inspect
 from tools.MySQLConnection import *
 
 class Course(object):
@@ -56,6 +57,12 @@ class Course(object):
         @return  :
         @author
         """
+        if not isinstance(courseCode,(str,unicode)):
+            print "courseCode must be str or unicode"
+            return None 
+        if not isinstance(name,(str,unicode)):
+            print "name must be str or unicode"
+            return None
         self.courseCode = courseCode
         self.name = name
         self.idCourse = None
@@ -72,6 +79,9 @@ class Course(object):
         @return string :
         @author
         """
+        if not isinstance(abbreviation,(str,unicode)):
+            print "abbreviation must be str or unicode"
+            return 
         self.abbreviation = abbreviation
 
     def setStartDate(self, startDate):
@@ -103,7 +113,10 @@ class Course(object):
         @author
         """
         for offer in offers:
-            self.offers.append(offer)
+            if isinstance(offer,Offer): 
+                self.offers.append(offer)
+            else:
+                print "offers must be a list of Offer objects and " + str(offer) + " is not" 
 
     def removeOfferById(self, idOffer):
         """
@@ -113,7 +126,10 @@ class Course(object):
         @return  :
         @author
         """
-        self.offers = [offer for offer in self.offers if offer.idOffer != idOffer ]    
+        if isinstance(idOffer,(int,long)):
+            self.offers = [offer for offer in self.offers if offer.idOffer != idOffer ]    
+        else:
+            print "idOffer must be int or long"
 
     @staticmethod
     def specifyCourse(offers):
@@ -125,6 +141,11 @@ class Course(object):
         @return string :
         @author
         """
+        #Check if offers is a list of offer
+        for offer in offers:
+            if not isinstance(offer, Offer):
+                print "offers must be a list of Offer objects"
+                return None
         #Check if the course, the professor and the practical is the same.
         idCourse = offers[0].idCourse
         idTimePeriod = offers[0].timePeriod.idTimePeriod

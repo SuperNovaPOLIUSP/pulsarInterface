@@ -102,7 +102,7 @@ class Offer(object):
 
     def setProfessor(self, professor):
         """
-         Associate a new professor with the offer.
+        Associate a new professor with the offer, if the given professor is a Professor object and there are non not saved changes in it.
 
         @param Professor professor : The new professorresponsable for this offer
         @return  :
@@ -114,7 +114,7 @@ class Offer(object):
 
     def setNumberOfRegistrations(self, numberOfRegistrations):
         """
-         Associate a numberOfRegistrations with the offer.
+        Checks if the numberOfRegistration is an int or a long and it is bigger or equal 0 and then set the number of registration of this offer.
 
         @param int numberOfRegistrations : The number of registrations of this offer
         @return  :
@@ -127,7 +127,7 @@ class Offer(object):
 
     def setSchedules(self, schedules):
         """
-         Associate a schedule list with the offer.
+        Checks if schedules is a list of valid Schedule objects that have no non saved changes, and then sets this offer schedules to the schedules given. 
 
         @param Schedule schedules : The list of Schedule objects of this offer
         @return  :
@@ -153,58 +153,138 @@ class Offer(object):
         else:
             raise OfferError('idOffer is not defined')
 
+
+
     @staticmethod
-    def offersName(offers):
+    def offersName(setsOfOffers):
         """
-         Receives a list of offers and returns the name associated with this set.
+         Receives a list of list of offers and returns the name associated with each set of offers, in the same order as the given list.
          E.g. Physics (P)[professor's name].
 
-        @param Offer[] offers : List of offers
-        @return string :
+        @param Offer[][] setOfOffers : List of list of offers
+        @return string[] :
         @author
         """
-        #Check if offers is a list of offer
+        coursesName = []
+        otherOffers = None
+        for offers in setsOfOffers:
+            #Check if offers is a list of offer
+            for offer in offers:
+                if not isinstance(offer, Offer):
+                    print "offers must be a list of Offer objects"
+                    return None
+            #Check if the course, the professor and the practical is the same.
+            course = offers[0].course
+            timePeriod = offers[0].timePeriod
+            professor = offers[0].professor
+            practical = offers[0].practical
+            for offer in offers[1:]:
+                if not offer.timePeriod == timePeriod:
+                    return None #if the timePeriod is diferent there is no name for this set of offers.
+                if not offer.course == course:
+                    return None #if the course is diferent there is no name for this set of offers.
+                if not professor == offer.professor:
+                    professor = None
+                if practical != offer.practical:
+                    practical = None
+            courseName = offers[0].course.name
+            #Now checks if there are other offers in this course that have diferent professors and practical from this set
+            if otherOffers == None:
+                otherOffers = Offer.find(course = course, timePeriod = timePeriod)
+            otherProfessor = False
+            otherPractical = False
+            for otherOffer in otherOffers:
+                if professor != None:
+                    if not otherOffer.professor == professor:
+                        otherProfessor = True                    
+                if practical != None:
+                    if otherOffer.practical != practical:
+                        otherPractical = True
+            #Now creats the name
+            if otherProfessor:
+                courseName = courseName + '[' + professor.name + ']'
+            if otherPractical:
+                if practical == 1:
+                    courseName = courseName + '(P)'
+                else:
+                    courseName = courseName + '(T)'
+            coursesName.append(courseName) 
+        return coursesName
+
+    @staticmethod
+    def possibleNames(offers):
+        """
+         Returns a list of dicts in the form {name:specifyCourse(offers),offers:Offer[]},
+         where the offers is a subset of this courses offers, and the name is the name of
+         this subset. The list must contain all possible names for that course.
+    
+        @return [] :
+        @author
+        """
+        if len(offers)==0:
+            print 'offers list is empty'
+            return None
+        setsOfOffers = []
+        #First fill a set with all offers
+        setsOfOffers.append({'professor':None,'offers':[],'practical':None})
         for offer in offers:
-            if not isinstance(offer, Offer):
-                print "offers must be a list of Offer objects"
-                return None
-        #Check if the course, the professor and the practical is the same.
-        course = offers[0].course
-        timePeriod = offers[0].timePeriod
-        professor = offers[0].professor
-        practical = offers[0].practical
-        for offer in offers[1:]:
-            if not offer.timePeriod == timePeriod:
-                return None #if the timePeriod is diferent there is no name for this set of offers.
-            if not offer.course == course:
-                return None #if the course is diferent there is no name for this set of offers.
-            if not professor == offer.professor:
-                professor = None
-            if practical != offer.practical:
-                practical = None
-        courseName = offers[0].course.name
-        #Now checks if there are other offers in this course that have diferent professors and practical from this set
-        otherOffers = Offer.find(course = course, timePeriod = timePeriod)
-        otherProfessor = False
-        otherPractical = False
-        for otherOffer in otherOffers:
-            if professor != None:
-                if not otherOffer.professor == professor:
-                    otherProfessor = True                    
-            if practical != None:
-                if otherOffer.practical != practical:
-                    otherPractical = True
-        #Now creats the name
-        if otherProfessor:
-            courseName = courseName + '[' + professor.name + ']'
-        if otherPractical:
-            if practical == 1:
-                courseName = courseName + '(P)'
+            setsOfOffers[0]['offers'].append(offer)
+        #Check if there are more than one offer per classNumber
+        moreThanOneOffer = False
+        classNumbers = []
+        for offer in offers:
+            if offer.classNumber in classNumbers:
+                moreThanOneOffer = True
+                break
             else:
-                courseName = courseName + '(T)'
-        return courseName 
-
-
+                classNumbers.append(offer.classNumber)
+        if moreThanOneOffer:
+            #Now check if professors are different in one classNumber
+            moreThanOneProfessor = False
+            for classNumber in classNumbers:
+                professors = []
+                for offer in offers:
+                    if offer.classNumber == classNumber:
+                        if not offer.professor in professors:
+                            if len(professors)>0:
+                                moreThanOneProfessor = True
+                                break
+                            else:
+                                professors.append(offer.professor)
+            if moreThanOneProfessor:
+                #If there are more than one professor per classNumber (even if it is in only one classNumber) there is a possibility to seperate per professor
+                for offer in offers:
+                    added = False
+                    for setOfOffers in setsOfOffers:
+                        if setOfOffers['professor'] == offer.professor.idProfessor:
+                            added = True
+                            setOfOffers['offers'].append(offer)
+                    if not added:
+                        setsOfOffers.append({'professor':offer.professor.idProfessor,'offers':list([offer]),'practical':None})
+        
+        for setOfOffers in setsOfOffers:
+            practical = setOfOffers['offers'][0].practical
+            offersPractical1 = []
+            offersPractical2 = []
+            moreThanOnePractical = False
+            for offer in setOfOffers['offers']:
+                if offer.practical != practical:
+                    offersPractical2.append(offer)
+                    moreThanOnePractical = True
+                else:
+                    offersPractical1.append(offer)
+            if moreThanOnePractical:
+                setsOfOffers.append({'professor':setOfOffers['professor'], 'offers':offersPractical1, 'practical':offersPractical1[0].practical})
+                setsOfOffers.append({'professor':setOfOffers['professor'], 'offers':offersPractical2, 'practical':offersPractical2[0].practical})
+                    
+        names = Offer.offersName(setOfOffers['offers'] for setOfOffers in setsOfOffers)
+        result = []
+        i = 0
+        for name in names:
+            result.append({'name':name, 'offers': setsOfOffers[i]['offers']}) #The order is the same
+            i = i + 1
+        return result
+ 
     @staticmethod
     def pickById(idOffer):
         """
@@ -225,7 +305,7 @@ class Offer(object):
         offer = Offer(TimePeriod.pickById(offerData[1]), Course.pickById(offerData[2]), offerData[3], offerData[4], Professor.pickById(offerData[5]))
         offer.setNumberOfRegistrations(offerData[6])
         offer.idOffer = offerData[0]
-        offer.fillSchedules()
+        #offer.fillSchedules()
         return offer
 
     @staticmethod

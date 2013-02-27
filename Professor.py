@@ -44,6 +44,12 @@ class Professor(object):
         self.idProfessor = None
         self.memberId = None
 
+    def __eq__(self, other):
+        if not isinstance(other, Professor):
+            return False
+        return self.__dict__ == other.__dict__
+
+
     @staticmethod
     def pickById(idProfessor):
         """

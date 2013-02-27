@@ -58,6 +58,12 @@ class TimePeriod(object):
         str_timePeriod = session_str[self.session -1] + length_str[self.length -1] + "of " + str(self.year)
         return str_timePeriod
 
+    def __eq__(self, other):
+        if not isinstance(other, TimePeriod):
+            return False
+        return self.__dict__ == other.__dict__
+
+
     @staticmethod
     def pickById(idTimePeriod):
         """

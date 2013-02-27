@@ -1,5 +1,4 @@
 #import header
-from Offer import Offer
 import inspect
 from tools.MySQLConnection import *
 
@@ -71,6 +70,12 @@ class Course(object):
         self.startDate = None
         self.endDate = None
 
+    def __eq__(self, other):
+        if not isinstance(other, Course):
+            return False
+        return self.__dict__ == other.__dict__
+   
+
     def setAbbreviation(self, abbreviation):
         """
          Set the abbreviation of this course.
@@ -103,33 +108,7 @@ class Course(object):
         @author
         """
         self.endDate = endDate
-
-    def addOffers(self, offers):
-        """
-         Adds a set of offers to this course.
-
-        @param Offer[] offers : List of offers to be associated to this course.
-        @return bool :
-        @author
-        """
-        for offer in offers:
-            if isinstance(offer,Offer): 
-                self.offers.append(offer)
-            else:
-                print "offers must be a list of Offer objects and " + str(offer) + " is not" 
-
-    def removeOfferById(self, idOffer):
-        """
-         Removes an offer with the chosen ID from the list offers.
-
-        @param int idOffer : The id of the offer chosen to be removed from this course.
-        @return  :
-        @author
-        """
-        if isinstance(idOffer,(int,long)):
-            self.offers = [offer for offer in self.offers if offer.idOffer != idOffer ]    
-        else:
-            print "idOffer must be int or long"
+    '''
 
     @staticmethod
     def specifyCourse(offers):
@@ -180,7 +159,7 @@ class Course(object):
                 courseName = courseName + '(P)'
             else:
                 courseName = courseName + '(T)'
-        return courseName
+        return courseName 
 
     def possibleNames(self):
         """
@@ -191,24 +170,50 @@ class Course(object):
         @return [] :
         @author
         """
-        pass
-
-
-    def fillOffers(self, **kwargs):
-        """
-         Fills the object's list of offers, the parameters passed to kwargs may be:
-         >practical
-         >professor
-         >timePeriod
-         >classNumber
-
-        @param {} **kwargs : Dictionary of arguments to be used as parameters for the search.
-        @return  :
-        @author
-        """
-        if self.idCourse != None:
-            kwargs['idCourse'] = self.idCourse
-            self.offers = Offer.find(**kwargs)
+        if len(self.offers)==0:
+            print 'offers list is empty'
+            return None
+        setOfOffers = []
+        #First check if there are more than one offer per classNumber
+        moreThanOneOffer = False
+        classNumbers = []
+        for offer in self.offers:
+            if offer.classNumber in classNumbers:
+                moreThanOneOffer = True
+                break
+            else:
+                classNumbers.append(offer.classNumber)
+        if moreThanOneOffer:
+            #Now check if professors are different in one classNumber
+            print '1'
+            moreThanOneProfessor = False
+            for classNumber in classNumbers:
+                professors = []
+                for offer in self.offers:
+                    if offer.classNumber == classNumber:
+                        if not offer.professor in professors:
+                            if len(professors)>0:
+                                moreThanOneProfessor = True
+                                break
+                            else:
+                                professors.append(offer.professor)
+            if moreThanOneProfessor:
+                #If there are more than one professor per classNumber (even if it is in only one classNumber) there is a possibility to seperate per professor
+                print 'a'
+                for offer in self.offers:
+                    added = False
+                    for setOfOffer in setOfOffers:
+                        if setOfOffer['professor'] == offer.professor.idProfessor:
+                            added = True
+                            setOfOffer['offers'].append(offer)
+                    if not added:
+                        setOfOffers.append({'professor':offer.professor.idProfessor,'offers':list([offer])})
+        print offers 
+                            
+                    
+                        
+                '''
+        
         
 
     @staticmethod
@@ -263,6 +268,7 @@ class Course(object):
         courses = []
         for courseData in coursesData:
             course = Course(courseData[1],courseData[3])
+            course.idCourse = courseData[0]
             course.setAbbreviation(courseData[2])
             course.setStartDate(courseData[4])
             course.setEndDate(courseData[5]) 

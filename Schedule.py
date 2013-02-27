@@ -96,6 +96,12 @@ class Schedule(object):
         """
         return self.dayOfTheWeek.encode('utf8') + ' '+ self.start[:5] + ' - ' + self.end[:5] 
     
+    def __eq__(self, other):
+        if not isinstance(other, Schedule):
+            return False
+        return self.__dict__ == other.__dict__
+      
+ 
     @staticmethod 
     def pickById(idSchedule):
         """

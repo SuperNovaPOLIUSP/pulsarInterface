@@ -134,7 +134,7 @@ class Offer(object):
         @author
         """
         for schedule in schedules:
-            if not isinstance(schedule, Schedule):
+            if not isinstance(schedule, Schedule) or not schedule == Schedule.pickById(schedule.idSchedule):
                 raise OfferError('Parameter schedules must be a list of Schedule objects')
         self.schedules = schedules
 
@@ -158,7 +158,7 @@ class Offer(object):
     @staticmethod
     def offersName(setsOfOffers):
         """
-         Receives a list of list of offers and returns the name associated with each set of offers, in the same order as the given list.
+         Receives a list of list of offers and returns the name associated with each set of offers, in the same order as the given list.All offers must belong to the same course and timePeriod
          E.g. Physics (P)[professor's name].
 
         @param Offer[][] setOfOffers : List of list of offers
@@ -167,22 +167,24 @@ class Offer(object):
         """
         coursesName = []
         otherOffers = None
+         #course and timePeriod must be equal in all the offers.
+        course = setsOfOffers[0][0].course
+        timePeriod = setsOfOffers[0][0].timePeriod
+        
         for offers in setsOfOffers:
             #Check if offers is a list of offer
             for offer in offers:
                 if not isinstance(offer, Offer):
                     print "offers must be a list of Offer objects"
                     return None
-            #Check if the course, the professor and the practical is the same.
-            course = offers[0].course
-            timePeriod = offers[0].timePeriod
+            #Check if the professor and the practical is the same in this specific set of offers.
             professor = offers[0].professor
             practical = offers[0].practical
             for offer in offers[1:]:
                 if not offer.timePeriod == timePeriod:
-                    return None #if the timePeriod is diferent there is no name for this set of offers.
+                    return None #timePeriod must be equal in all the offers.
                 if not offer.course == course:
-                    return None #if the course is diferent there is no name for this set of offers.
+                    return None #course must be equal in all the offers.
                 if not professor == offer.professor:
                     professor = None
                 if practical != offer.practical:
@@ -276,14 +278,17 @@ class Offer(object):
             if moreThanOnePractical:
                 setsOfOffers.append({'professor':setOfOffers['professor'], 'offers':offersPractical1, 'practical':offersPractical1[0].practical})
                 setsOfOffers.append({'professor':setOfOffers['professor'], 'offers':offersPractical2, 'practical':offersPractical2[0].practical})
-                    
-        names = Offer.offersName(setOfOffers['offers'] for setOfOffers in setsOfOffers)
-        result = []
+        #creates a list
+        cleanSetOfOffers = []
+        for setOfOffers in  setsOfOffers:
+            cleanSetOfOffers.append(setOfOffers['offers'])
+        names = Offer.offersName(cleanSetOfOffers)
+        returns = []
         i = 0
         for name in names:
-            result.append({'name':name, 'offers': setsOfOffers[i]['offers']}) #The order is the same
+            returns.append({'name':name, 'offers': setsOfOffers[i]['offers']}) #The order is the same
             i = i + 1
-        return result
+        return returns
  
     @staticmethod
     def pickById(idOffer):

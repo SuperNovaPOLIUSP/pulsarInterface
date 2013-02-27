@@ -2,7 +2,7 @@ from TimePeriod import TimePeriod
 from Professor import Professor
 from Course import Course
 from Schedule import Schedule
-from tools.MySQLConnection import MySQLConnection 
+from toolsDev.tools.MySQLConnection import MySQLConnection 
 
 class OfferError(Exception):
     """
@@ -154,6 +154,58 @@ class Offer(object):
             raise OfferError('idOffer is not defined')
 
     @staticmethod
+    def offersName(offers):
+        """
+         Receives a list of offers and returns the name associated with this set.
+         E.g. Physics (P)[professor's name].
+
+        @param Offer[] offers : List of offers
+        @return string :
+        @author
+        """
+        #Check if offers is a list of offer
+        for offer in offers:
+            if not isinstance(offer, Offer):
+                print "offers must be a list of Offer objects"
+                return None
+        #Check if the course, the professor and the practical is the same.
+        course = offers[0].course
+        timePeriod = offers[0].timePeriod
+        professor = offers[0].professor
+        practical = offers[0].practical
+        for offer in offers[1:]:
+            if not offer.timePeriod == timePeriod:
+                return None #if the timePeriod is diferent there is no name for this set of offers.
+            if not offer.course == course:
+                return None #if the course is diferent there is no name for this set of offers.
+            if not professor == offer.professor:
+                professor = None
+            if practical != offer.practical:
+                practical = None
+        courseName = offers[0].course.name
+        #Now checks if there are other offers in this course that have diferent professors and practical from this set
+        otherOffers = Offer.find(course = course, timePeriod = timePeriod)
+        otherProfessor = False
+        otherPractical = False
+        for otherOffer in otherOffers:
+            if professor != None:
+                if not otherOffer.professor == professor:
+                    otherProfessor = True                    
+            if practical != None:
+                if otherOffer.practical != practical:
+                    otherPractical = True
+        #Now creats the name
+        if otherProfessor:
+            courseName = courseName + '[' + professor.name + ']'
+        if otherPractical:
+            if practical == 1:
+                courseName = courseName + '(P)'
+            else:
+                courseName = courseName + '(T)'
+        return courseName 
+
+
+    @staticmethod
     def pickById(idOffer):
         """
          Searches for an offer with the same id as the value of the parameter idOffer.
@@ -221,7 +273,7 @@ class Offer(object):
                 parameters['idSchedule'] = kwargs['schedule'].idSchedule
             else:
                 parameters[key] = kwargs[key]
-        offersData = cursor.find('SELECT idOffer, idTimePeriod, idCourse, classNumber, practical, idProfessor, numberOfRegistrations FROM aggr_offer aggr JOIN rel_offer_schedule ros ON aggr.idOffer = ros.idOffer',parameters)
+        offersData = cursor.find('SELECT idOffer, idTimePeriod, idCourse, classNumber, practical, idProfessor, numberOfRegistrations FROM aggr_offer',parameters)
         offers = []
         for offerData in offersData:
             offer = Offer(TimePeriod.pickById(offerData[1]), Course.pickById(offerData[2]), offerData[3], offerData[4], Professor.pickById(offerData[5]))

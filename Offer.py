@@ -1,12 +1,22 @@
 from TimePeriod import TimePeriod
 from Professor import Professor
-import Course #To avoid cyclical import
+from Course import Course
+from Schedule import Schedule
 from tools.MySQLConnection import MySQLConnection 
+
+class OfferError(Exception):
+    """
+     Exception reporting an error in the execution of a Offer method.
+
+    :version:
+    :author:
+    """
+    pass
 
 class Offer(object):
 
     """
-     
+     COMPLETAR!!!!!!!!!!!!!!!
 
     :version:
     :author:
@@ -16,40 +26,40 @@ class Offer(object):
 
      Associated database key of this offer.
 
-    idOffer  (public)
+    idOffer  (private)
 
      The database ID of the course related to this offer.
 
-    idCourse  (public)
+    idCourse  (private)
 
      The professor responsible for this offer.
 
-    professor  (public)
+    professor  (private)
 
      The time period related to this offer.
 
-    timePeriod  (public)
+    timePeriod  (private)
 
      The college class's number of this offer.
 
-    classNumber  (public)
+    classNumber  (private)
 
      It is True if this offer is a practical class, and False if it is a theoretical
      class.
 
-    practical  (public)
+    practical  (private)
 
      The number of max students allowed in this offer.
 
-    numberOfRegistrationis  (public)
+    numberOfRegistrationis  (private)
 
      List of schedules when the lectures related to this offer are held.
 
-    schedules  (public)
+    schedules  (private)
 
     """
 
-    def __init__(self, timePeriod, course, classNumber, practical, professor, numberOfRegistrations):
+    def __init__(self, timePeriod, course, classNumber, practical, professor):
         """
          Creates an Offer object if all the parameters needed are specified, except by
          the numberOfRegistration, which is not necessarily needed.
@@ -63,14 +73,32 @@ class Offer(object):
         @return  :
         @author
         """
+        #Parameters verification.
+        if not isinstance(timePeriod, TimePeriod) or not TimePeriod.pickById(timePeriod.idTimePeriod) == timePeriod:
+            raise OfferError('Parameter timePerid must be a TimePeriod object that exists in the database.')
+        if not isinstance(course, Course) or not Course.pickById(course.idCourse) == course:
+            raise OfferError('Parameter course must be a Course object.')            
+        if not isinstance(classNumber, (int, long)):
+            raise OfferError('Parameter classNumber must be an int or a long.')
+        if not isinstance(practical, int):
+            raise OfferError('Parameter practical must be a bool.')
+
+        #Setting parameters that have set function
+        self.setProfessor(professor)
+        #Setting other parameters
         self.timePeriod = timePeriod
-        self.idCourse = course.idCourse
+        self.course = course
         self.classNumber = classNumber
         self.practical = practical
-        self.professor = professor
-        self.numberOfRegistrations = numberOfRegistrations
+        #Setting None parameters
+        self.numberOfRegistrations = None
         self.schedules = []
         self.idOffer = None
+
+    def __eq__(self, other):
+        if not isinstance(other, Offer):
+            return False
+        return self.__dict__ == other.__dict__
 
     def setProfessor(self, professor):
         """
@@ -80,21 +108,55 @@ class Offer(object):
         @return  :
         @author
         """
+        if not isinstance(professor, Professor) or not Professor.pickById(professor.idProfessor) == professor:
+            raise OfferError('Parameter professor must be a Professor object that exists in the database.')
         self.professor = professor
 
-    def getCourse(self):
+    def setNumberOfRegistrations(self, numberOfRegistrations):
         """
-         Returns the Course object associated with the idCourse of this object.
+         Associate a numberOfRegistrations with the offer.
 
-        @return Course :
+        @param int numberOfRegistrations : The number of registrations of this offer
+        @return  :
         @author
         """
-        return Course.Course.pickById(self.idCourse)
+        if not isinstance(numberOfRegistrations, (int, long, type(None))) :
+            raise OfferError('Parameter numberOfRegistrations must be an int or a long or None')
+
+        self.numberOfRegistrations = numberOfRegistrations
+
+    def setSchedules(self, schedules):
+        """
+         Associate a schedule list with the offer.
+
+        @param Schedule schedules : The list of Schedule objects of this offer
+        @return  :
+        @author
+        """
+        for schedule in schedules:
+            if not isinstance(schedule, Schedule):
+                raise OfferError('Parameter schedules must be a list of Schedule objects')
+        self.schedules = schedules
+
+    def fillSchedules(self):
+        """
+         Finds the schedules associated to this offer through a query in the database.
+
+        @param  :
+        @return  :
+        @author
+        """
+        if self.idOffer != None:
+            cursor = MySQLConnection()
+            schedulesData = cursor.execute('SELECT idSchedule FROM rel_offer_schedule WHERE idOffer = ' + str(self.idOffer))
+            self.schedules = [Schedule.pickById(scheduleData[0]) for scheduleData in schedulesData]
+        else:
+            raise OfferError('idOffer is not defined')
 
     @staticmethod
     def pickById(idOffer):
         """
-         Search an offer with the same id as the value of the parameter idOffer.
+         Searches for an offer with the same id as the value of the parameter idOffer.
          
          Return: one object of the class Offer, if successful, or none, if unsuccessful.
 
@@ -108,9 +170,10 @@ class Offer(object):
             offerData = cursor.execute('SELECT idOffer, idTimePeriod, idCourse, classNumber, practical, idProfessor, numberOfRegistrations FROM aggr_offer WHERE idOffer = ' + str(idOffer))[0]
         except:
             return None
-        offer = Offer(TimePeriod.pickById(offerData[1]), Course.Course.pickById(offerData[2]),   offerData[3], offerData[4], Professor.pickById(offerData[5]), offerData[6])
-        #offer.schedule = Schedule.find(idOffer = offerData[0]) #Not implemented
+        offer = Offer(TimePeriod.pickById(offerData[1]), Course.pickById(offerData[2]), offerData[3], offerData[4], Professor.pickById(offerData[5]))
+        offer.setNumberOfRegistrations(offerData[6])
         offer.idOffer = offerData[0]
+        offer.fillSchedules()
         return offer
 
     @staticmethod
@@ -148,69 +211,73 @@ class Offer(object):
         #first prepare the kwargs for the MySQLConnection.find function
         parameters = {}
         for key in kwargs:
+            if key == 'course':
+                parameters['idCourse'] = kwargs['course'].idCourse
             if key == 'professor':
-                if Professor.pickById(kwargs['professor'].idProfessor).__dict__ == kwargs['professor'].__dict__:
-                    parameters['idProfessor'] = kwargs['professor'].idProfessor
-                else:
-                    raise MySQLError('Professor object was changed and not stored.')
+                parameters['idProfessor'] = kwargs['professor'].idProfessor
             elif key == 'timePeriod':
-                if TimePeriod.pickById(kwargs['timePeriod'].idTimePeriod).__dict__ == kwargs['timePeriod'].__dict__:
-                    parameters['idTimePeriod'] = kwargs['timePeriod'].idTimePeriod
-                else:
-                    raise MySQLError('TimePeriod object was changed and not stored.')
-            elif key == 'schedule': #COMPLETAR!!!!
-                pass
+                parameters['idTimePeriod'] = kwargs['timePeriod'].idTimePeriod
+            elif key == 'schedule':
+                parameters['idSchedule'] = kwargs['schedule'].idSchedule
             else:
                 parameters[key] = kwargs[key]
-
-        offersData = cursor.find('SELECT idOffer, idTimePeriod, idCourse, classNumber, practical, idProfessor, numberOfRegistrations FROM aggr_offer',parameters)
+        offersData = cursor.find('SELECT idOffer, idTimePeriod, idCourse, classNumber, practical, idProfessor, numberOfRegistrations FROM aggr_offer aggr JOIN rel_offer_schedule ros ON aggr.idOffer = ros.idOffer',parameters)
         offers = []
         for offerData in offersData:
-            offer = Offer(TimePeriod.pickById(offerData[1]), Course.Course.pickById(offerData[2]),   offerData[3], offerData[4], Professor.pickById(offerData[5]), offerData[6])
+            offer = Offer(TimePeriod.pickById(offerData[1]), Course.pickById(offerData[2]), offerData[3], offerData[4], Professor.pickById(offerData[5]))
+            offer.setNumberOfRegistrations(offerData[6])
             offer.idOffer = offerData[0]
-            #offer.schedule = Schedule.find(idOffer = self.idOffer) #Not implemented
+            offer.fillSchedules()
             offers.append(offer)
         return offers
 
     def store(self):
         """
-         Creates or alters the professor's data in the data base.
+         Creates or alters the professor's data in the database.
          
          Return: true if successful or false if unsuccessful.
 
         @return bool :
         @author
         """
-        if self.numberOfRegistrations == None:
-            numberOfRegistrations = 'NULL'  #in MySQL is NULL
-        else:
-            numberofRegistrations = self.numberOfRegistrations
-        if self.idOffer == None:
-            offers = self.find(idCourse = self.idCourse, professor = self.professor, timePeriod = self.timePeriod, classNumber = self.classNumber, practical = self.practical, numberOfRegistrations = self.numberOfRegistrations) #schedule doesnt define the offer 
-            if len(offers)>0:
-                self.idOffer = offers[0].idOffer #Any offer that fit those paramaters is the same as this offer
-            else: 
-                #create this offer
-                cursor = MySQLConnection()
-                cursor.execute('INSERT INTO aggr_offer (idTimePeriod, idCourse, classNumber, practical, idProfessor, numberOfRegistrations) VALUES('+str(self.timePeriod.idTimePeriod)+', '+str(self.idCourse)+', '+str(self.classNumber)+', '+str(self.practical)+', '+str(self.professor.idProfessor)+', '+str(numberOfRegistrations)+')')
-                cursor.commit()
-                return True
-        else:
-            oldOffer = self.pickById(self.idOffer)
-            query = 'UPDATE aggr_offer SET idTimePeriod = ' + str(self.timePeriod.idTimePeriod) + ', idCourse = ' + str(self.idCourse) + ', classNumber = ' + str(self.classNumber) + ', practical = ' + str(self.practical) + ', idProfessor = ' + str(self.professor.idProfessor) + ', numberOfRegistrations = ' + str(numberOfRegistrations) + ' WHERE idOffer = ' + str(self.idOffer)
-            #Need to set the schedule offer relation
-            cursor = MySQLConnection()
-            print query
-            try:
+        cursor = MySQLConnection()
+        if False:
+            if self.numberOfRegistrations == None:
+                mySQLNumberOfRegistrations = 'NULL'  #in MySQL is NULL
+            else:
+                mySQLNumberofRegistrations = self.numberOfRegistrations
+            if self.idOffer == None:
+                offers = self.find(course = self.course, professor = self.professor, timePeriod = self.timePeriod, classNumber = self.classNumber, practical = self.practical, mySQLNumberOfRegistrations = self.numberOfRegistrations) #Schedule does not define the offer 
+                if len(offers) > 0:
+                    self.idOffer = offers[0].idOffer #Any offer that fit those paramaters is the same as this offer
+                    return
+                else: 
+                    #Create this offer
+                    query = 'INSERT INTO aggr_offer (idTimePeriod, idCourse, classNumber, practical, idProfessor, numberOfRegistrations) VALUES(' + str(self.timePeriod.idTimePeriod) + ', ' + str(self.course.idCourse) + ', ' + str(self.classNumber) + ', ' + str(self.practical) + ', ' + str(self.professor.idProfessor) + ', ' + str(mySQLNumberOfRegistrations) + ')'
+                    cursor.execute(query)
+                    cursor.commit()
+                    self.idOffer = self.find(course = self.course, professor = self.professor, timePeriod = self.timePeriod, classNumber = self.classNumber, practical = self.practical, mySQLNumberOfRegistrations = self.numberOfRegistrations)[0].idOffer
+            else:
+                #Update offer
+                oldOffer = self.pickById(self.idOffer)
+                query = 'UPDATE aggr_offer SET idTimePeriod = ' + str(self.timePeriod.idTimePeriod) + ', idCourse = ' + str(self.course.idCourse) + ', classNumber = ' + str(self.classNumber) + ', practical = ' + str(self.practical) + ', idProfessor = ' + str(self.professor.idProfessor) + ', numberOfRegistrations = ' + str(mySQLNumberOfRegistrations) + ' WHERE idOffer = ' + str(self.idOffer)
                 cursor.execute(query)
                 cursor.commit() 
-                return True
-            except:
-                return False
+        #Create the rel_offer_schedule
+        idsScheduleOld = cursor.execute('SELECT idSchedule FROM rel_offer_schedule WHERE idOffer = ' + str(self.idOffer))
+        #First delete all the old relations
+        for idScheduleOld in idsScheduleOld:
+            cursor.execute('DELETE FROM rel_offer_schedule WHERE idOffer = ' + str(self.idOffer) + ' AND idSchedule = ' + str(idScheduleOld[0]))
+        #Now creates all the new relations
+        for schedule in self.schedules:
+            cursor.execute('INSERT INTO rel_offer_schedule (idOffer, idSchedule) VALUES (' + str(self.idOffer) + ', ' + str(schedule.idSchedule) + ')')
+        cursor.commit() 
+        
+        return
 
     def delete(self):
         """
-         Deletes the professor's data in the data base.
+         Deletes the professor's data in the database.
          
          Return:  true if successful or false if unsuccessful.
 
@@ -218,15 +285,14 @@ class Offer(object):
         @author
         """
         if self.idOffer != None:
-            try:
-                cursor=MySQLConnection()
-                self.idOffer = Offer.find(timePeriod = self.timePeriod, idCourse = self.idCourse, classNumber = self.classNumber, practical = self.practical, professor = self.professor, numberOfRegistrations = self.numberOfRegistrations, idOffer = self.idOffer)[0].idOffer
+            cursor = MySQLConnection()
+            if self == Offer.pickById(self.idOffer):
+                cursor.execute('DELETE FROM rel_offer_schedule WHERE idOffer = ' + str(self.idOffer))
                 cursor.execute('DELETE FROM aggr_offer WHERE idOffer = ' + str(self.idOffer))
                 cursor.commit()
-                return True
-            except:
-                return False
+            else:
+                raise OfferError("Can't delete non saved object.")
         else:
-            return False
+            raise OfferError('No idOffer defined.')
 
 

@@ -383,7 +383,7 @@ class Offer(object):
         else:
             mySQLNumberofRegistrations = self.numberOfRegistrations
         if self.idOffer == None:
-            offers = self.find(course = self.course, professor = self.professor, timePeriod = self.timePeriod, classNumber = self.classNumber, practical = self.practical, mySQLNumberOfRegistrations = self.numberOfRegistrations) #Schedule does not define the offer 
+            offers = self.find(course = self.course, professor = self.professor, timePeriod = self.timePeriod, classNumber = self.classNumber, practical = self.practical, numberOfRegistrations = self.numberOfRegistrations) #Schedule does not define the offer 
             if len(offers) > 0:
                 self.idOffer = offers[0].idOffer #Any offer that fit those paramaters is the same as this offer
                 return
@@ -392,10 +392,9 @@ class Offer(object):
                 query = 'INSERT INTO aggr_offer (idTimePeriod, idCourse, classNumber, practical, idProfessor, numberOfRegistrations) VALUES(' + str(self.timePeriod.idTimePeriod) + ', ' + str(self.course.idCourse) + ', ' + str(self.classNumber) + ', ' + str(self.practical) + ', ' + str(self.professor.idProfessor) + ', ' + str(mySQLNumberOfRegistrations) + ')'
                 cursor.execute(query)
                 cursor.commit()
-                self.idOffer = self.find(course = self.course, professor = self.professor, timePeriod = self.timePeriod, classNumber = self.classNumber, practical = self.practical, mySQLNumberOfRegistrations = self.numberOfRegistrations)[0].idOffer
+                self.idOffer = self.find(course = self.course, professor = self.professor, timePeriod = self.timePeriod, classNumber = self.classNumber, practical = self.practical, numberOfRegistrations = self.numberOfRegistrations)[0].idOffer
         else:
             #Update offer
-            oldOffer = self.pickById(self.idOffer)
             query = 'UPDATE aggr_offer SET idTimePeriod = ' + str(self.timePeriod.idTimePeriod) + ', idCourse = ' + str(self.course.idCourse) + ', classNumber = ' + str(self.classNumber) + ', practical = ' + str(self.practical) + ', idProfessor = ' + str(self.professor.idProfessor) + ', numberOfRegistrations = ' + str(mySQLNumberOfRegistrations) + ' WHERE idOffer = ' + str(self.idOffer)
             cursor.execute(query)
             cursor.commit() 

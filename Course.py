@@ -1,6 +1,15 @@
-#import header
-import inspect
 from tools.MySQLConnection import *
+from tools.timeCheck import *
+import datetime
+
+class CourseError(Exception):
+    """
+     Exception reporting an error in the execution of a Offer method.
+
+    :version:
+    :author:
+    """
+    pass
 
 class Course(object):
 
@@ -47,7 +56,7 @@ class Course(object):
 
     """
 
-    def __init__(self, courseCode, name):
+    def __init__(self, courseCode, name, startDate):
         """
          A course is defined by a name and a 7 character code.
 
@@ -57,11 +66,15 @@ class Course(object):
         @author
         """
         if not isinstance(courseCode,(str,unicode)):
-            print "courseCode must be str or unicode"
-            return None 
+            raise CourseError('Parameter courseCode must be a string or an unicode')
         if not isinstance(name,(str,unicode)):
-            print "name must be str or unicode"
-            return None
+            raise CourseError('Parameter name must be a string or an unicode')
+
+        if not isinstance(startDate,datetime.date):
+            if not isinstance(startDate,(str,unicode)) or checkDateString(startDate) == None:
+                raise CourseError('Parameter startDate must be a datetime.date format or a string in the format year-month-day')
+
+        self.startDate = startDate
         self.courseCode = courseCode
         self.name = name
         self.idCourse = None
@@ -74,7 +87,9 @@ class Course(object):
         if not isinstance(other, Course):
             return False
         return self.__dict__ == other.__dict__
-   
+  
+    def __ne__(self,other):
+        return not self.__eq__(other) 
 
     def setAbbreviation(self, abbreviation):
         """
@@ -85,19 +100,8 @@ class Course(object):
         @author
         """
         if not isinstance(abbreviation,(str,unicode)):
-            print "abbreviation must be str or unicode"
-            return 
+            raise CourseError("Parameter abbreviation must be str or unicode")
         self.abbreviation = abbreviation
-
-    def setStartDate(self, startDate):
-        """
-         Set the startDate of this course .
-
-        @param string startDate : String defining the criation date of this course, in the form year-month-day "xxxx-xx-xx".
-        @return  :
-        @author
-        """
-        self.startDate = startDate
 
     def setEndDate(self, endDate):
         """
@@ -107,114 +111,11 @@ class Course(object):
         @return string :
         @author
         """
+        if endDate != None:
+            if not isinstance(startDate,datetime.date):
+                if not isinstance(startDate,(str,unicode)) or checkDateString(startDate) == None:
+                    raise CourseError('Parameter startDate must be a datetime.date format or a string in the format year-month-day')
         self.endDate = endDate
-    '''
-
-    @staticmethod
-    def specifyCourse(offers):
-        """
-         Receives a list of offers and returns the name associated with this set.
-         E.g. Physics (P)[professor's name].
-
-        @param Offer[] offers : List of offers
-        @return string :
-        @author
-        """
-        #Check if offers is a list of offer
-        for offer in offers:
-            if not isinstance(offer, Offer):
-                print "offers must be a list of Offer objects"
-                return None
-        #Check if the course, the professor and the practical is the same.
-        idCourse = offers[0].idCourse
-        idTimePeriod = offers[0].timePeriod.idTimePeriod
-        idProfessor = offers[0].professor.idProfessor
-        practical = offers[0].practical
-        for offer in offers[1:]:
-            if offer.timePeriod.idTimePeriod != idTimePeriod:
-                return None #if the timePeriod is diferent there is no name for this set of offers.
-            if offer.idCourse != idCourse:
-                return None #if the course is diferent there is no name for this set of offers.
-            if idProfessor != offer.professor.idProfessor:
-                idProfessor = None
-            if practical != offer.practical:
-                practical = None
-        courseName = offers[0].getCourse().name
-        #Now checks if there are other offers in this course that have diferent professors and practical from this set
-        otherOffers = Offer.find(idCourse = idCourse, timePeriod = offers[0].timePeriod)
-        otherProfessor = False
-        otherPractical = False
-        for otherOffer in otherOffers:
-            if idProfessor != None:
-                if otherOffer.professor.idProfessor != idProfessor:
-                    otherProfessor = True                    
-            if practical != None:
-                if otherOffer.practical != practical:
-                    otherPractical = True
-        #Now creats the name
-        if otherProfessor:
-            courseName = courseName + '[' + offers[0].professor.name + ']'
-        if otherPractical:
-            if practical == 1:
-                courseName = courseName + '(P)'
-            else:
-                courseName = courseName + '(T)'
-        return courseName 
-
-    def possibleNames(self):
-        """
-         Returns a list of dicts in the form {name:specifyCourse(offers),offers:Offer[]},
-         where the offers is a subset of this courses offers, and the name is the name of
-         this subset. The list must contain all possible names for that course.
-    
-        @return [] :
-        @author
-        """
-        if len(self.offers)==0:
-            print 'offers list is empty'
-            return None
-        setOfOffers = []
-        #First check if there are more than one offer per classNumber
-        moreThanOneOffer = False
-        classNumbers = []
-        for offer in self.offers:
-            if offer.classNumber in classNumbers:
-                moreThanOneOffer = True
-                break
-            else:
-                classNumbers.append(offer.classNumber)
-        if moreThanOneOffer:
-            #Now check if professors are different in one classNumber
-            print '1'
-            moreThanOneProfessor = False
-            for classNumber in classNumbers:
-                professors = []
-                for offer in self.offers:
-                    if offer.classNumber == classNumber:
-                        if not offer.professor in professors:
-                            if len(professors)>0:
-                                moreThanOneProfessor = True
-                                break
-                            else:
-                                professors.append(offer.professor)
-            if moreThanOneProfessor:
-                #If there are more than one professor per classNumber (even if it is in only one classNumber) there is a possibility to seperate per professor
-                print 'a'
-                for offer in self.offers:
-                    added = False
-                    for setOfOffer in setOfOffers:
-                        if setOfOffer['professor'] == offer.professor.idProfessor:
-                            added = True
-                            setOfOffer['offers'].append(offer)
-                    if not added:
-                        setOfOffers.append({'professor':offer.professor.idProfessor,'offers':list([offer])})
-        print offers 
-                            
-                    
-                        
-                '''
-        
-        
 
     @staticmethod
     def pickById(idCourse):
@@ -227,11 +128,14 @@ class Course(object):
         """
         cursor = MySQLConnection()
         try:
-            courseData = cursor.execute('SELECT courseCode, name FROM course WHERE idCourse = ' + str(idCourse))[0]
+            courseData = cursor.execute('SELECT idCourse, courseCode, abbreviation, name, startDate, endDate FROM course WHERE idCourse = ' + str(idCourse))[0]
         except:
             return None
-        course = Course(courseData[0],courseData[1])
-        course.idCourse = idCourse
+
+        course = Course(courseData[1],courseData[3],courseData[4])
+        course.idCourse = courseData[0]
+        course.setAbbreviation(courseData[2])
+        course.setEndDate(courseData[5]) 
         return course        
 
     @staticmethod
@@ -267,10 +171,9 @@ class Course(object):
         coursesData = cursor.find('SELECT idCourse, courseCode, abbreviation, name, startDate, endDate FROM course',kwargs)
         courses = []
         for courseData in coursesData:
-            course = Course(courseData[1],courseData[3])
+            course = Course(courseData[1],courseData[3],courseData[4])
             course.idCourse = courseData[0]
             course.setAbbreviation(courseData[2])
-            course.setStartDate(courseData[4])
             course.setEndDate(courseData[5]) 
             courses.append(course)
         return courses

@@ -235,7 +235,24 @@ class Curriculum(object):
         @return bool :
         @author
         """
-        pass
+        
+        
+        
+        if self.idCurriculum != None:
+            cursor = MySQLConnection()
+            if self == Curriculum.pickById(self.idCurriculum):
+                cursor.execute('DELETE FROM curriculum WHERE idCurriculum = ' + str(self.idCurriculum))
+                cursor.execute('DELETE FROM rel_course_curriculum WHERE idCurriculum = ' + str(self.idCurriculum))
+                cursor.execute('DELETE FROM rel_courseCoordination_curriculum WHERE idCurriculum = ' + str(self.idCurriculum))
+                cursor.execute('DELETE FROM rel_academicProgram_curriculum WHERE idCurriculum = ' + str(self.idCurriculum))
+                cursor.execute('DELETE FROM rel_course_curriculum_course WHERE idCurriculum = ' + str(self.idCurriculum))
+                cursor.execute('DELETE FROM rel_curriculum_opticalSheet WHERE idCurriculum = ' + str(self.idCurriculum))
+                #########PRECISAMOS CHECAR SE VAMOS DELETAR TAMBÉM AS FOLHAS ÓTICAS ATRELADAS AO CURRICULO
+                cursor.commit()
+            else:
+                raise CourseError("Can't delete non saved object.")
+        else:
+            raise CourseError('idCurriculum not defined.')
 
 
 

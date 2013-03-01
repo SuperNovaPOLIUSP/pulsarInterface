@@ -126,13 +126,10 @@ class Department(object):
             query = "INSERT INTO department (name, departmentCode) VALUES " + str(tuple(values))
         else:
             query = "UPDATE department SET name = " + unicode(self.name, 'utf8') + ", departmentCode = " + str(self.departmentCode)
-            query += " WHERE idDepartment = " + str(self.idDepartment)
-        try:
-            cursor.execute(query)
-            cursor.commit()
-            return True
-        except:
-            return False
+        query += " WHERE idDepartment = " + str(self.idDepartment)
+        cursor.execute(query)
+        cursor.commit()
+        return
 
     def delete(self):
         """
@@ -142,15 +139,17 @@ class Department(object):
         @return bool :
         @author
         """
-        cursor = MySQLConnection()
-        query = "DELETE FROM department WHERE idDepartment = " + str(self.idDepartment) + " AND name = '" + self.name + "' AND departmentCode = '" + self.departmentCode + "'"
-        try:
-            cursor.execute(query)
-            cursor.commit()
-            return True
-        except:
-            print query
-            return False
+        
+        if self.idDepartment != None:
+            cursor = MySQLConnection()
+            if self == Department.pickById(self.idDepartment):
+                cursor.execute('DELETE FROM department WHERE idDepartment = ' + str(self.idDepartment))
+                cursor.execute('DELETE FROM rel_department_professor WHERE idDepartment = ' + str(self.idDepartment))
+                cursor.commit()
+            else:
+                raise CourseError("Can't delete non saved object.")
+        else:
+            raise CourseError('idDepartment not defined.')
 
 
 

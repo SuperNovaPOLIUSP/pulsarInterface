@@ -1,10 +1,11 @@
+#coding: utf8
 from tools.MySQLConnection import *
 from tools.timeCheck import *
 import datetime
 
 class CourseError(Exception):
     """
-     Exception reporting an error in the execution of a Offer method.
+     Exception reporting an error in the execution of a Course method.
 
     :version:
     :author:
@@ -38,13 +39,10 @@ class Course(object):
 
     name  (public)
 
-     List of offers associated with this course.
-
-    offers  (public)
-
-     Date of start of this course, in the form year-month-day "xxxx-xx-xx". Start is
-     defined as the start of the course in general, not only in this year, but the
-     first time it was in this University.
+    
+    Date of start of this course, in the form year-month-day “xxxx-xx-xx”. Start is 
+    defined as the start of the course in general, not only in this year, but the 
+    first time it was in this University. 
 
     startDate  (public)
 
@@ -77,10 +75,8 @@ class Course(object):
         self.startDate = startDate
         self.courseCode = courseCode
         self.name = name
+        self.abbreviation = name #By default abbreviation is equal to name
         self.idCourse = None
-        self.abbreviation = None
-        self.offers = []
-        self.startDate = None
         self.endDate = None
 
     def __eq__(self, other):
@@ -112,9 +108,9 @@ class Course(object):
         @author
         """
         if endDate != None:
-            if not isinstance(startDate,datetime.date):
-                if not isinstance(startDate,(str,unicode)) or checkDateString(startDate) == None:
-                    raise CourseError('Parameter startDate must be a datetime.date format or a string in the format year-month-day')
+            if not isinstance(endDate,datetime.date):
+                if not isinstance(endDate,(str,unicode)) or checkDateString(endDate) == None:
+                    raise CourseError('Parameter endDate must be a datetime.date format or a string in the format year-month-day')
         self.endDate = endDate
 
     @staticmethod
@@ -147,7 +143,7 @@ class Course(object):
          (EQUAL operator) and a search for at least part of the string (LIKE operator).
          
          Returns:
-         All the objects that are related to existing offers in the database, if there
+         All the objects that are related to existing course in the database, if there
          are not any parameters passed.
          
          A list of objects that match the specifications made by one (or more) of the
@@ -180,24 +176,52 @@ class Course(object):
 
     def store(self):
         """
-         Creates or alters a course in the database, returns True if it is successful. If
-         the offers list is not empty, alters it in the database.
-
-        @return bool :
+         Creates or alters a course in the database.
+        @return :
         @author
         """
-        pass
+        cursor = MySQLConnection()
+        if self.endDate == None:
+            mySQLEndDate = 'NULL'  #in MySQL is NULL
+        else:
+            mySQLEndDate = '"' + self.endDate + '"'
+        if self.idCourse == None:
+            courses = Course.find(courseCode_equal = self.courseCode, abbreviation_equal = self.abbreviation, name_equal = self.name, startDate_equal = str(self.startDate), endDate_equal = self.endDate)
+            if len(courses) > 0:
+                self.idCourse = courses[0].idCourse #Any course that fit those paramaters is the same as this course, so no need to save
+                return
+            else: 
+                #Create this course
+                query = 'INSERT INTO course (courseCode, abbreviation, name, startDate, endDate) VALUES("' + self.courseCode + '", "' + self.abbreviation + '", "' + self.name + '", "' + str(self.startDate) + '", ' + mySQLEndDate + ')'
+                cursor.execute(query)
+                cursor.commit()
+                self.idCourse = Course.find(courseCode_equal = self.courseCode, abbreviation_equal = self.abbreviation, name_equal = self.name, startDate_equal = str(self.startDate), endDate_equal = self.endDate)[0].idCourse 
+        else:
+            #Update Course
+            oldCourse = Course.pickById(self.idCourse)
+            query = 'UPDATE course SET courseCode = "' + self.courseCode + '", abbreviation = "' + self.abbreviation + '", name = "' + self.name + '", startDate = "' + str(self.startDate) + '", endDate = ' + mySQLEndDate + ' WHERE idCourse = ' + str(self.idCourse)
+            cursor.execute(query)
+            cursor.commit() 
+        return
 
     def delete(self):
         """
          Deletes the course's data in the database.
          
-         Return: True if succesful or False otherwise
 
-        @return bool :
+        @return :
         @author
         """
-        pass
+        if self.idCourse != None:
+            cursor = MySQLConnection()
+            if self == Course.pickById(self.idCourse):
+                cursor.execute('DELETE FROM course WHERE idCourse = ' + str(self.idCourse))
+                cursor.commit()
+            else:
+                raise CourseError("Can't delete non saved object.")
+        else:
+            raise CourseError('idCourse not defined.')
+
 
 
 

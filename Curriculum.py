@@ -90,6 +90,14 @@ class Curriculum(object):
         self.mandatoryIdealTerms = None
         self.electiveIdealTerms = None
         self.abbreviation = None
+        
+    def __eq__(self, other):
+        if not isinstance(other, Curriculum):
+            return False
+        return self.__dict__ == other.__dict__
+  
+    def __ne__(self,other):
+        return not self.__eq__(other)
 
     def setStartDate(self, startDate):
         """

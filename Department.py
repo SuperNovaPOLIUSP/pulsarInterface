@@ -38,6 +38,14 @@ class Department(object):
         self.name = name
         self.departmentCode = departmentCode
         self.idDepartment = None
+    
+    def __eq__(self, other):
+        if not isinstance(other, Department):
+            return False
+        return self.__dict__ == other.__dict__
+  
+    def __ne__(self,other):
+        return not self.__eq__(other)
 
 
     @staticmethod

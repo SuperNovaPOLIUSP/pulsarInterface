@@ -133,7 +133,22 @@ class Curriculum(object):
         @return bool :
         @author
         """
-        pass
+        self.mandatoryIdealTerms = []
+        cursor = MySQLConnection()
+        query = "SELECT rel_course_curriculum.idCourse FROM rel_course_curriculum JOIN curriculum ON curriculum.idCurriculum = rel_course_curriculum.idCurriculum WHERE "
+        query += "rel_course_curriculum.idCurriculum = " +str(self.idCurriculum)
+        query += " AND rel_course_curriculum.requisitionType = 1 AND curriculum.term = "
+        term_searched_for = 0
+        courses = ["nada"] #so it enters on the loop below
+        for term_searched_for in range(13) #while len(courses) != 0:
+            #term_searched_for += 1
+            courses = cursor.execute(query + term_searched_for)
+            if len(courses =! 0):
+                idealTerm = IdealTerm(self.idCurriculum, term_searched_for)
+                for course in courses
+                    idealTerm.addCourse(Course.pickById(course.[0]))
+                self.mandatoryIdealTerms.append(idealTerm)
+        
 
     def completeElectiveIdealTerms(self):
         """
@@ -143,7 +158,22 @@ class Curriculum(object):
         @return bool :
         @author
         """
-        pass
+        self.electiveIdealTerms = []
+        cursor = MySQLConnection()
+        query = "SELECT rel_course_curriculum.idCourse FROM rel_course_curriculum JOIN curriculum ON curriculum.idCurriculum = rel_course_curriculum.idCurriculum WHERE "
+        query += "rel_course_curriculum.idCurriculum = " +str(self.idCurriculum)
+        query += " AND rel_course_curriculum.requisitionType = 2 AND curriculum.term = "
+        term_searched_for = 0
+        courses = ["nada"] #so it enters on the loop below
+        for term_searched_for in range(13) #while len(courses) != 0:
+            #term_searched_for += 1
+            courses = cursor.execute(query + term_searched_for)
+            if len(courses =! 0):
+                idealTerm = IdealTerm(self.idCurriculum, term_searched_for)
+                for course in courses
+                    idealTerm.addCourse(Course.pickById(course.[0]))
+                self.electiveIdealTerms.append(idealTerm)
+        
 
     @staticmethod
     def pickById(idCurriculum):
@@ -235,8 +265,6 @@ class Curriculum(object):
         @return bool :
         @author
         """
-        
-        
         
         if self.idCurriculum != None:
             cursor = MySQLConnection()

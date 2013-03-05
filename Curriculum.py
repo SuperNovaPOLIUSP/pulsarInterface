@@ -90,6 +90,7 @@ class Curriculum(object):
         self.mandatoryIdealTerms = None
         self.electiveIdealTerms = None
         self.abbreviation = None
+        self.campus = None
         
     def __eq__(self, other):
         if not isinstance(other, Curriculum):
@@ -107,7 +108,7 @@ class Curriculum(object):
         @return  :
         @author
         """
-        if checkDateString(startDate) is not None
+        if checkDateString(startDate)
             self.startDate = startDate
             return True
         return False
@@ -120,7 +121,7 @@ class Curriculum(object):
         @return  :
         @author
         """
-        if checkDateString(endDate) is not None
+        if checkDateString(endDate)
             self.endDate = endDate
             return True
         return False
@@ -233,17 +234,18 @@ class Curriculum(object):
         @author
         """
         cursor = MySQLConnection()
-        curriculaData = cursor.find('SELECT name, curriculumType, codHab, timePeriodType, faculty, idCurriculum, startDate, endDate, mandatoryIdealTerms, electiveIdealTerms, abbreviation FROM curriculum',kwargs)
+        curriculaData = cursor.find('SELECT name, curriculumType, codHab, timePeriodType, faculty, idCurriculum, startDate, endDate, abbreviation, campus FROM curriculum',kwargs)
         curricula = []
         for curriculumData in curriculaData:
             curriculum = Curriculum(curriculaData[0], curriculaData[1], curriculaData[2], curriculaData[3], curriculaData[4])
             curriculum.idCurriculum = curriculaData[5]
             curriculum.startDate = curriculaData[6]
             curriculum.endDate = curriculaData[7]
-            curriculum.mandatoryIdealTerms = curriculaData[8]
-            curriculum.electiveIdealTerms = curriculaData[9]
-            curriculum.abbreviation = curriculaData[10]
+            curriculum.abbreviation = curriculaData[8]
+            curriculum.campus = curriculaData[9]
             curricula.append(curriculum)
+        self.completeMandatoryIdealTerms()
+        self.completeElectiveIdealTerms()
         return curricula
         
         
@@ -254,7 +256,20 @@ class Curriculum(object):
         @return bool :
         @author
         """
+        
         pass
+        
+        '''self.name
+        self.curriculymType
+        self.codHab
+        self.timePeriodType
+        self.faculty
+        self.idCurriculum
+        self.startDate
+        self.endDate
+        self.mandatoryIdealTerms
+        self.electiveIdealTerms
+        self.abbreviation'''
 
     def delete(self):
         """

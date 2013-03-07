@@ -1,6 +1,16 @@
 from tools.MySQLConnection import *
 from tools.timeCheck import *
 from datetime import timedelta
+
+class OfferError(Exception):
+    """
+     Exception reporting an error in the execution of a Offer method.
+
+    :version:
+    :author:
+    """
+    pass
+    
 class Schedule(object):
 
     """
@@ -14,24 +24,24 @@ class Schedule(object):
 
      Associate database key.
 
-    idSchedule  (public)
+    idSchedule  (private)
 
      The day of the week as it is written in the database's minitableDayOfTheWeek.
 
-    dayOfTheWeek  (public)
+    dayOfTheWeek  (private)
 
      The starting time of the class (e.g. "18:00:00").
 
-    start  (public)
+    start  (private)
 
      The ending time of the class (e.g. "03:14:15").
 
-    end  (public)
+    end  (private)
 
      Specifies how often the lecture is held at this time (e.g. "weekly", "monthly",
      etc).
 
-    frequency  (public)
+    frequency  (private)
 
     """
 
@@ -47,40 +57,22 @@ class Schedule(object):
         @author
         """
         if not isinstance(dayOfTheWeek, unicode):
-            print 'dayOfTheWeek must be unicode'
-            return None
-        else:
-            #check if dayOfTheWeek is in the database
-            try:
-                cursor = MySQLConnection()              
-                if not cursor.execute('select idDayOfTheWeek from minitableDayOfTheWeek where dayOfTheWeek = "' + dayOfTheWeek + '" '):
-                #if dayOfTheWeek isn't in the database
-                    print "dayOfTheWeek must be in the database"
-                    return None
-            except:
-                return None
-        if not isinstance(end, str):
-            if not isinstance(end, unicode):
-               
-                print 'end must be a string or unicode'
-                return None
+            raise ScheduleError('dayOfTheWeek must be unicode')
+    	#check if dayOfTheWeek is in the database
+        cursor = MySQLConnection()              
+        if not cursor.execute('SELECT idDayOfTheWeek FROM minitableDayOfTheWeek WHERE dayOfTheWeek = "' + dayOfTheWeek + '" '):   
+            raise ScheduleError('dayOfTheWeek must be in the database')
+        if not isinstance(end, str) or not isinstance(end, unicode):
+            raise ScheduleError('end must be a string or unicode')
         if not isinstance(frequency, unicode):
-            print 'frequency must be unicode'
-            return None
-        if not isinstance(start, str):
-            if not isinstance(start, unicode):
-                print 'start must be a string or unicode'
-                return None
-        
-        #check if the parameter 'end' is in the format HH:MM:SS
+            raise ScheduleError('frequency must be unicode')
+        if not isinstance(start, str) or not isinstance(start, unicode):
+            raise ScheduleError('start must be a string or unicode')
+        #check if the parameter 'end' and start are in the format HH:MM:SS
         if not checkTimeString(end):
-            print "Wrong end format"
-            return None
-        #check if the parameter 'start' is in the format HH:MM:SS
+            raise ScheduleError("Wrong time format for parameter end. Format must be HH:MM:SS")
         if not checkTimeString(start):
-            print "Wrong start format"
-            return None        
-
+            raise ScheduleError("Wrong time format for parameter start. Format must be HH:MM:SS")        
         self.dayOfTheWeek = dayOfTheWeek
         self.end = end
         self.frequency = frequency
@@ -94,13 +86,16 @@ class Schedule(object):
         @return string :
         @author
         """
+        # E.g "segunda 13:00 - 16:40"
         return self.dayOfTheWeek.encode('utf8') + ' '+ self.start[:5] + ' - ' + self.end[:5] 
     
     def __eq__(self, other):
         if not isinstance(other, Schedule):
             return False
         return self.__dict__ == other.__dict__
-      
+        
+    def __ne__(self,other):
+        return not self.__eq__(other)
  
     @staticmethod 
     def pickById(idSchedule):
@@ -112,17 +107,15 @@ class Schedule(object):
         @author
         """
         cursor = MySQLConnection()
-        query = '''select mtDotW.dayOfTheWeek, sch.end, sch.frequency, sch.start  from schedule as sch
-        join minitableDayOfTheWeek as mtDotW on mtDotW.idDayofTheWeek = sch.idDayOfTheWeek
-        where sch.idSchedule = ''' + str(idSchedule)
+        query = '''SELECT mini.dayOfTheWeek, sch.end, sch.frequency, sch.start  FROM schedule AS sch
+        JOIN minitableDayOfTheWeek AS mini ON mini.idDayofTheWeek = sch.idDayOfTheWeek
+        WHERE sch.idSchedule = ''' + str(idSchedule)
         
         try:
-            values = cursor.execute(query)
+            values = cursor.execute(query)[0]
         except:
             return None
-        if not values:
-            return None
-        schedule = Schedule(values[0][0], str(values[0][1]), values[0][2], str(values[0][3]))
+        schedule = Schedule(values[0], str(values[1]), values[2], str(values[3]))
         schedule.idSchedule = idSchedule
         return schedule
 
@@ -173,54 +166,30 @@ class Schedule(object):
          
          Return: True if succesful or False otherwise.
 
-        @return bool :
+        @return  :
         @author
         """
         cursor = MySQLConnection()
-        #check if dayOfTheWeek is in the database
-        try:
-            query = 'select idDayOfTheWeek from minitableDayOfTheWeek where dayOfTheWeek = "' + self.dayOfTheWeek + '" '
-            idDayOfTheWeek = cursor.execute(query)
-            if not idDayOfTheWeek:
-            #if dayOfTheWeek isn't in the database
-                print "dayOfTheWeek must be in the database"
-                return False
-            idDayOfTheWeek = idDayOfTheWeek[0][0]
-        except:
-            return False
-        #check if end is a value time
-        if not checkTimeString(self.end):
-            print "Wrong end value"
-            return False
-        #check if start is a value time
-        if not checkTimeString(self.start):
-            print "Wrong start value"
-            return False
         if self.idSchedule == None:
             #Search for idSchedule
             possibleIds = self.find(dayOfTheWeek_equal = self.dayOfTheWeek, end_equal = self.end, frequency_equal = self.frequency, start_equal = self.start)
             if not possibleIds :
                 #If there is no idSchedule, then create row
-                try:
-                    query = 'INSERT INTO schedule (idDayOfTheWeek, end, frequency, start) VALUES(' + str(idDayOfTheWeek) + ', "' + self.end + '", "' + self.frequency + '", "' + self.start + '")'
-                    cursor.execute(query)
-                    cursor.commit()
-                    self.idSchedule = self.find(dayOfTheWeek_equal = self.dayOfTheWeek, end_equal = self.end, frequency_equal = self.frequency, start_equal = self.start)[0].idSchedule                
-                    return True
-                except:
-                    return False 
-            else:
-                self.idSchedule = possibleIds[0].idSchedule   #Since all results are the same schedule pick the first one.
-                return True
-        else:
-            #If there is an idFaculty try to update row
-            query = 'UPDATE schedule SET idDayOfTheWeek = ' + str(idDayOfTheWeek) + ', end = "' + self.end + '", frequency = "' + self.frequency + '" , start = "' + self.start + '" WHERE idSchedule = ' + str(self.idSchedule)
-            try:
+                query = 'INSERT INTO schedule (idDayOfTheWeek, end, frequency, start) VALUES(' + str(idDayOfTheWeek) + ', "' + self.end + '", "' + self.frequency + '", "' + self.start + '")'
                 cursor.execute(query)
                 cursor.commit()
-                return True
-            except:
-                return False 
+                self.idSchedule = self.find(dayOfTheWeek_equal = self.dayOfTheWeek, end_equal = self.end, frequency_equal = self.frequency, start_equal = self.start)[0].idSchedule                
+                return 
+            else:
+                self.idSchedule = possibleIds[0].idSchedule   #Since all results are the same schedule pick the first one.
+                return
+        else:
+            #If there is an idFaculty try to update row
+            query = 'UPDATE schedule SET idDayOfTheWeek = ' + str(idDayOfTheWeek) + ', end = "' + self.end + '", frequency = "'
+            query += self.frequency + '" , start = "' + self.start + '" WHERE idSchedule = ' + str(self.idSchedule)
+            cursor.execute(query)
+            cursor.commit()
+            return 
 
     def delete(self):
         """
@@ -228,26 +197,18 @@ class Schedule(object):
          
          Return: True if succesful or False otherwise.
 
-        @return bool :
+        @return  :
         @author
         """
         if self.idSchedule != None:
             cursor = MySQLConnection()
-            dbobject = self.pickById(self.idSchedule)
-            if not dbobject:
-                print 'idSchedule must be in the database'
-                return False
-            if self.dayOfTheWeek != dbobject.dayOfTheWeek or self.end != dbobject.end or self.start != dbobject.start or self.frequency != dbobject.frequency:
-                print 'Attributes do not match in the database'
-                return False
-            try:
-                cursor.execute('DELETE FROM schedule WHERE idSchedule = ' + str(self.idSchedule))
+            idSchedule = self.idSchedule
+            if self == Schedule.pickById(idSchedule):
+                cursor.execute('DELETE FROM rel_offer_schedule WHERE idSchedule = ' + str(idSchedule))
+                cursor.execute('DELETE FROM schedule WHERE idSchedule = ' + str(idSchedule))
                 cursor.commit()
-                self = None
-                return True
-            except:
-                pass
-        print "object has no idSchedule"
-        raise MySQLQueryError("")
-
+            else:
+                raise ScheduleError("Can't delete non saved object.")
+        else:
+            raise ScheduleError('No idSchedule defined.')
 

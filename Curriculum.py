@@ -39,7 +39,7 @@ class Curriculum(object):
 
     curriculumType  (public)
 
-     código da habilitação (vide júpiter)
+     código da habilitação (vide jupiter)
 
     codHab  (public)
 
@@ -90,7 +90,6 @@ class Curriculum(object):
         self.mandatoryIdealTerms = None
         self.electiveIdealTerms = None
         self.abbreviation = None
-        self.campus = None
         
     def __eq__(self, other):
         if not isinstance(other, Curriculum):
@@ -223,7 +222,6 @@ class Curriculum(object):
          > timePeriodType_equal or timePeriodType_like
          > faculty
          > abbreviation_equal or abbreviation_like
-         > campus_equal or campus_like
          The parameters must be identified by their names when the method is called, and
          those which are strings must be followed by "_like" or by "_equal", in order to
          determine the kind of search to be done.
@@ -234,7 +232,7 @@ class Curriculum(object):
         @author
         """
         cursor = MySQLConnection()
-        curriculaData = cursor.find('SELECT name, curriculumType, codHab, timePeriodType, faculty, idCurriculum, startDate, endDate, abbreviation, campus FROM curriculum',kwargs)
+        curriculaData = cursor.find('SELECT name, curriculumType, codHab, timePeriodType, faculty, idCurriculum, startDate, endDate, abbreviation FROM curriculum',kwargs)
         curricula = []
         for curriculumData in curriculaData:
             curriculum = Curriculum(curriculaData[0], curriculaData[1], curriculaData[2], curriculaData[3], curriculaData[4])
@@ -242,7 +240,6 @@ class Curriculum(object):
             curriculum.startDate = curriculaData[6]
             curriculum.endDate = curriculaData[7]
             curriculum.abbreviation = curriculaData[8]
-            curriculum.campus = curriculaData[9]
             curricula.append(curriculum)
         self.completeMandatoryIdealTerms()
         self.completeElectiveIdealTerms()
@@ -257,7 +254,38 @@ class Curriculum(object):
         @author
         """
         
-        pass
+        if self.idCurriculum == None:
+            curricula = Curriculum.find(idCurriculum = self.idCurriculum, name_equal = self.name, startDate_equal = self.startDate, endDate_equal = self.endDate, curriculumType = self.curriculumType, codHab = self.codHab, timePeriodType_equal = self.timePeriodType, faculty = self.faculty, abbreviation_equal = self.abbreviation)
+            if len(curricula) > 0:
+                self.idCurriculum = curricula[0].idCurriculum #Any curriculum that fit those paramaters is the same as this curriculum, so no need to save
+                return
+                
+         > idCurriculum
+         > name_equal or name_like
+         > startDate_equal or startDate_like
+         > endDate_equal or endDate_like
+         > curriculumType
+         > codHab
+         > timePeriodType_equal or timePeriodType_like
+         > faculty
+         > abbreviation_equal or abbreviation_like
+         
+         else: 
+                #Create this curriculum
+                query = "INSERT INTO curriculum (name, curriculumType, curriculumCode" #FALTAM OS OBRIGATORIOS FACULTY E TIMEPERIODTYPE
+                values = ") VALUES('" +self.name +"', '" +str(self.curriculumType) +"', '" +str(self.codHab)
+                if self.startDate != None:
+                    query += ", startDate"
+                    values += ", " +self.startDate
+                if self.endDate != None:
+                    query += ", endDate"
+                    values += ", " +self.endDate
+                if self.abbreviation != None:
+                    query += ", abbreviation"
+                    values += ", " +self.endDate
+                cursor.execute(query + values +")")
+                cursor.commit()
+                self.idCurriculum = Curriculum.find(idCurriculum = self.idCurriculum, name_equal = self.name, startDate_equal = self.startDate, endDate_equal = self.endDate, curriculumType = self.curriculumType, codHab = self.codHab, timePeriodType_equal = self.timePeriodType, faculty = self.faculty, abbreviation_equal = self.abbreviation)[0].idCurriculum 
         
         '''self.name
         self.curriculymType
@@ -290,7 +318,6 @@ class Curriculum(object):
                 cursor.execute('DELETE FROM rel_academicProgram_curriculum WHERE idCurriculum = ' + str(self.idCurriculum))
                 cursor.execute('DELETE FROM rel_course_curriculum_course WHERE idCurriculum = ' + str(self.idCurriculum))
                 cursor.execute('DELETE FROM rel_curriculum_opticalSheet WHERE idCurriculum = ' + str(self.idCurriculum))
-                #########PRECISAMOS CHECAR SE VAMOS DELETAR TAMBÉM AS FOLHAS ÓTICAS ATRELADAS AO CURRICULO
                 cursor.commit()
             else:
                 raise CourseError("Can't delete non saved object.")

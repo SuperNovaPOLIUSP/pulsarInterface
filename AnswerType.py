@@ -61,7 +61,20 @@ class AnswerType(object):
         @return bool :
         @author
         """
-        pass
+        if not isinstance(other, AnswerType):
+            return False
+        return self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        """
+         Comparison method that returns True if two objects of the class AnswerType are
+         not equal.
+
+        @param AnswerType other : Other object of the class AnswerType to be compared with a present object.
+        @return bool :
+        @author
+        """
+        return not self.__eq__(other)
 
     def setName(self, name):
         """
@@ -143,10 +156,17 @@ class AnswerType(object):
          folowing parameters:
          > idAnswerType
          > name_equal or name_like
+         > meaning_equal or meaning_like
          The parameters must be identified by their names when the method is called, and
          those which are strings must be followed by "_like" or by "_equal", in order to
          determine the kind of search to be done.
-         E. g. AnswerType.find(name_equal = "time")
+
+         In this method: the parameter meaning_like refers to a list of words that must 
+         be all present in the alternatives of the object that needs to be found; and 
+         the parameter meaning_equal refers to a dictionary containing the exact 
+         alternatives of the object that needs to be found.
+
+         E. g. AnswerType.find(name_equal = "time", meaning_like = ["very", "interesting", "good", "less", "bad", "issue"])
 
         @param {} **kwargs : Dictionary of arguments to be used as parameters for the search.
         @return  :
@@ -156,12 +176,51 @@ class AnswerType(object):
         databaseConnection = MySQLConnection()
 
         # finds the database IDs of the answer types that need to be found
-        foundAnswerTypeIds = databaseConnection.find("SELECT idAnswerType FROM answerType", kwargs)
+        foundAnswerTypeIdsByMeaning = []
 
-        # for each id found, creates an AnswerType object using the 'pickById' method
+        if "meaning_like" in kwargs:
+            # finds the IDs of the database objects that contains all the meanings in the list that was passed
+            query = "SELECT idAnswerType FROM alternativeMeaning WHERE meaning LIKE '%" + "%' AND meaning LIKE '%".join(kwargs['meaning']) + "%'"
+            foundAnswerTypeIdsByMeaning = databaseConnection.execute(query)
+
+            # changes the resoult found to a list, instead of a tuple of tuples
+            foundAnswerTypeIdsByMeaning = [int(foundAnswerTypeId[0]) for foundAnswerTypeId in foundAnswerTypeIdsByMeaning]
+
+            # removes the 'meaning_like' key from kwargs in order to call the MySQLConnection find method
+            del kwargs['meaning_like']
+
+        elif "meaning_equal" in kwargs:
+            # finds the IDS of the database objects that contains the dictionary of meanings passed
+            for alternative, meaning in kwargs['meaning_equal'].items():
+                # find the IDs for a specific alternative and its meaning
+                foundAnswerTypeIdsByAlternativeAndMeaning = databaseConnection.execute("SELECT idAnswerType FROM alternativeMeaning WHERE alternative = '" + alternative + "' AND meaning = '" + meaning + "'")
+                foundAnswerTypeIdsByAlternativeAndMeaning = [int(foundAnswerTypeId[0]) for foundAnswerTypeId in foundAnswerTypeIdsByAlternativeAndMeaning]
+                # adds the IDs found for this specific alternative to the list of all IDs found
+                foundAnswerTypeIdsByMeaning += foundAnswerTypeIdsByAlternativeAndMeaning
+
+            # excludes duplicate IDs from the list by turning it to a set and back again to a list
+            foundAnswerTypeIdsByMeaning = list(set(foundAnswerTypeIdsByMeaning))
+
+            # removes the 'meaning_equal' key from kwargs in order to call the MySQLConnection find method
+            del kwargs['meaning_equal']
+
+        # gets the intersection of the previously found IDs with those which will be found when searching for the names of the answer types, but only if necessary
+        if len(foundAnswerTypeIdsByMeaning) > 0:
+            # finds the IDs of the database objects that contain the name or the idAnswerType specified in kwargs
+            foundAnswerTypeIds = databaseConnection.find("SELECT idAnswerType FROM answerType", kwargs)
+            foundAnswerTypeIds = [int(foundAnswerTypeId[0]) for foundAnswerTypeId in foundAnswerTypeIds]
+
+            # gets the intersection between the two sets of IDs that were found
+            foundAnswerTypeIds = list(set(foundAnswerTypeIds).intersection(foundAnswerTypeIdsByMeaning))
+
+        else:
+            foundAnswerTypeIds = databaseConnection.find("SELECT idAnswerType FROM answerType", kwargs)
+            foundAnswerTypeIds = [int(foundAnswerTypeId[0]) for foundAnswerTypeId in foundAnswerTypeIds]
+
+        # for each ID found, creates an AnswerType object using the 'pickById' method
         foundAnswerTypes = []
         for Id in foundAnswerTypeIds:
-            foundAnswerTypes.append(AnswerType.pickById(Id[0]))
+            foundAnswerTypes.append(AnswerType.pickById(Id))
 
         return foundAnswerTypes
 
@@ -175,11 +234,22 @@ class AnswerType(object):
         # gets connection with the mysql database
         databaseConnection = MySQLConnection()
         
+        # verifies if the database already has an object like the one to be stored
+        exists = False
+        '''
         try:
-            if AnswerType.find(name_equal )
+            # se alternativa existe e nome não existe ou se alternativa não existe e nome existe, altera
+            if 
+            # se alternativa exite e nome existe, havendo mais de um id, apaga todos os ids e cria um novo
+            # se alternativa existe e nome existe, havendo apenas um id, pega o id se necessário
+            # se alternativa não existe e nome não existe, cria um novo
+            if len(AnswerType.find(name_equal = self.name)) > 0:
+                pass
+        '''
+                
 
 
-'''
+        '''
         # verifies if the database already has an object like the one to be stored
         try:
             # verifies if the database possesses instances of the object
@@ -198,7 +268,7 @@ class AnswerType(object):
         except:
             # creates new instance, for this object, in the database
             databaseConnection.execute("INSERT INTO answerType (name) VALUES (" + self.name)
-'''
+        '''
 
     def delete(self):
         """

@@ -2,7 +2,7 @@ from TimePeriod import TimePeriod
 from Professor import Professor
 from Course import Course
 from Schedule import Schedule
-from toolsDev.tools.MySQLConnection import MySQLConnection 
+from tools.MySQLConnection import MySQLConnection 
 
 class OfferError(Exception):
     """

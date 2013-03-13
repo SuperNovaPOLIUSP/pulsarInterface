@@ -45,7 +45,7 @@ class OpticalSheetColumn(object):
 
     """
 
-    def __init__(self, idOpticalSheet, offer):
+    def __init__(self, offer):
         """
          Constructur method.
 
@@ -54,13 +54,11 @@ class OpticalSheetColumn(object):
         @return  :
         @author
         """
-        if not isinstance(idOpticalSheet,(int,long)):
-            raise OpticalSheetColumnError('idOPticalSheet must be and int or long')
         if not isinstance(offer,Offer) or not Offer.pickById(offer.idOffer) == offer:
-            raise OfferError('Parameter offer must be an Offer object that exists in the database.')
+            raise OpticalSheetColumnError('Parameter offer must be an Offer object that exists in the database.')
 
         self.offer = offer
-        self.idOpticalSheet = idOpticalSheet
+        self.idOpticalSheet = None 
         self.code = None
         self.courseIndex = None 
         self.idOpticalSheetColumn = None
@@ -85,6 +83,12 @@ class OpticalSheetColumn(object):
         if not isinstance(code,(int,long)):
             raise OpticalSheetColumnError('code must be and int or long')
         self.code = code
+
+    def setidOpticalSheet(self, idOpticalSheet):
+
+        if not isinstance(idOpticalSheet,(int,long)):
+            raise OpticalSheetColumnError('idOpticalSheet must be and int or long')
+        self.idOpticalSheet = idOpticalSheet
 
     def setCourseIndex(self, courseIndex):
         """
@@ -111,7 +115,8 @@ class OpticalSheetColumn(object):
         """
         cursor = MySQLConnection()
         opticalSheetColumnData = cursor.execute('SELECT idOpticalSheetColumn, idOpticalSheet, idOffer, code, courseIndex FROM rel_offer_opticalSheet WHERE idOpticalSheetColumn = ' + str(idOpticalSheetColumn))[0]
-        opticalSheetColumn = OpticalSheetColumn(opticalSheetColumnData[1],Offer.pickById(opticalSheetColumnData[2]))
+        opticalSheetColumn = OpticalSheetColumn(Offer.pickById(opticalSheetColumnData[2]))
+        opticalSheetColumn.setIdOpticalSheet(opticalSheetColumnData[1])
         opticalSheetColumn.idOpticalSheetColumn = opticalSheetColumnData[0]
         print opticalSheetColumnData
         if opticalSheetColumnData[3] != None:
@@ -153,7 +158,8 @@ class OpticalSheetColumn(object):
         oscsData = cursor.find('SELECT idOpticalSheetColumn, idOpticalSheet, idOffer, code, courseIndex FROM rel_offer_opticalSheet', parameters)
         oscs = []
         for oscData in oscsData:
-            osc = OpticalSheetColumn(oscData[1],Offer.pickById(oscData[2]))
+            osc = OpticalSheetColumn(Offer.pickById(oscData[2]))
+            osc.setIdOpticalSheet = oscData[1]
             osc.idOpticalSheetColumn = oscData[0]
             if oscData[3] != None:
                 osc.setCode(oscData[3])
@@ -171,6 +177,8 @@ class OpticalSheetColumn(object):
         @author
         """
         cursor = MySQLConnection()
+        if self.idOpticalSheet == None:
+            raise OpticalSheetColumnError("idOpticalSheet is not defined")    
         if self.code == None:
             mySQLCode = 'NULL'  #in MySQL is NULL
         else:

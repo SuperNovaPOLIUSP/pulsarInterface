@@ -149,14 +149,17 @@ class Question(object):
                 #Getting idAnswerType
                 idAnswerType_sql = cursor.execute('SELECT idAnswerType FROM answerType WHERE name = ' + self.category
                 if len(idAnswerType) = 0
-                    raise Error
-                query = 'INSERT INTO question (questionWording, ) VALUES ' + str(tuple(values))
+                    raise Error('AnswerType not found')
+                query = 'INSERT INTO question (questionWording, idAnswerType) VALUES ' + str((self.statement, idAnswerType_sql[0]))
                 cursor.execute(query)
-                cursor.commit
-                self.idTimePeriod = self.find(length = self.lenght, year = self.year, session = self.session)[0].idTimePeriod
+                cursor.commit()
+                self.idQuestion = self.find(statement_equal = self.statement,  category_equal = self.category)[0].idQuestion
         else:
             #Update timePeriod.
-            query = "UPDATE timePeriod SET length = " +str(self.length) +", year = " +str(self.year) +", session = " +str(self.session) +" WHERE idTimePeriod = " +str(self.idTimePeriod)
+            idAnswerType_sql = cursor.execute('SELECT idAnswerType FROM answerType WHERE name = ' + self.category
+            if len(idAnswerType) = 0
+                raise Error('AnswerType not found')
+            query = "UPDATE question SET questionWording = " +str(self.statement) +", idAnswerType = " +str(idAnswerType_sql[0]) +" WHERE idQuestion = " +str(self.idQuestion)
             cursor.execute(query)
             cursor.commit() 
         return

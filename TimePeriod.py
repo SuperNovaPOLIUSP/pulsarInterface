@@ -69,6 +69,9 @@ class TimePeriod(object):
         if not isinstance(other, TimePeriod):
             return False
         return self.__dict__ == other.__dict__
+   
+    def __ne__(self,other):
+        return not self.__eq__(other)
 
     def __str__(self):
         """
@@ -77,9 +80,9 @@ class TimePeriod(object):
         @return string :
         @author
         """
-        length_str = ("semester ", "quarter ")
-        session_str = ("First ", "Second ", "Third ", "Fourth ")
-        str_timePeriod = session_str[self.session -1] + length_str[self.length -1] + "of " + str(self.year)
+        length_str = ("semestre", "quadrimestre")
+        session_str = ("Primeiro", "Segundo", "Terceiro")
+        str_timePeriod = session_str[self.session -1] + " " + length_str[self.length -1] + " de " + str(self.year)
         return str_timePeriod
 
     @staticmethod
@@ -128,7 +131,7 @@ class TimePeriod(object):
         @author
         """
         cursor = MySQLConnection()
-        timePeriodsData = cursor.find('SELECT length, year, session, idTimePeriod FROM timePeriod',parameters)
+        timePeriodsData = cursor.find('SELECT length, year, session, idTimePeriod FROM timePeriod',kwargs)
         timePeriods = []
         for timePeriodData in timePeriodsData:
             timePeriod = TimePeriod(timePeriodData[0], timePeriodData[1], timePeriodData[2])
@@ -155,10 +158,11 @@ class TimePeriod(object):
                 return
             else:
                 #Create this timePeriod.               
-                query = "INSERT INTO timePeriod (length, year, session) VALUES " + str(tuple(values))
+                query = "INSERT INTO timePeriod (length, year, session) VALUES (" + str(self.length) + ", " + str(self.year) + ", " + str(self.session) + ")"
+                print query
                 cursor.execute(query)
-                cursor.commit
-                self.idTimePeriod = self.find(length = self.lenght, year = self.year, session = self.session)[0].idTimePeriod
+                cursor.commit()
+                self.idTimePeriod = self.find(length = self.length, year = self.year, session = self.session)[0].idTimePeriod
         else:
             #Update timePeriod.
             query = "UPDATE timePeriod SET length = " +str(self.length) +", year = " +str(self.year) +", session = " +str(self.session) +" WHERE idTimePeriod = " +str(self.idTimePeriod)

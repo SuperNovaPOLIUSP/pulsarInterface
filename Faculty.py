@@ -1,4 +1,15 @@
 from tools.MySQLConnection import *
+
+class FacultyError(Exception):
+    """
+     Exception reporting an error in the execution of a Faculty method.
+
+    :version:
+    :author:
+    """
+    pass
+
+
 class Faculty(object):
 
     """
@@ -32,23 +43,57 @@ class Faculty(object):
 
     """
 
-    def __init__(self, name, abbreviation, campus, city):
+    def __init__(self, name, abbreviation):
         """
-         Only the name ad the abbreviation are needed, the other 2 can be None.
+         Only the name ad the abbreviation are needed.
 
         @param string name : Faculty's name
         @param string abbreviation : Faculty's abbreviation.
-        @param string campus : Faculty's campus, it can be None
-        @param string city : Faculty's campus, it can be None.
         @return  :
         @author
         """
+        if not isinstance(name,(str, unicode)):
+            raise FacultyError("Parameter name must be a string or an unicode")
+        if not isinstance(abbreviation, (str, unicode)):
+            raise FacultyError("Parameter abbreviation must be a string or an unicode")
         self.name = name
         self.abbreviation = abbreviation
-        self.campus = campus
-        self.city = city
+        self.campus = None
+        self.city = None
         self.idFaculty = None
-    
+  
+    def __eq__(self, other):
+        if not isinstance(other, Faculty):
+            return False
+        return self.__dict__ == other.__dict__
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+ 
+    def setCampus(self, campus):
+         """
+         Set the campus of the faculty, campus can be a string, an unicode or None
+
+        @param string campus : Campus where the faculty is.
+        @return  :
+        @author
+        """
+        if campus != None and not isinstance(campus,(str, unicode)):
+            raise FacultyError("Parameter campus must be a string or an unicode")
+        self.campus = campus
+
+    def setCity(self, city):
+          """
+         Set the city of the faculty, campus can be a string, an unicode or None
+
+        @param string city : City where the faculty is.
+        @return  :
+        @author
+        """
+       if city != None and not isinstance(city,(str, unicode)):
+            raise FacultyError("Parameter city must be a string or an unicode")
+        self.city = city
+ 
     @staticmethod
     def pickById(idFaculty):
         """
@@ -58,17 +103,21 @@ class Faculty(object):
         @return Faculty :
         @author
         """
+        if not isinstance(idFaculty,(int, long)):
+            raise FacultyError("Parameter idFaculty must be an integer or a long")
+
         cursor = MySQLConnection()
-        if isinstance(idFaculty,long) or isinstance(idFaculty,int):
-            try:
-                facultyData = cursor.execute('SELECT name,abbreviation,campus,city,idFaculty FROM faculty WHERE idFaculty = ' + str(idFaculty))[0]
-            except:
-                return None
-            faculty = Faculty(facultyData[0], facultyData[1], facultyData[2], facultyData[3])
-            faculty.idFaculty = facultyData[4]
-            return faculty
-        else:
-            return None 
+        try:
+            facultyData = cursor.execute('SELECT name,abbreviation,campus,city,idFaculty FROM faculty WHERE idFaculty = ' + str(idFaculty))[0]
+        except:
+            return None
+        faculty = Faculty(facultyData[0], facultyData[1])
+        faculty.idFaculty = facultyData[4]
+        if facultyData[2] != None:
+            faculty.setCampus(facultyData[2])
+        if facultyData[3] != None:
+            faculty.setCity(facultyData[3])
+        return faculty
 
     @staticmethod
     def find(**kwargs):
@@ -101,7 +150,11 @@ class Faculty(object):
         facultiesData = cursor.find('SELECT name, abbreviation, campus, city, idFaculty FROM faculty',kwargs)
         faculties = []
         for facultyData in facultiesData:
-            faculty = Faculty(facultyData[0], facultyData[1], facultyData[2], facultyData[3])
+            faculty = Faculty(facultyData[0], facultyData[1])
+            if facultyData[2] != None:
+                faculty.setCampus(facultyData[2])
+            if facultyData[3] != None:
+                faculty.setCity(facultyData[3])
             faculty.idFaculty = facultyData[4]
             faculties.append(faculty)
         return faculties
@@ -110,19 +163,17 @@ class Faculty(object):
         """
          Creates or changes the faculty's data in the data base.
          
-         Return: true if succesful or false otherwise
-
-        @return bool :
+        @return :
         @author
         """
         if self.campus == None:
-            campus = 'NULL' #MySQL None is NULL
+            MySQLcampus = 'NULL' #MySQL None is NULL
         else:
-            campus = '"' + self.campus + '"'
+            MySQLcampus = '"' + self.campus + '"'
         if self.city == None:
-            city = 'NULL'
+            MySQLcity = 'NULL'
         else:
-            city = '"' + self.city + '"'
+            MySQLcity = '"' + self.city + '"'
 
         cursor = MySQLConnection()
         if self.idFaculty == None:
@@ -130,26 +181,20 @@ class Faculty(object):
             possibleIds = self.find(name_equal = self.name, abbreviation_equal = self.abbreviation, city_equal = self.city, campus_equal = self.campus)
             if len(possibleIds) > 0:
                 self.idFaculty = possibleIds[0].idFaculty   #Since all results are the same faculty pick the first one.
-                return True
+                return 
             else:
                 #If there is no idFaculty create row
-                try:
-                    query = 'INSERT INTO faculty (name, abbreviation, city, campus) VALUES("' + self.name + '", "' + self.abbreviation + '", ' + city + ', ' + campus + ')'
-                    cursor.execute(query)
-                    cursor.commit()
-                    self.idFaculty = self.find(name_equal = self.name, abbreviation_equal = self.abbreviation, city_equal = self.city, campus_equal = self.campus)[0].idFaculty
-                    return True
-                except:
-                    return False
-        else:
-            #If there is an idFaculty try to update row
-            query = 'UPDATE faculty SET name = "' + self.name + '", abbreviation = "' + self.abbreviation + '", city = ' + city + ', campus = ' + campus + ' WHERE idFaculty = ' + str(self.idFaculty)
-            try:
+                query = 'INSERT INTO faculty (name, abbreviation, city, campus) VALUES("' + self.name + '", "' + self.abbreviation + '", ' + MySQLcity + ', ' + MySQLcampus + ')'
                 cursor.execute(query)
                 cursor.commit()
-                return True
-            except:
-                return False 
+                self.idFaculty = self.find(name_equal = self.name, abbreviation_equal = self.abbreviation, city_equal = self.city, campus_equal = self.campus)[0].idFaculty
+                return
+        else:
+            #If there is an idFaculty try to update row
+            query = 'UPDATE faculty SET name = "' + self.name + '", abbreviation = "' + self.abbreviation + '", city = ' + MySQLcity + ', campus = ' + MySQLcampus + ' WHERE idFaculty = ' + str(self.idFaculty)
+            cursor.execute(query)
+            cursor.commit()
+            return
 
     def delete(self):
         """
@@ -157,20 +202,21 @@ class Faculty(object):
          
          Return: true if succesful or false otherwise
 
-        @return bool :
+        @return :
         @author
         """
         if self.idFaculty != None:
             cursor = MySQLConnection()
-            try:
+            if self == Faculty.pickById(self.idFaculty):
                 #First check if the object is correct in the database, if it was changed it goes to the except
                 self.dFaculty = self.find(name_equal = self.name, abbreviation_equal = self.abbreviation, city_equal = self.city, campus_equal = self.campus,idFaculty = self.idFaculty)[0].idFaculty
                 #Now delete it
                 cursor.execute('DELETE FROM faculty WHERE idFaculty = ' + str(self.idFaculty))
                 cursor.commit()
                 return True
-            except:
-                pass
-        return False
+            else:
+                raise FacultyError("Can't delete non saved object.")
+        else:
+            raise FacultyError("No idFaculty defined")
 
    

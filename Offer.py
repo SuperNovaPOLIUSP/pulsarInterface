@@ -2,7 +2,7 @@ from TimePeriod import TimePeriod
 from Professor import Professor
 from Course import Course
 from Schedule import Schedule
-from toolsDev.tools.MySQLConnection import MySQLConnection 
+from tools.MySQLConnection import MySQLConnection 
 
 class OfferError(Exception):
     """
@@ -313,7 +313,7 @@ class Offer(object):
         offer = Offer(TimePeriod.pickById(offerData[1]), Course.pickById(offerData[2]), offerData[3], offerData[4], Professor.pickById(offerData[5]))
         offer.setNumberOfRegistrations(offerData[6])
         offer.idOffer = offerData[0]
-        #offer.fillSchedules()
+        offer.fillSchedules()
         return offer
 
     @staticmethod

@@ -2,7 +2,7 @@ from tools.MySQLConnection import *
 from tools.timeCheck import *
 from datetime import timedelta
 
-class OfferError(Exception):
+class ScheduleError(Exception):
     """
      Exception reporting an error in the execution of a Offer method.
 
@@ -62,11 +62,11 @@ class Schedule(object):
         cursor = MySQLConnection()              
         if not cursor.execute('SELECT idDayOfTheWeek FROM minitableDayOfTheWeek WHERE dayOfTheWeek = "' + dayOfTheWeek + '" '):   
             raise ScheduleError('dayOfTheWeek must be in the database')
-        if not isinstance(end, str) or not isinstance(end, unicode):
+        if not isinstance(end, (str,unicode)):
             raise ScheduleError('end must be a string or unicode')
-        if not isinstance(frequency, unicode):
+        if not isinstance(frequency, (str,unicode)):
             raise ScheduleError('frequency must be unicode')
-        if not isinstance(start, str) or not isinstance(start, unicode):
+        if not isinstance(start, (str, unicode)):
             raise ScheduleError('start must be a string or unicode')
         #check if the parameter 'end' and start are in the format HH:MM:SS
         if not checkTimeString(end):

@@ -1,4 +1,13 @@
-from tools.MySQLConnection import *
+from tools.MySQLConnection import MySQLConnection
+
+class TimePeriodError(Exception):
+    """
+     Exception reporting an error in the execution of a TimePeriod method.
+
+    :version:
+    :author:
+    """
+    pass
 
 class TimePeriod(object):
 
@@ -13,20 +22,20 @@ class TimePeriod(object):
 
      Associated database key.
 
-    idTimePeriod  (public)
+    idTimePeriod  (private)
 
      Defines if the Time Period range is a semester or a quarter.
 
-    length  (public)
+    length  (private)
 
      Defines the year when the time period takes place.
 
-    year  (public)
+    year  (private)
 
      Defines the order of the term length in the year, if it is the first or second
      semester or the first, second or third quarter.
 
-    order  (public)
+    order  (private)
 
     """
 
@@ -40,11 +49,29 @@ class TimePeriod(object):
         @return  :
         @author
         """
+    
+        #Parameters verification.
+        if length != 1 and length != 2:
+            raise TimePeriodError("Parameter length must be: '1' if it is a semester or '2' if it is a quarter.")
+        if not isinstance(year, (int, long)):
+            raise TimePeriodError('Parameter year must be an int or a long.')
+        if session != 1 and session != 2 and session != 3:
+            raise TimePeriodError("Parameter session must be: '1' for first, '2' for second or '3' for third.")
+        
+        #Setting parameters.        
         self.length = length
         self.year = year
         self.session = session
+        #Setting None paramenters.
         self.idTimePeriod = None
         
+    def __eq__(self, other):
+        if not isinstance(other, TimePeriod):
+            return False
+        return self.__dict__ == other.__dict__
+   
+    def __ne__(self,other):
+        return not self.__eq__(other)
 
     def __str__(self):
         """
@@ -53,16 +80,10 @@ class TimePeriod(object):
         @return string :
         @author
         """
-        length_str = ("semester ", "quarter ")
-        session_str = ("First ", "Second ", "Third ", "Fourth ")
-        str_timePeriod = session_str[self.session -1] + length_str[self.length -1] + "of " + str(self.year)
+        length_str = ("semestre", "quadrimestre")
+        session_str = ("Primeiro", "Segundo", "Terceiro")
+        str_timePeriod = session_str[self.session -1] + " " + length_str[self.length -1] + " de " + str(self.year)
         return str_timePeriod
-
-    def __eq__(self, other):
-        if not isinstance(other, TimePeriod):
-            return False
-        return self.__dict__ == other.__dict__
-
 
     @staticmethod
     def pickById(idTimePeriod):
@@ -74,13 +95,12 @@ class TimePeriod(object):
         @author
         """
         cursor = MySQLConnection()
-        query = 'SELECT * FROM timePeriod WHERE idTimePeriod = ' + str(idTimePeriod)
         try:
-            timePeriod_sql = cursor.execute(query)[0]
+            timePeriodData = cursor.execute('SELECT * FROM timePeriod WHERE idTimePeriod = ' + str(idTimePeriod))[0]
         except:
             return None
-        timePeriod = TimePeriod(timePeriod_sql[1], timePeriod_sql[2], timePeriod_sql[3])
-        timePeriod.idTimePeriod = idTimePeriod
+        timePeriod = TimePeriod(timePeriodData[1], timePeriodData[2], timePeriodData[3])
+        timePeriod.idTimePeriod = timePeriodData[0]
         return timePeriod
 
     @staticmethod
@@ -129,29 +149,26 @@ class TimePeriod(object):
         @return bool :
         @author
         """
-        if (self.length < 1 or self.session < 1):
-            print "Lengh and session atributes cannot be lower than 1"
-            return False
+       
         cursor = MySQLConnection()
-        try:
-            values = [self.length, self.year, self.session]
-        except:
-            print "Values error"
-            return False
-        if self.idTimePeriod is None:
+        if self.idTimePeriod == None:
             possibleIds = self.find(length = self.length, year = self.year, session = self.session)
             if len(possibleIds) > 0:
                 self.idTimePeriod = possibleIds[0].idTimePeriod
-                return True
-            query = "INSERT INTO timePeriod (length, year, session) VALUES " + str(tuple(values))
+                return
+            else:
+                #Create this timePeriod.               
+                query = "INSERT INTO timePeriod (length, year, session) VALUES (" + str(self.length) + ", " + str(self.year) + ", " + str(self.session) + ")"
+                print query
+                cursor.execute(query)
+                cursor.commit()
+                self.idTimePeriod = self.find(length = self.length, year = self.year, session = self.session)[0].idTimePeriod
         else:
+            #Update timePeriod.
             query = "UPDATE timePeriod SET length = " +str(self.length) +", year = " +str(self.year) +", session = " +str(self.session) +" WHERE idTimePeriod = " +str(self.idTimePeriod)
-        try:
             cursor.execute(query)
-            cursor.commit()
-            return True
-        except:
-            return False
+            cursor.commit() 
+        return
 
     def delete(self):
         """
@@ -162,14 +179,16 @@ class TimePeriod(object):
         @return bool :
         @author
         """
-        cursor = MySQLConnection()
-        query = "DELETE FROM timePeriod WHERE idTimePeriod = " + str(self.idTimePeriod) + " AND length = " + str(self.length) + " AND year = " + str(self.year) + " AND session = " + str(self.session)
-        try:
-            cursor.execute(query)
-            cursor.commit()
-            return True
-        except:
-            return False
+        if self.idTimePeriod != None:        
+            cursor = MySQLConnection()
+            query = "DELETE FROM timePeriod WHERE idTimePeriod = " + str(self.idTimePeriod) + " AND length = " + str(self.length) + " AND year = " + str(self.year) + " AND session = " + str(self.session)
+            try:
+                cursor.execute(query)
+                cursor.commit()
+            except:
+                raise OfferError("Can't delete non saved object.")
+        else:
+            raise OfferError('No idOffer defined.')
 
 
 

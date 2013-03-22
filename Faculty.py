@@ -71,7 +71,7 @@ class Faculty(object):
         return not self.__eq__(other)
  
     def setCampus(self, campus):
-         """
+        """
          Set the campus of the faculty, campus can be a string, an unicode or None
 
         @param string campus : Campus where the faculty is.
@@ -83,14 +83,14 @@ class Faculty(object):
         self.campus = campus
 
     def setCity(self, city):
-          """
+        """
          Set the city of the faculty, campus can be a string, an unicode or None
 
         @param string city : City where the faculty is.
         @return  :
         @author
         """
-       if city != None and not isinstance(city,(str, unicode)):
+        if city != None and not isinstance(city,(str, unicode)):
             raise FacultyError("Parameter city must be a string or an unicode")
         self.city = city
  

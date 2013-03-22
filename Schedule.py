@@ -64,9 +64,9 @@ class Schedule(object):
             raise ScheduleError('dayOfTheWeek must be in the database')
         if not isinstance(end, (str,unicode)):
             raise ScheduleError('end must be a string or unicode')
-        if not isinstance(frequency, unicode):
+        if not isinstance(frequency, (str,unicode)):
             raise ScheduleError('frequency must be unicode')
-        if not isinstance(start, (str,unicode)):
+        if not isinstance(start, (str, unicode)):
             raise ScheduleError('start must be a string or unicode')
         #check if the parameter 'end' and start are in the format HH:MM:SS
         if not checkTimeString(end):

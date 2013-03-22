@@ -1,3 +1,5 @@
+# coding: utf-8
+
 from Course import *
 from IdealTerm import *
 from AcademicProgram import *
@@ -30,7 +32,7 @@ class Curriculum(object):
     startDate  (public)
 
      Date of the end of this curriculum, in the form year-month-day “xxxx-xx-xx”.
-     It's value is null if the curriculum is not over. Over is defined as the last
+     Its value is null if the curriculum is not over. Over is defined as the last
      time this curriculum was given in this University.
 
     endDate  (public)
@@ -39,7 +41,7 @@ class Curriculum(object):
 
     curriculumType  (public)
 
-     código da habilitação (vide júpiter)
+     código da habilitação (vide jupiter)
 
     codHab  (public)
 
@@ -90,7 +92,6 @@ class Curriculum(object):
         self.mandatoryIdealTerms = None
         self.electiveIdealTerms = None
         self.abbreviation = None
-        self.campus = None
         
     def __eq__(self, other):
         if not isinstance(other, Curriculum):
@@ -108,7 +109,7 @@ class Curriculum(object):
         @return  :
         @author
         """
-        if checkDateString(startDate)
+        if checkDateString(startDate):
             self.startDate = startDate
             return True
         return False
@@ -121,7 +122,7 @@ class Curriculum(object):
         @return  :
         @author
         """
-        if checkDateString(endDate)
+        if checkDateString(endDate):
             self.endDate = endDate
             return True
         return False
@@ -141,13 +142,13 @@ class Curriculum(object):
         query += " AND rel_course_curriculum.requisitionType = 1 AND curriculum.term = "
         term_searched_for = 0
         courses = ["nada"] #so it enters on the loop below
-        for term_searched_for in range(13) #while len(courses) != 0:
+        for term_searched_for in range(13): #while len(courses) != 0:
             #term_searched_for += 1
             courses = cursor.execute(query + term_searched_for)
-            if len(courses =! 0):
+            if len(courses != 0):
                 idealTerm = IdealTerm(self.idCurriculum, term_searched_for)
-                for course in courses
-                    idealTerm.addCourse(Course.pickById(course.[0]))
+                for course in courses:
+                    idealTerm.addCourse(Course.pickById(course[0]))
                 self.mandatoryIdealTerms.append(idealTerm)
         
 
@@ -166,13 +167,13 @@ class Curriculum(object):
         query += " AND rel_course_curriculum.requisitionType = 2 AND curriculum.term = "
         term_searched_for = 0
         courses = ["nada"] #so it enters on the loop below
-        for term_searched_for in range(13) #while len(courses) != 0:
+        for term_searched_for in range(13): #while len(courses) != 0:
             #term_searched_for += 1
             courses = cursor.execute(query + term_searched_for)
-            if len(courses =! 0):
+            if len(courses != 0):
                 idealTerm = IdealTerm(self.idCurriculum, term_searched_for)
-                for course in courses
-                    idealTerm.addCourse(Course.pickById(course.[0]))
+                for course in courses:
+                    idealTerm.addCourse(Course.pickById(course[0]))
                 self.electiveIdealTerms.append(idealTerm)
         
 
@@ -186,18 +187,33 @@ class Curriculum(object):
         @author
         """
         cursor = MySQLConnection()
-        query = 'SELECT name, curriculumType, codHab, timePeriodType, faculty, idCurriculum, startDate, endDate, mandatoryIdealTerms, electiveIdealTerms, abbreviation FROM curriculum WHERE idCurriculum = ' + str(idCurriculum)
-        try:
-            curriculum_sql = cursor.execute(query)[0]
-        except:
-            return None
-        curriculum = Curriculum(curriculum_sql[0], curriculum_sql[1], curriculum_sql[2], curriculum_sql[3], curriculum_sql[4])
+        #query = 'SELECT  idCurriculum, name, abbreviation, curriculumType, codHab, timePeriodType, faculty, startDate, endDate, mandatoryIdealTerms, electiveIdealTerms FROM curriculum WHERE idCurriculum = ' + str(idCurriculum)
+        curriculum_sql = cursor.execute('SELECT  idCurriculum, name, abbreviation, idCurriculumType, startDate, endDate, curriculumCode FROM curriculum WHERE idCurriculum = ' + str(idCurriculum))
+        curriculumType_sql = cursor.execute('SELECT  name FROM minitableCurriculumType WHERE idCurriculumType = ' +str(curriculum_sql[0][3]))
+        timePeriodType_query = '''SELECT DISTINCT minitableLength.length FROM curriculum
+                                JOIN rel_course_curriculum ON curriculum.idCurriculum = rel_course_curriculum.idCurriculum
+                                JOIN course ON rel_course_curriculum.idCourse = course.idCourse
+                                JOIN aggr_offer ON course.idCourse = aggr_offer.idCourse
+                                JOIN timePeriod ON aggr_offer.idTimePeriod = timePeriod.idTimePeriod
+                                JOIN minitableLength ON timePeriod.length = minitableLength.idLength
+                                WHERE curriculum.idCurriculum = ''' + str(idCurriculum)
+        timePeriodType_sql = curriculumType_sql = cursor.execute(timePeriodType_query)
+        faculty_query = '''SELECT faculty.idFaculty FROM curriculum
+                        JOIN rel_courseCoordination_curriculum ON curriculum.idCurriculum = rel_courseCoordination_curriculum.idCurriculum
+                        JOIN courseCoordination ON rel_courseCoordination_curriculum.idCourseCoordination = courseCoordination.idCourseCoordination
+                        JOIN rel_courseCoordination_faculty ON courseCoordination.idCourseCoordination = rel_courseCoordination_faculty.idCourseCoordination
+                        JOIN faculty ON rel_courseCoordination_faculty.idfaculty = faculty.idFaculty
+                        WHERE curriculum.idCurriculum = ''' + str(idCurriculum)
+        faculty_sql = cursor.execute(faculty_query)
+        
+        curriculum = Curriculum(curriculum_sql[0][1], curriculumType_sql[0][0], curriculum_sql[0][6], timePeriodType_sql[0][0], faculty_sql[0][0])#name, curriculumType, codHab, timePeriodType, faculty
+        
         curriculum.idCurriculum = idCurriculum
-        curriculum.startDate = curriculum_sql[6]
-        curriculum.endDate = curriculum_sql[7]
-        curriculum.mandatoryIdealTerms = curriculum_sql[8]
-        curriculum.electiveIdealTerms = curriculum_sql[9]
-        curriculum.abbreviation = curriculum_sql[10]
+        curriculum.startDate = curriculum_sql[4]
+        curriculum.endDate = curriculum_sql[5]
+        curriculum.completeMandatoryIdealTerms()
+        curriculum.completeElectiveIdealTerms()
+        curriculum.abbreviation = curriculum_sql[3]
         return curriculum
 
     @staticmethod
@@ -223,7 +239,6 @@ class Curriculum(object):
          > timePeriodType_equal or timePeriodType_like
          > faculty
          > abbreviation_equal or abbreviation_like
-         > campus_equal or campus_like
          The parameters must be identified by their names when the method is called, and
          those which are strings must be followed by "_like" or by "_equal", in order to
          determine the kind of search to be done.
@@ -234,7 +249,7 @@ class Curriculum(object):
         @author
         """
         cursor = MySQLConnection()
-        curriculaData = cursor.find('SELECT name, curriculumType, codHab, timePeriodType, faculty, idCurriculum, startDate, endDate, abbreviation, campus FROM curriculum',kwargs)
+        curriculaData = cursor.find('SELECT name, curriculumType, codHab, timePeriodType, faculty, idCurriculum, startDate, endDate, abbreviation FROM curriculum',kwargs)
         curricula = []
         for curriculumData in curriculaData:
             curriculum = Curriculum(curriculaData[0], curriculaData[1], curriculaData[2], curriculaData[3], curriculaData[4])
@@ -242,7 +257,6 @@ class Curriculum(object):
             curriculum.startDate = curriculaData[6]
             curriculum.endDate = curriculaData[7]
             curriculum.abbreviation = curriculaData[8]
-            curriculum.campus = curriculaData[9]
             curricula.append(curriculum)
         self.completeMandatoryIdealTerms()
         self.completeElectiveIdealTerms()
@@ -257,7 +271,38 @@ class Curriculum(object):
         @author
         """
         
-        pass
+        if self.idCurriculum == None:
+            curricula = Curriculum.find(idCurriculum = self.idCurriculum, name_equal = self.name, startDate_equal = self.startDate, endDate_equal = self.endDate, curriculumType = self.curriculumType, codHab = self.codHab, timePeriodType_equal = self.timePeriodType, faculty = self.faculty, abbreviation_equal = self.abbreviation)
+            if len(curricula) > 0:
+                self.idCurriculum = curricula[0].idCurriculum #Any curriculum that fit those paramaters is the same as this curriculum, so no need to save
+                return
+                
+#         > idCurriculum
+#         > name_equal or name_like
+#         > startDate_equal or startDate_like
+#         > endDate_equal or endDate_like
+#         > curriculumType
+#         > codHab
+#         > timePeriodType_equal or timePeriodType_like
+#         > faculty
+#         > abbreviation_equal or abbreviation_like
+         
+        else: 
+                #Create this curriculum
+                query = "INSERT INTO curriculum (name, curriculumType, curriculumCode" #FALTAM OS OBRIGATORIOS FACULTY E TIMEPERIODTYPE
+                values = ") VALUES('" +self.name +"', '" +str(self.curriculumType) +"', '" +str(self.codHab)
+                if self.startDate != None:
+                    query += ", startDate"
+                    values += ", " +self.startDate
+                if self.endDate != None:
+                    query += ", endDate"
+                    values += ", " +self.endDate
+                if self.abbreviation != None:
+                    query += ", abbreviation"
+                    values += ", " +self.endDate
+                cursor.execute(query + values +")")
+                cursor.commit()
+                self.idCurriculum = Curriculum.find(idCurriculum = self.idCurriculum, name_equal = self.name, startDate_equal = self.startDate, endDate_equal = self.endDate, curriculumType = self.curriculumType, codHab = self.codHab, timePeriodType_equal = self.timePeriodType, faculty = self.faculty, abbreviation_equal = self.abbreviation)[0].idCurriculum 
         
         '''self.name
         self.curriculymType
@@ -290,7 +335,6 @@ class Curriculum(object):
                 cursor.execute('DELETE FROM rel_academicProgram_curriculum WHERE idCurriculum = ' + str(self.idCurriculum))
                 cursor.execute('DELETE FROM rel_course_curriculum_course WHERE idCurriculum = ' + str(self.idCurriculum))
                 cursor.execute('DELETE FROM rel_curriculum_opticalSheet WHERE idCurriculum = ' + str(self.idCurriculum))
-                #########PRECISAMOS CHECAR SE VAMOS DELETAR TAMBÉM AS FOLHAS ÓTICAS ATRELADAS AO CURRICULO
                 cursor.commit()
             else:
                 raise CourseError("Can't delete non saved object.")

@@ -1,4 +1,15 @@
-from AnswerType import *
+#coding: utf8
+#from AnswerType import *
+from tools.MySQLConnection import MySQLConnection
+
+class QuestionError(Exception):
+    """
+     Exception that reports errors during the execution of Question class methods
+  
+    :version:
+    :author:
+    """
+    pass
 
 class Question(object):
 
@@ -15,15 +26,15 @@ class Question(object):
      
      o enunciado da pergunta
 
-    statement  (public)
+    statement  (private)
 
      
 
-    idQuestion  (public)
+    idQuestion  (private)
 
      
 
-    answerType  (public)
+    answerType  (private)
 
     """
 
@@ -75,9 +86,10 @@ class Question(object):
         @return Question :
         @author
         """
+        #Checked, is OK        
         cursor = MySQLConnection()
         try:
-            questionData = cursor.execute('SELECT idQuestion, questionWording, idAnswerType FROM question WHERE idQuestion = ' + str(idQuestion))[0]
+            questionData = cursor.execute("""SELECT idQuestion, questionWording, idAnswerType FROM question WHERE idQuestion = """ + str(idQuestion))[0]
         except:
             return None
         question = Question(questionData[1], questionData[2])
@@ -92,9 +104,11 @@ class Question(object):
         @return  :
         @author
         """
+        #Checked, is OK   
         if not isinstance(newStatement, str):
             return False
         self.statement = newStatement
+        return True
 
     @staticmethod
     def find(**kwargs):
@@ -119,7 +133,7 @@ class Question(object):
         E. g. Question.find(statement_like = "How many", category_equal = "Hour")
         """
         cursor = MySQLConnection()
-        questionsData = cursor.find('SELECT idQuestion, questionWording, idAnswerType FROM question',kwargs)
+        questionsData = cursor.find("""SELECT idQuestion, questionWording, idAnswerType FROM question""",kwargs)
         questions = []
         for questionData in questionsData:
             question = Question(questionData[1], questionData[2])
@@ -139,30 +153,28 @@ class Question(object):
         @author
         """
         cursor = MySQLConnection()
-        if self.idQuestion == None:
-            possibleIds = self.find(statement_equal = self.statement,  category_equal = self.category)
-            if len(possibleIds) > 0:
-                self.idQuestion = possibleIds[0].idQuestion
-                return
-            else:
-                #Create this question.
-                #Getting idAnswerType
-                idAnswerType_sql = cursor.execute('SELECT idAnswerType FROM answerType WHERE name = ' + self.category
-                if len(idAnswerType) = 0
-                    raise Error('AnswerType not found')
-                query = 'INSERT INTO question (questionWording, idAnswerType) VALUES ' + str((self.statement, idAnswerType_sql[0]))
-                cursor.execute(query)
-                cursor.commit()
-                self.idQuestion = self.find(statement_equal = self.statement,  category_equal = self.category)[0].idQuestion
+        #Question already exists in database?
+        if self.idQuestion:
+            #Yes, the question exists
+            #We will update its data
+            query = """UPDATE question SET idAnswerType = """ +str(self.idAnswerType) +""", questionWording = '""" +self.statement + """'"""
+            query += """ WHERE idQuestion = """ +str(self.idQuestion)
         else:
-            #Update timePeriod.
-            idAnswerType_sql = cursor.execute('SELECT idAnswerType FROM answerType WHERE name = ' + self.category
-            if len(idAnswerType) = 0
-                raise Error('AnswerType not found')
-            query = "UPDATE question SET questionWording = " +str(self.statement) +", idAnswerType = " +str(idAnswerType_sql[0]) +" WHERE idQuestion = " +str(self.idQuestion)
-            cursor.execute(query)
-            cursor.commit() 
-        return
+            #No, the question does not exist
+            #Is there one just like it?
+            possibleQuestions = Question.find(statement_equal = self.statement, category_equal = self.category)
+            if len(possibleQuestions) > 0:
+                #There's one just like it!
+                self.idQuestion = possibleQuestions[0].idQuestion
+                return None
+                #No, let's create it
+                query = """INSERT INTO question (idAnswerType, questionWording) VALUES """
+                query += str((self.idAnswerType, """'"""+self.statement+"""'""")
+        #Execute query
+        cursor.execute(query)
+        cursor.commit()
+        return None
+        
 
     def remove(self):
         """
@@ -174,7 +186,17 @@ class Question(object):
         @return bool :
         @author
         """
-        pass
+        
+        if self.idQuestion != None:
+            cursor = MySQLConnection()
+            if self == Curriculum.pickById(self.idQuestion):
+                cursor.execute("""DELETE FROM question WHERE idQuestion = """ + str(self.idQuestion))
+                cursor.execute("""DELETE FROM rel_question_questionnaire WHERE idQuestion = """ + str(self.idQuestion))
+                cursor.commit()
+            else:
+                raise QuestionError("Can't delete non saved object.")
+        else:
+            raise CourseError('idQuestion not defined.')
 
 
 

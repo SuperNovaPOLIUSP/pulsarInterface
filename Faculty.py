@@ -108,15 +108,14 @@ class Faculty(object):
 
         cursor = MySQLConnection()
         try:
+            #If courseData is None or an empty list the [0] at the end will raise an error that will fall to returning None
             facultyData = cursor.execute('SELECT name,abbreviation,campus,city,idFaculty FROM faculty WHERE idFaculty = ' + str(idFaculty))[0]
         except:
             return None
         faculty = Faculty(facultyData[0], facultyData[1])
         faculty.idFaculty = facultyData[4]
-        if facultyData[2] != None:
-            faculty.setCampus(facultyData[2])
-        if facultyData[3] != None:
-            faculty.setCity(facultyData[3])
+        faculty.setCampus(facultyData[2])
+        faculty.setCity(facultyData[3])
         return faculty
 
     @staticmethod
@@ -151,10 +150,8 @@ class Faculty(object):
         faculties = []
         for facultyData in facultiesData:
             faculty = Faculty(facultyData[0], facultyData[1])
-            if facultyData[2] != None:
-                faculty.setCampus(facultyData[2])
-            if facultyData[3] != None:
-                faculty.setCity(facultyData[3])
+            faculty.setCampus(facultyData[2])
+            faculty.setCity(facultyData[3])
             faculty.idFaculty = facultyData[4]
             faculties.append(faculty)
         return faculties
@@ -208,9 +205,6 @@ class Faculty(object):
         if self.idFaculty != None:
             cursor = MySQLConnection()
             if self == Faculty.pickById(self.idFaculty):
-                #First check if the object is correct in the database, if it was changed it goes to the except
-                self.dFaculty = self.find(name_equal = self.name, abbreviation_equal = self.abbreviation, city_equal = self.city, campus_equal = self.campus,idFaculty = self.idFaculty)[0].idFaculty
-                #Now delete it
                 cursor.execute('DELETE FROM faculty WHERE idFaculty = ' + str(self.idFaculty))
                 cursor.commit()
                 return True

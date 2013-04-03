@@ -67,7 +67,6 @@ class Course(object):
             raise CourseError('Parameter courseCode must be a string or an unicode')
         if not isinstance(name,(str,unicode)):
             raise CourseError('Parameter name must be a string or an unicode')
-
         if not isinstance(startDate,datetime.date):
             if not isinstance(startDate,(str,unicode)) or checkDateString(startDate) == None:
                 raise CourseError('Parameter startDate must be a datetime.date format or a string in the format year-month-day')

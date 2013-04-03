@@ -124,6 +124,7 @@ class Course(object):
         """
         cursor = MySQLConnection()
         try:
+            #If courseData is None or an empty list the [0] at the end will raise an error that will fall to returning None
             courseData = cursor.execute('SELECT idCourse, courseCode, abbreviation, name, startDate, endDate FROM course WHERE idCourse = ' + str(idCourse))[0]
         except:
             return None

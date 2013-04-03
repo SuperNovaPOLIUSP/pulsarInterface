@@ -178,7 +178,7 @@ class Offer(object):
             #Check if offers is a list of offer
             for offer in offers:
                 if not isinstance(offer, Offer):
-                    print "offers must be a list of Offer objects"
+                    OfferError("offers must be a list of Offer objects")
                     return None
             #Check if the professor and the practical is the same in this specific set of offers.
             professor = offers[0].professor
@@ -193,7 +193,7 @@ class Offer(object):
                 if practical != offer.practical:
                     practical = None
             courseName = offers[0].course.name
-            #Now checks if there are other offers in this course that have diferent professors and practical from this set
+            #Now checks if there are other offers in this course that have diferent professors and practical from this set this check is the same for all setsOfOffer
             if otherOffers == None:
                 otherOffers = Offer.find(course = course, timePeriod = timePeriod)
             otherProfessor = False
@@ -221,7 +221,7 @@ class Offer(object):
         """
          Returns a list of dicts in the form {name:specifyCourse(offers),offers:Offer[]},
          where the offers is a subset of this courses offers, and the name is the name of
-         this subset. The list must contain all possible names for that course.
+         this subset. The list must contain all possible names for that set of offers.
     
         @return [] :
         @author
@@ -281,13 +281,14 @@ class Offer(object):
             if moreThanOnePractical:
                 setsOfOffers.append({'professor':setOfOffers['professor'], 'offers':offersPractical1, 'practical':offersPractical1[0].practical})
                 setsOfOffers.append({'professor':setOfOffers['professor'], 'offers':offersPractical2, 'practical':offersPractical2[0].practical})
-        #creates a list
-        cleanSetOfOffers = []
+        #Creates the list of names
+        cleanSetOfOffers = [] #is a list with only the offers
         for setOfOffers in  setsOfOffers:
             cleanSetOfOffers.append(setOfOffers['offers'])
         names = Offer.offersName(cleanSetOfOffers)
         returns = []
         i = 0
+        #Join the list of names with the offers
         for name in names:
             returns.append({'name':name, 'offers': setsOfOffers[i]['offers']}) #The order is the same
             i = i + 1
@@ -332,6 +333,7 @@ class Offer(object):
          folowing parameters:
          > idOffer
          > idCourse
+         > course
          > professor
          > timePeriod
          > classNumber

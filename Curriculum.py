@@ -2,9 +2,7 @@
 
 from Course import *
 from IdealTerm import *
-from AcademicProgram import *
 from Faculty import *
-from Dictionary import *
 from tools.timeCheck import *
 
 class Curriculum(object):
@@ -82,7 +80,7 @@ class Curriculum(object):
         @author
         """
         self.name = name
-        self.curriculymType = curriculymType
+        self.curriculumType = curriculumType
         self.codHab = codHab
         self.timePeriodType = timePeriodType
         self.faculty = faculty
@@ -139,16 +137,18 @@ class Curriculum(object):
         cursor = MySQLConnection()
         query = "SELECT rel_course_curriculum.idCourse FROM rel_course_curriculum JOIN curriculum ON curriculum.idCurriculum = rel_course_curriculum.idCurriculum WHERE "
         query += "rel_course_curriculum.idCurriculum = " +str(self.idCurriculum)
-        query += " AND rel_course_curriculum.requisitionType = 1 AND curriculum.term = "
+        query += " AND rel_course_curriculum.requisitionType = 1 AND rel_course_curriculum.term = "
         term_searched_for = 0
         courses = ["nada"] #so it enters on the loop below
         for term_searched_for in range(13): #while len(courses) != 0:
-            #term_searched_for += 1
-            courses = cursor.execute(query + term_searched_for)
-            if len(courses != 0):
-                idealTerm = IdealTerm(self.idCurriculum, term_searched_for)
+            term_searched_for += 1
+            courses = cursor.execute(query + str(term_searched_for))
+            if len(courses) != 0:
+                list_courses = []
                 for course in courses:
-                    idealTerm.addCourse(Course.pickById(course[0]))
+                    list_courses.append(Course.pickById(course[0]))
+                idealTerm = IdealTerm(self.idCurriculum, term_searched_for)
+                idealTerm.addCourses(list_courses)
                 self.mandatoryIdealTerms.append(idealTerm)
         
 
@@ -164,18 +164,19 @@ class Curriculum(object):
         cursor = MySQLConnection()
         query = "SELECT rel_course_curriculum.idCourse FROM rel_course_curriculum JOIN curriculum ON curriculum.idCurriculum = rel_course_curriculum.idCurriculum WHERE "
         query += "rel_course_curriculum.idCurriculum = " +str(self.idCurriculum)
-        query += " AND rel_course_curriculum.requisitionType = 2 AND curriculum.term = "
+        query += " AND rel_course_curriculum.requisitionType = 2 AND rel_course_curriculum.term = "
         term_searched_for = 0
         courses = ["nada"] #so it enters on the loop below
         for term_searched_for in range(13): #while len(courses) != 0:
-            #term_searched_for += 1
-            courses = cursor.execute(query + term_searched_for)
-            if len(courses != 0):
-                idealTerm = IdealTerm(self.idCurriculum, term_searched_for)
+            term_searched_for += 1
+            courses = cursor.execute(query + str(term_searched_for))
+            if len(courses) != 0:
+                list_courses = []
                 for course in courses:
-                    idealTerm.addCourse(Course.pickById(course[0]))
-                self.electiveIdealTerms.append(idealTerm)
-        
+                    list_courses.append(Course.pickById(course[0]))
+                idealTerm = IdealTerm(self.idCurriculum, term_searched_for)
+                idealTerm.addCourses(list_courses)
+                self.mandatoryIdealTerms.append(idealTerm)
 
     @staticmethod
     def pickById(idCurriculum):
@@ -207,13 +208,12 @@ class Curriculum(object):
         faculty_sql = cursor.execute(faculty_query)
         
         curriculum = Curriculum(curriculum_sql[0][1], curriculumType_sql[0][0], curriculum_sql[0][6], timePeriodType_sql[0][0], faculty_sql[0][0])#name, curriculumType, codHab, timePeriodType, faculty
-        
         curriculum.idCurriculum = idCurriculum
-        curriculum.startDate = curriculum_sql[4]
-        curriculum.endDate = curriculum_sql[5]
+        curriculum.startDate = curriculum_sql[0][4]
+        curriculum.endDate = curriculum_sql[0][5]
         curriculum.completeMandatoryIdealTerms()
         curriculum.completeElectiveIdealTerms()
-        curriculum.abbreviation = curriculum_sql[3]
+        curriculum.abbreviation = curriculum_sql[0][3]
         return curriculum
 
     @staticmethod

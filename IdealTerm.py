@@ -1,6 +1,15 @@
 from Course import Course
 from tools.MySQLConnection import *
+import sys
 
+class IdealTermError(Exception):
+    """
+     Exception reporting an error in the execution of a Faculty method.
+
+    :version:
+    :author:
+    """
+    pass
 
 class IdealTerm(object):
 
@@ -57,12 +66,12 @@ class IdealTerm(object):
         self.startDate = None
         self.endDate = None
 	
-    def addCourse(self, course):
+    def addCourses(self, courses):
         """
              Adds courses to a relation.
-             Return: True if successful or False, otherwise
+             Return:
     
-             @param Course[] course : Disciplines's list to be added to the relation.
+             @param Course[] courses : Disciplines's list to be added to the relation.
              @return bool :
              @author
         """
@@ -70,21 +79,20 @@ class IdealTerm(object):
         cursor = MySQLConnection()
         
         try:
-            for course_data in course:
-                if not isinstance(course_data, Course) or not Course.pickById(course.idCourse) == course:
-                    raise IdealTermError('The parameter course must be a list of course objects present in the database')
+            for course_data in courses:
+                # if the object in the list 'courses' is not an object neither is in the database, the parameter 'courses' must not be added to the idealTerm object
+                if not isinstance(course_data, Course):
+                        if not Course.pickById(course.idCourse) == course:
+                                raise 
         except:
-            raise IdealTermError('The parameter course must be a list.')
+            raise IdealTermError("The parameter 'courses' must be a list of 'Course' objects.")
 
         if not self.courses:
-            self.courses = course
-            return False
+            self.courses = courses
 
-        for course_data in course:
+        for course_data in courses:
             if not course_data in self.courses:
                 self.courses.append(course_data)
-        
-        return True
 
     def removeCourse(self, course):
         """
@@ -114,13 +122,13 @@ class IdealTerm(object):
         courses = []
         cursor = MySQLConnection()
 
-        query = 'SELECT idCourse from rel_course_curriculum WHERE idCurriculum = ' + str(self.idCurriculum)
+        query = 'SELECT idCourse from rel_course_curriculum WHERE idCurriculum = ' + str(self.idCurriculum) + ' AND term = ' + str(self.term)
         courses_data = cursor.execute(query)
 
         for course_data in courses_data:
-            courses.append(Course.pickById(course_data)[0])
+            courses.append(Course.pickById(course_data[0]))
 
-        self.addCourse(courses)
+        self.addCourses(courses)
         return True
         
     @staticmethod 
@@ -139,7 +147,7 @@ class IdealTerm(object):
          folowing parameters:
          > idCurriculum
          > term
-         > course
+         > courses
          > requisitionType
          > startDate_equal or startDate_like
          > endDate_equal or endDate_like
@@ -149,19 +157,48 @@ class IdealTerm(object):
          E.g. IdealTerm.find(course = courseObject, term = 3, startDate_equal =
          "2008-10-20", endDate_like = "2010")
 
-        @param {} _kwargs : Dictionary of arguments to be used as parameters for the search.
+        @param {} **kwargs : Dictionary of arguments to be used as parameters for the search.
         @return idealTerm[] :
         @author
         """
         cursor = MySQLConnection()
-        ideal_terms_data = cursor.find('SELECT idCurriculum, term, idCourse, requisitionType, startDate, endDate FROM rel_course_curriculum',kwargs)
-        ideal_terms = []
-        for ideal_term_data in ideal_terms_data:
-            ideal_term = IdealTerm(ideal_term_data[0], ideal_term_data[1])
-            ideal_term.fillCourses()
-            ideal_terms.append(ideal_term)
-
-        return ideal_terms
+        new_kwargs = {}
+        for key in kwargs:
+           if not key == "courses":
+               new_kwargs[key] = kwargs[key]
+        query = 'SELECT DISTINCT idCurriculum, term'
+        if kwargs.has_key('requsiitionType'): 
+            query += ', requsiitionType'
+        if kwargs.has_key('startDate'): 
+            query += ', startDate'
+        if kwargs.has_key('endDate'):
+            query += ', endDate'
+        if kwargs.has_key('courses'): 
+            new_courses = []
+            for course in kwargs['courses']:
+                new_courses.append(course.idCourse)
+            new_kwargs["idCourse"] = new_courses
+            query += ', idCourse'
+        query += ' FROM rel_course_curriculum'
+        objects_to_create = []
+        complements = []
+        number_objects = 0
+        query_result = cursor.find(query, new_kwargs)
+        for idealTerms_data in query_result:
+            #if it's the first time that query_result is being read; or 
+            #if the idCurriculum of the current object is different from the current line in the query_result; or
+            #if the term of the current object is different from the current line in the query_result; then
+            #another object must be created            
+            if number_objects == 0 or objects_to_create[number_objects-1][0] != idealTerms_data[0] or objects_to_create[number_objects-1][1] != idealTerms_data[1]:
+                objects_to_create.append(list(idealTerms_data))
+                number_objects += 1
+        idealTerms = []
+        objects_to_create.sort()
+        for idealTerm_data in objects_to_create:
+                idealTerm = IdealTerm(idealTerm_data[0], idealTerm_data[1])
+                idealTerm.fillCourses()
+                idealTerms.append(idealTerm)
+        return idealTerms
 
     def store(self):
         """

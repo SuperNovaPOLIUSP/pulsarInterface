@@ -352,6 +352,7 @@ class Offer(object):
         cursor = MySQLConnection()
         #first prepare the kwargs for the MySQLConnection.find function
         parameters = {}
+        parameters['idOffer'] = []
         for key in kwargs:
             if key == 'course':
                 parameters['idCourse'] = kwargs['course'].idCourse
@@ -360,9 +361,29 @@ class Offer(object):
             elif key == 'timePeriod':
                 parameters['idTimePeriod'] = kwargs['timePeriod'].idTimePeriod
             elif key == 'schedule':
-                parameters['idSchedule'] = kwargs['schedule'].idSchedule
+                offersData = cursor.execute('SELECT idOffer FROM rel_offer_schedule WHERE idSchedule = ' + str(kwargs['schedule'].idSchedule)) 
+                parameters['idOffer'].append([offerData[0] for offerData in offersData])
+            elif key == 'idOffer':
+                if isinstance(kwargs['idOffer'], list):
+                    parameters['idOffer'].append(kwargs['idOffer']) 
+                else:
+                    parameters['idOffer'].append([kwargs['idOffer']])
             else:
                 parameters[key] = kwargs[key]
+        if len(parameters['idOffer']) > 0:
+            #Now you join the idsOffer parameters allowing only the ones that belong to all the lists (execute an AND with them)
+            finalIdOfferList = []
+            for idOffer in parameters['idOffer'][0]:
+                belongToAll = True
+                for idsOffer in parameters['idOffer'][1:]:
+                    if not idOffer in idsOffer:
+                        belongToAll = False
+                        break
+                if belongToAll:
+                    finalIdOfferList.append(idOffer)
+            parameters['idOffer'] = finalIdOfferList
+        else:
+            del parameters['idOffer']
         offersData = cursor.find('SELECT idOffer, idTimePeriod, idCourse, classNumber, practical, idProfessor, numberOfRegistrations FROM aggr_offer',parameters)
         offers = []
         for offerData in offersData:
@@ -386,7 +407,7 @@ class Offer(object):
         if self.numberOfRegistrations == None:
             mySQLNumberOfRegistrations = 'NULL'  #in MySQL is NULL
         else:
-            mySQLNumberofRegistrations = self.numberOfRegistrations
+            mySQLNumberOfRegistrations = self.numberOfRegistrations
         if self.idOffer == None:
             offers = self.find(course = self.course, professor = self.professor, timePeriod = self.timePeriod, classNumber = self.classNumber, practical = self.practical, numberOfRegistrations = self.numberOfRegistrations) #Schedule does not define the offer 
             if len(offers) > 0:

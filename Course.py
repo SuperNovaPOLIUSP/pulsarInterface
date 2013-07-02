@@ -71,7 +71,7 @@ class Course(object):
             if not isinstance(startDate,(str,unicode)) or checkDateString(startDate) == None:
                 raise CourseError('Parameter startDate must be a datetime.date format or a string in the format year-month-day')
 
-        self.startDate = startDate
+        self.startDate = str(startDate)
         self.courseCode = courseCode
         self.name = name
         self.abbreviation = name #By default abbreviation is equal to name
@@ -110,7 +110,9 @@ class Course(object):
             if not isinstance(endDate,datetime.date):
                 if not isinstance(endDate,(str,unicode)) or checkDateString(endDate) == None:
                     raise CourseError('Parameter endDate must be a datetime.date format or a string in the format year-month-day')
-        self.endDate = endDate
+            self.endDate = str(endDate)
+        else:
+            self.endDate = endDate
 
     @staticmethod
     def pickById(idCourse):
@@ -128,7 +130,7 @@ class Course(object):
         except:
             return None
 
-        course = Course(courseData[1],courseData[3],courseData[4])
+        course = Course(courseData[1],courseData[3],str(courseData[4]))
         course.idCourse = courseData[0]
         course.setAbbreviation(courseData[2])
         course.setEndDate(courseData[5]) 
@@ -167,7 +169,7 @@ class Course(object):
         coursesData = cursor.find('SELECT idCourse, courseCode, abbreviation, name, startDate, endDate FROM course',kwargs)
         courses = []
         for courseData in coursesData:
-            course = Course(courseData[1],courseData[3],courseData[4])
+            course = Course(courseData[1],courseData[3], str(courseData[4]))
             course.idCourse = courseData[0]
             course.setAbbreviation(courseData[2])
             course.setEndDate(courseData[5]) 

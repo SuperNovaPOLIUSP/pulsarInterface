@@ -22,20 +22,20 @@ class TimePeriod(object):
 
      Associated database key.
 
-    idTimePeriod  (private)
+    idTimePeriod  (public)
 
      Defines if the Time Period range is a semester or a quarter.
 
-    length  (private)
+    length  (public)
 
      Defines the year when the time period takes place.
 
-    year  (private)
+    year  (public)
 
      Defines the order of the term length in the year, if it is the first or second
      semester or the first, second or third quarter.
 
-    order  (private)
+    session  (public)
 
     """
 
@@ -45,7 +45,7 @@ class TimePeriod(object):
 
         @param int length : Defines if the Time Period range is a semester or a quarter.
         @param int year : Defines the year on wich the Time Period takes place.
-        @param int order : Defines the order of the term lengh on the year, if it's the first or second semester or the first, second, third or fourth quarter.
+        @param int session : Defines the order of the term lengh on the year, if it's the first or second semester or the first, second, third quarter.
         @return  :
         @author
         """
@@ -120,7 +120,7 @@ class TimePeriod(object):
          > idTimePeriod
          > length
          > year
-         > order
+         > session
          The parameters must be identified by their names when the method is called, and
          those which are strings must be followed by "_like" or by "_equal", in order to
          determine the kind of search to be done.

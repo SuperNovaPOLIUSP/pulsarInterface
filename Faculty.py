@@ -15,6 +15,7 @@ class Faculty(object):
     """
      
 
+
     :version:
     :author:
     """
@@ -39,13 +40,13 @@ class Faculty(object):
 
      Faculty's city.
 
-    city  (private)
+    city  (public)
 
     """
 
     def __init__(self, name, abbreviation):
         """
-         Only the name ad the abbreviation are needed.
+         Only the name and the abbreviation are needed.
 
         @param string name : Faculty's name
         @param string abbreviation : Faculty's abbreviation.

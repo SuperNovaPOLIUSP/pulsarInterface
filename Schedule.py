@@ -24,24 +24,24 @@ class Schedule(object):
 
      Associate database key.
 
-    idSchedule  (private)
+    idSchedule  (public)
 
      The day of the week as it is written in the database's minitableDayOfTheWeek.
 
-    dayOfTheWeek  (private)
+    dayOfTheWeek  (public)
 
      The starting time of the class (e.g. "18:00:00").
 
-    start  (private)
+    start  (public)
 
      The ending time of the class (e.g. "03:14:15").
 
-    end  (private)
+    end  (public)
 
      Specifies how often the lecture is held at this time (e.g. "weekly", "monthly",
      etc).
 
-    frequency  (private)
+    frequency  (public)
 
     """
 
@@ -56,7 +56,7 @@ class Schedule(object):
         @return  :
         @author
         """
-        if not isinstance(dayOfTheWeek, unicode):
+        if not isinstance(dayOfTheWeek,(str, unicode)):
             raise ScheduleError('dayOfTheWeek must be unicode')
     	#check if dayOfTheWeek is in the database
         cursor = MySQLConnection()              

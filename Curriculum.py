@@ -5,6 +5,17 @@ from IdealTerm import *
 from Faculty import *
 from tools.timeCheck import *
 
+class CurriculumError(Exception):
+    """
+     Exception reporting an error in the execution of a Offer method.
+
+    :version:
+    :author:
+    """
+    pass
+
+
+
 class Curriculum(object):
 
     """
@@ -63,33 +74,60 @@ class Curriculum(object):
 
      Abbreviated curriculum's name (e.g. Computing Engineering -> Computing).
 
-    abbreviation  (private)
+    abbreviation  (public)
+
+     Number of vacancies for this curriculum.
+
+    vacancyNumber  (public)
+
+     Curriculum's daily length (day-time, nigth-time,full-time)
+
+    termLength  (public)
 
     """
 
-    def __init__(self, name, curriculumType, codHab, timePeriodType, faculty):
+    def __init__(self, name, curriculumType, codHab, timePeriodType, faculty, startDate, termLength):
         """
-         
 
         @param string name : Curriculum's name
         @param string curriculumType : It represents the type of curriculum, (e.g general area, basic cycle,... ).
         @param string codHab : codigo da habilitação (vide jupiter)
         @param string timePeriodType : String representing the period division ("quarter" or "semester").
-        @param Faculty faculty : The curriculum's faculty. 
+        @param Faculty faculty : The curriculum's faculty.
+        @param startDate string : Date of the start of this curriculum, in the form year-month-day “xxxx-xx-xx”.Start is defined as the first time this curriculum was given in this University. 
+        @param string termLength : Curriculum's daily length (day-time, nigth-time,full-time)
         @return  :
         @author
         """
+        if not isinstance(name, (str, unicode)):
+            raise CurriculumError('Parameter name must be a string or unicode.')
+        if not isinstance(curriculumType, (str, unicode)):
+            raise CurriculumError('Parameter curriculumType must be a string or unicode.')            
+        if not isinstance(codHab, (int, long)):
+            raise CurriculumError('Parameter codHab must be an int or a long.')
+        if not isinstance(timePeriodType, (str, unicode)):
+            raise CurriculumError('Parameter timePeriodType must be a string or unicode.')
+        if not isinstance(faculty, Faculty) or not Faculty.pickById(faculty.idFaculty) == faculty:
+            raise CurriculumError('Parameter faculty must be a Faculty object that exists in the database.')
+        if not isinstance(startDate,datetime.date):
+            if not isinstance(startDate,(str,unicode)) or checkDateString(startDate) == None:
+                raise CurriculumError('Parameter startDate must be a datetime.date format or a string in the format year-month-day')
+        if not isinstance(termLength, (str, unicode)):
+            raise CurriculumError('Parameter termLength must be a string or unicode.')
+
+
         self.name = name
         self.curriculumType = curriculumType
         self.codHab = codHab
         self.timePeriodType = timePeriodType
         self.faculty = faculty
+        self.startDate = str(startDate) 
+        self.abbreviation = name
+        self.termLength = termLength
         self.idCurriculum = None
-        self.startDate = None
         self.endDate = None
         self.mandatoryIdealTerms = None
         self.electiveIdealTerms = None
-        self.abbreviation = None
         
     def __eq__(self, other):
         if not isinstance(other, Curriculum):
@@ -99,31 +137,47 @@ class Curriculum(object):
     def __ne__(self,other):
         return not self.__eq__(other)
 
-    def setStartDate(self, startDate):
-        """
-         
-
-        @param string startDate : Date of the start of this curriculum, in the form year-month-day “xxxx-xx-xx”.Start is defined as the first time this curriculum was given in this University.
-        @return  :
-        @author
-        """
-        if checkDateString(startDate):
-            self.startDate = startDate
-            return True
-        return False
-
     def setEndDate(self, endDate):
         """
-         
 
         @param string endDate : Date of the end of this curriculum, in the form year-month-day “xxxx-xx-xx”. It's value is null if the curriculum is not over. Over is defined as the last time this curriculum was given in this University.
         @return  :
         @author
         """
-        if checkDateString(endDate):
+        print endDate
+        if endDate != None:
+            if not isinstance(endDate,datetime.date):
+                if not isinstance(endDate,(str,unicode)) or checkDateString(endDate) == None:
+                    raise CourseError('Parameter endDate must be a datetime.date format or a string in the format year-month-day')
+            self.endDate = str(endDate)
+        else:
             self.endDate = endDate
-            return True
-        return False
+
+    def setVacancyNumber(self, vacancyNumber):
+        """
+         
+
+        @param int vancacyNumber : 
+        @return  :
+        @author
+        """
+
+        if not isinstance(vacancyNumber, (int, long)):
+            raise CurriculumError('Parameter vacancyNumber must be a int or a long.')
+        self.vacancyNumber = vacancyNumber
+       
+
+    def setAbbreviation(self, abbreviation):
+        """
+         
+
+        @param string abbreviation : 
+        @return  :
+        @author
+        """
+        if not isinstance(abbreviation, (str, unicode)):    
+            raise CurriculumError('Parameter abbreviation must be a string or unicode.')
+        self.abbreviatio = abbreviation
 
     def completeMandatoryIdealTerms(self):
         """
@@ -135,7 +189,7 @@ class Curriculum(object):
         """
         self.mandatoryIdealTerms = []
         cursor = MySQLConnection()
-        query = "SELECT rel_course_curriculum.idCourse FROM rel_course_curriculum JOIN curriculum ON curriculum.idCurriculum = rel_course_curriculum.idCurriculum WHERE "
+        query = "SELECT idCourse FROM rel_course_curriculum JOIN curriculum ON curriculum.idCurriculum = rel_course_curriculum.idCurriculum WHERE "
         query += "rel_course_curriculum.idCurriculum = " +str(self.idCurriculum)
         query += " AND rel_course_curriculum.requisitionType = 1 AND rel_course_curriculum.term = "
         term_searched_for = 0
@@ -187,33 +241,20 @@ class Curriculum(object):
         @return Curriculum :
         @author
         """
-        cursor = MySQLConnection()
-        #query = 'SELECT  idCurriculum, name, abbreviation, curriculumType, codHab, timePeriodType, faculty, startDate, endDate, mandatoryIdealTerms, electiveIdealTerms FROM curriculum WHERE idCurriculum = ' + str(idCurriculum)
-        curriculum_sql = cursor.execute('SELECT  idCurriculum, name, abbreviation, idCurriculumType, startDate, endDate, curriculumCode FROM curriculum WHERE idCurriculum = ' + str(idCurriculum))
-        curriculumType_sql = cursor.execute('SELECT  name FROM minitableCurriculumType WHERE idCurriculumType = ' +str(curriculum_sql[0][3]))
-        timePeriodType_query = '''SELECT DISTINCT minitableLength.length FROM curriculum
-                                JOIN rel_course_curriculum ON curriculum.idCurriculum = rel_course_curriculum.idCurriculum
-                                JOIN course ON rel_course_curriculum.idCourse = course.idCourse
-                                JOIN aggr_offer ON course.idCourse = aggr_offer.idCourse
-                                JOIN timePeriod ON aggr_offer.idTimePeriod = timePeriod.idTimePeriod
-                                JOIN minitableLength ON timePeriod.length = minitableLength.idLength
-                                WHERE curriculum.idCurriculum = ''' + str(idCurriculum)
-        timePeriodType_sql = curriculumType_sql = cursor.execute(timePeriodType_query)
-        faculty_query = '''SELECT faculty.idFaculty FROM curriculum
-                        JOIN rel_courseCoordination_curriculum ON curriculum.idCurriculum = rel_courseCoordination_curriculum.idCurriculum
-                        JOIN courseCoordination ON rel_courseCoordination_curriculum.idCourseCoordination = courseCoordination.idCourseCoordination
-                        JOIN rel_courseCoordination_faculty ON courseCoordination.idCourseCoordination = rel_courseCoordination_faculty.idCourseCoordination
-                        JOIN faculty ON rel_courseCoordination_faculty.idfaculty = faculty.idFaculty
-                        WHERE curriculum.idCurriculum = ''' + str(idCurriculum)
-        faculty_sql = cursor.execute(faculty_query)
-        
-        curriculum = Curriculum(curriculum_sql[0][1], curriculumType_sql[0][0], curriculum_sql[0][6], timePeriodType_sql[0][0], faculty_sql[0][0])#name, curriculumType, codHab, timePeriodType, faculty
+        cursor = MySQLConnection()  
+        try:
+            #All curricula must have a rel_curriculum_faculty relation and at least one offer
+            #Here get most of the curricula data
+            curriculumData = cursor.execute('SELECT curr.name,  mc.name, curr.curriculumCode, rcf.idFaculty, curr.startDate, curr.termLength, curr.vacancyNumber, curr.endDate, curr.abbreviation  FROM curriculum curr JOIN rel_courseCoordination_curriculum rcc ON curr.idCurriculum = rcc.idCurriculum JOIN rel_courseCoordination_faculty rcf ON rcc.idCourseCoordination = rcf.idCourseCoordination  JOIN minitableCurriculumType mc ON curr.idCurriculumType = mc.idCurriculumType WHERE curr.idCurriculum = '+ str(idCurriculum))[0]
+            #Now get the timePeriodType
+            timePeriodType = cursor.execute('SELECT ml.length FROM aggr_offer aggr JOIN timePeriod tp ON tp.idTimePeriod = aggr.idTimePeriod JOIN rel_course_curriculum rcc ON rcc.idCourse = aggr.idCourse JOIN minitableLength ml ON ml.idLength = tp.length WHERE rcc.idCurriculum = ' + str(idCurriculum)  + ' GROUP BY idCurriculum')[0][0]
+        except:
+            return None
+        curriculum = Curriculum(curriculumData[0], curriculumData[1], curriculumData[2], timePeriodType, Faculty.pickById(curriculumData[3]), curriculumData[4], curriculumData[5])#name, curriculumType, codHab, timePeriodType, faculty, startDate, termLength
+        curriculum.setVacancyNumber(curriculumData[6])
+        curriculum.setEndDate(curriculumData[7])
+        curriculum.setAbbreviation(curriculumData[8])
         curriculum.idCurriculum = idCurriculum
-        curriculum.startDate = curriculum_sql[0][4]
-        curriculum.endDate = curriculum_sql[0][5]
-        curriculum.completeMandatoryIdealTerms()
-        curriculum.completeElectiveIdealTerms()
-        curriculum.abbreviation = curriculum_sql[0][3]
         return curriculum
 
     @staticmethod
@@ -249,17 +290,57 @@ class Curriculum(object):
         @author
         """
         cursor = MySQLConnection()
-        curriculaData = cursor.find('SELECT name, curriculumType, codHab, timePeriodType, faculty, idCurriculum, startDate, endDate, abbreviation FROM curriculum',kwargs)
+        parameters = {}
+        parameters['curr.idCurriculum'] = []
+        for key in kwargs:
+            if key == 'curriculumType':
+                parameters['mc.name'] = kwargs['curriculumType']
+
+            elif key == 'faculty':
+                parameters['rcf.idFaculty'] = kwargs['faculty'].idFaculty
+
+            elif key.find('timePeriod') != -1:
+                query = 'SELECT rcc.idCurriculum  FROM aggr_offer aggr JOIN timePeriod tp ON tp.idTimePeriod = aggr.idTimePeriod JOIN rel_course_curriculum rcc ON rcc.idCourse = aggr.idCourse JOIN minitableLength ml ON ml.idLength = tp.length'
+                if key.find('like') != -1:
+                    query = query + 'WHERE ml.length like ' + kwargs[key]  + ' GROUP BY idCurriculum'
+                else:
+                    query = query + 'WHERE ml.length = ' + kwargs[key]  + ' GROUP BY rcc.idCurriculum'
+                curriculaData = cursor.execute(query)
+                parameters['curr.idCurriculum'].append([curriculumData[0] for curriculumData in curriculaData])
+
+            elif key == 'idCurriculum':
+                if isinstance(kwargs['idCurriculum'], list):
+                    parameters['curr.idCurriculum'].append(kwargs['idCurriculum']) 
+                else:
+                    parameters['curr.idCurriculum'].append([kwargs['idCurriculum']])
+            else:
+                parameters['curr.' + key] = kwargs[key]
+
+        if len(parameters['curr.idCurriculum']) > 0:
+            #Now you join the idsCurriculum parameters allowing only the ones that belong to all the lists (execute an AND with them)
+            finalIdCurriculumList = []
+            for idCurriculum in parameters['curr.idCurriculum'][0]:
+                belongToAll = True
+                for idsCurriculum in parameters['curr.idCurriculum'][1:]:
+                    if not idCurriculum in idsCurriculum:
+                        belongToAll = False
+                        break
+                if belongToAll:
+                    finalIdCurriculumList.append(idCurriculum)
+            parameters['curr.idCurriculum'] = finalIdCurriculumList
+        else:
+            del parameters['curr.idCurriculum']
+
+        curriculaData = cursor.find('SELECT curr.idCurriculum, curr.name,  mc.name, curr.curriculumCode, rcf.idFaculty, curr.startDate, curr.termLength, curr.vacancyNumber, curr.endDate, curr.abbreviation  FROM curriculum curr JOIN rel_courseCoordination_curriculum rcc ON curr.idCurriculum = rcc.idCurriculum JOIN rel_courseCoordination_faculty rcf ON rcc.idCourseCoordination = rcf.idCourseCoordination  JOIN minitableCurriculumType mc ON curr.idCurriculumType = mc.idCurriculumType',parameters)
         curricula = []
         for curriculumData in curriculaData:
-            curriculum = Curriculum(curriculaData[0], curriculaData[1], curriculaData[2], curriculaData[3], curriculaData[4])
-            curriculum.idCurriculum = curriculaData[5]
-            curriculum.startDate = curriculaData[6]
-            curriculum.endDate = curriculaData[7]
-            curriculum.abbreviation = curriculaData[8]
+            timePeriodType = cursor.execute('SELECT ml.length FROM aggr_offer aggr JOIN timePeriod tp ON tp.idTimePeriod = aggr.idTimePeriod JOIN rel_course_curriculum rcc ON rcc.idCourse = aggr.idCourse JOIN minitableLength ml ON ml.idLength = tp.length WHERE rcc.idCurriculum = ' + str(curriculumData[0])  + ' GROUP BY rcc.idCurriculum')[0][0]
+            curriculum = Curriculum(curriculumData[1], curriculumData[2], curriculumData[3], timePeriodType, Faculty.pickById(curriculumData[4]), curriculumData[5], curriculumData[6])#name, curriculumType, codHab, timePeriodType, faculty, startDate, termLength
+            curriculum.setVacancyNumber(curriculumData[7])
+            curriculum.setEndDate(curriculumData[8])
+            curriculum.setAbbreviation(curriculumData[9])
+            curriculum.idCurriculum = curriculumData[0]
             curricula.append(curriculum)
-        self.completeMandatoryIdealTerms()
-        self.completeElectiveIdealTerms()
         return curricula
         
         

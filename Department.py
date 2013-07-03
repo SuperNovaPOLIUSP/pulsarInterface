@@ -47,7 +47,7 @@ class Department(object):
         #Parameters verification.
         if not isinstance(name, (str, unicode)):
             raise DepartmentError('Parameter name must be a string or an unicode.')
-        if not isinstance(departmentCode, (str, unicode))
+        if not isinstance(departmentCode, (str, unicode)):
             raise DepartmentError('Parameter departmentCode must be a string or an unicode.')
         
         #Setting paramenters.        

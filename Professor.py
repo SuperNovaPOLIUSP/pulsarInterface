@@ -179,12 +179,17 @@ class Professor(object):
         """
         cursor = MySQLConnection()
         try:
-            professorData = cursor.execute('SELECT idProfessor, memberId, name  FROM professor WHERE idProfessor =  '+ str(idProfessor))[0]
+            professorData = cursor.execute('SELECT idProfessor, memberId, name, office, email, phoneNumber, cellphoneNumber FROM professor WHERE idProfessor =  '+ str(idProfessor))[0]
         except:
             return None
         professor = Professor(professorData[2])
         professor.idProfessor = professorData[0]
         professor.memberId = professorData[1]
+        professor.office = professorData[3]
+        professor.email = professorData[4]
+        professor.phoneNumber = professorData[5]
+        professor.cellphoneNumber = professorData[6]
+
         #Find the department
         idDepartmentData = cursor.execute('SELECT idDepartment from rel_department_professor WHERE idProfessor = ' + str(idProfessor))
         if len(idDepartmentData) == 1:
@@ -251,12 +256,16 @@ class Professor(object):
             parameters['idProfessor'] = finalIdProfessorList
         else:
             del parameters['idProfessor']
-        professorsData = cursor.find('SELECT name, idProfessor, memberId FROM professor',parameters)
+        professorsData = cursor.find('SELECT name, idProfessor, memberId, office, email, phoneNumber, cellphoneNumber FROM professor',parameters)
         professors = []
         for professorData in professorsData:
             professor = Professor(professorData[0])
             professor.idProfessor = professorData[1]
             professor.memberId = professorData[2]
+            professor.office = professorData[3]
+            professor.email = professorData[4]
+            professor.phoneNumber = professorData[5]
+            professor.cellphoneNumber = professorData[6]
             idDepartmentData = cursor.execute('SELECT idDepartment from rel_department_professor WHERE idProfessor = ' + str(professorData[1]))
             if len(idDepartmentData) == 1:
                 professor.idDepartment = idDepartmentData[0][0]

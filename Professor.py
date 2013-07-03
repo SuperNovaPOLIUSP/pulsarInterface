@@ -84,6 +84,54 @@ class Professor(object):
     def __ne__(self,other):
         return not self.__eq__(other)
 
+    def setCellphoneNumber(self, cellphoneNumber):
+        """
+         With the cellphoneNumber parameter given set the cellphoneNumber.
+
+        @param int cellphoneNumber : Professor's cellphone number.
+        @return  :
+        @author
+        """
+        if not isinstance(cellphoneNumber, (int, long)):
+            raise ProfessorError('Parameter email must be a string or an unicode')
+        self.cellphoneNumber = cellphoneNumber
+
+    def setPhoneNumber(self, phoneNumber):
+        """
+         With the phoneNumber parameter given set the phoneNumber.
+
+        @param int phoneNumber : Professor's phone number.
+        @return  :
+        @author
+        """
+        if not isinstance(phoneNumber, (int, long)):
+            raise ProfessorError('Parameter email must be a string or an unicode')
+        self.phoneNumber = phoneNumber
+
+    def setEmail(self, email):
+        """
+         With the email parameter given set the email.
+
+        @param string email : Professor's email.
+        @return  :
+        @author
+        """
+        if not isinstance(email, (str, unicode)):
+            raise ProfessorError('Parameter email must be a string or an unicode')
+        self.email = email
+
+    def setOffice(self, office):
+        """
+         With the office parameter given set the office.
+
+        @param string office : Professor's office.
+        @return  :
+        @author
+        """
+        if not isinstance(office, (str, unicode)):
+            raise ProfessorError('Parameter office must be a string or an unicode')
+        self.office = office
+
     def setMemberId(self, memberId):
         """
          With the memberId given set the memberId.
@@ -161,6 +209,11 @@ class Professor(object):
          > name_equal or name_like
          > memberId
          > department
+         > office
+         > email
+         > phoneNumber
+         > cellphoneNumber
+
          The parameters must be identified by their names when the method is called, and
          those which are strings must be followed by "_like" or by "_equal", in order to
          determine the kind of search to be done.

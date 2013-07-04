@@ -16,7 +16,7 @@ class OfferError(Exception):
 class Offer(object):
 
     """
-     COMPLETAR!!!!!!!!!!!!!!!
+     Representation of an offer in the data base.
 
     :version:
     :author:
@@ -26,36 +26,36 @@ class Offer(object):
 
      Associated database key of this offer.
 
-    idOffer  (private)
+    idOffer  (public)
 
      The database ID of the course related to this offer.
 
-    idCourse  (private)
+    idCourse  (public)
 
      The professor responsible for this offer.
 
-    professor  (private)
+    professor  (public)
 
      The time period related to this offer.
 
-    timePeriod  (private)
+    timePeriod  (public)
 
      The college class's number of this offer.
 
-    classNumber  (private)
+    classNumber  (public)
 
      It is True if this offer is a practical class, and False if it is a theoretical
      class.
 
-    practical  (private)
+    practical  (public)
 
      The number of max students allowed in this offer.
 
-    numberOfRegistrationis  (private)
+    numberOfRegistrationis  (public)
 
      List of schedules when the lectures related to this offer are held.
 
-    schedules  (private)
+    schedules  (public)
 
     """
 

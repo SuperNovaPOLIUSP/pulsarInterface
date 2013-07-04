@@ -84,6 +84,54 @@ class Professor(object):
     def __ne__(self,other):
         return not self.__eq__(other)
 
+    def setCellphoneNumber(self, cellphoneNumber):
+        """
+         With the cellphoneNumber parameter given set the cellphoneNumber.
+
+        @param int cellphoneNumber : Professor's cellphone number.
+        @return  :
+        @author
+        """
+        if not isinstance(cellphoneNumber, (int, long)):
+            raise ProfessorError('Parameter email must be a string or an unicode')
+        self.cellphoneNumber = cellphoneNumber
+
+    def setPhoneNumber(self, phoneNumber):
+        """
+         With the phoneNumber parameter given set the phoneNumber.
+
+        @param int phoneNumber : Professor's phone number.
+        @return  :
+        @author
+        """
+        if not isinstance(phoneNumber, (int, long)):
+            raise ProfessorError('Parameter email must be a string or an unicode')
+        self.phoneNumber = phoneNumber
+
+    def setEmail(self, email):
+        """
+         With the email parameter given set the email.
+
+        @param string email : Professor's email.
+        @return  :
+        @author
+        """
+        if not isinstance(email, (str, unicode)):
+            raise ProfessorError('Parameter email must be a string or an unicode')
+        self.email = email
+
+    def setOffice(self, office):
+        """
+         With the office parameter given set the office.
+
+        @param string office : Professor's office.
+        @return  :
+        @author
+        """
+        if not isinstance(office, (str, unicode)):
+            raise ProfessorError('Parameter office must be a string or an unicode')
+        self.office = office
+
     def setMemberId(self, memberId):
         """
          With the memberId given set the memberId.
@@ -131,12 +179,17 @@ class Professor(object):
         """
         cursor = MySQLConnection()
         try:
-            professorData = cursor.execute('SELECT idProfessor, memberId, name  FROM professor WHERE idProfessor =  '+ str(idProfessor))[0]
+            professorData = cursor.execute('SELECT idProfessor, memberId, name, office, email, phoneNumber, cellphoneNumber FROM professor WHERE idProfessor =  '+ str(idProfessor))[0]
         except:
             return None
         professor = Professor(professorData[2])
         professor.idProfessor = professorData[0]
         professor.memberId = professorData[1]
+        professor.office = professorData[3]
+        professor.email = professorData[4]
+        professor.phoneNumber = professorData[5]
+        professor.cellphoneNumber = professorData[6]
+
         #Find the department
         idDepartmentData = cursor.execute('SELECT idDepartment from rel_department_professor WHERE idProfessor = ' + str(idProfessor))
         if len(idDepartmentData) == 1:
@@ -161,6 +214,11 @@ class Professor(object):
          > name_equal or name_like
          > memberId
          > department
+         > office
+         > email
+         > phoneNumber
+         > cellphoneNumber
+
          The parameters must be identified by their names when the method is called, and
          those which are strings must be followed by "_like" or by "_equal", in order to
          determine the kind of search to be done.
@@ -198,12 +256,16 @@ class Professor(object):
             parameters['idProfessor'] = finalIdProfessorList
         else:
             del parameters['idProfessor']
-        professorsData = cursor.find('SELECT name, idProfessor, memberId FROM professor',parameters)
+        professorsData = cursor.find('SELECT name, idProfessor, memberId, office, email, phoneNumber, cellphoneNumber FROM professor',parameters)
         professors = []
         for professorData in professorsData:
             professor = Professor(professorData[0])
             professor.idProfessor = professorData[1]
             professor.memberId = professorData[2]
+            professor.office = professorData[3]
+            professor.email = professorData[4]
+            professor.phoneNumber = professorData[5]
+            professor.cellphoneNumber = professorData[6]
             idDepartmentData = cursor.execute('SELECT idDepartment from rel_department_professor WHERE idProfessor = ' + str(professorData[1]))
             if len(idDepartmentData) == 1:
                 professor.idDepartment = idDepartmentData[0][0]
@@ -240,7 +302,7 @@ class Professor(object):
             mySQLCellphoneNumber = self.cellphoneNumber
    
         if self.idProfessor == None:
-            possibleIds = self.find(name_equal = self.name) #That defines a Professor in the database
+            possibleIds = self.find(name_equal = self.name, memberId = self.memberId) #That defines a Professor in the database
             if len(possibleIds) > 0:
                 professor = possibleIds[0]
                 self.idProfessor = professor.idProfessor

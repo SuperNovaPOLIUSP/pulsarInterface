@@ -74,9 +74,9 @@ class Schedule(object):
         if not checkTimeString(start):
             raise ScheduleError("Wrong time format for parameter start. Format must be HH:MM:SS")        
         self.dayOfTheWeek = dayOfTheWeek
-        self.end = end
+        self.end = str(end)
         self.frequency = frequency
-        self.start = start
+        self.start = str(start)
         self.idSchedule = None
 
     def __str__(self):
@@ -175,6 +175,7 @@ class Schedule(object):
             possibleIds = self.find(dayOfTheWeek_equal = self.dayOfTheWeek, end_equal = self.end, frequency_equal = self.frequency, start_equal = self.start)
             if not possibleIds :
                 #If there is no idSchedule, then create row
+		idDayOfTheWeek = cursor.execute("SELECT idDayOfTheWeek FROM minitableDayOfTheWeek WHERE dayOfTheWeek = '" + self.dayOfTheWeek + "'")[0][0]
                 query = 'INSERT INTO schedule (idDayOfTheWeek, end, frequency, start) VALUES(' + str(idDayOfTheWeek) + ', "' + self.end + '", "' + self.frequency + '", "' + self.start + '")'
                 cursor.execute(query)
                 cursor.commit()

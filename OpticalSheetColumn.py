@@ -84,7 +84,7 @@ class OpticalSheetColumn(object):
             raise OpticalSheetColumnError('code must be and int or long')
         self.code = code
 
-    def setidOpticalSheet(self, idOpticalSheet):
+    def setIdOpticalSheet(self, idOpticalSheet):
 
         if not isinstance(idOpticalSheet,(int,long)):
             raise OpticalSheetColumnError('idOpticalSheet must be and int or long')
@@ -118,7 +118,6 @@ class OpticalSheetColumn(object):
         opticalSheetColumn = OpticalSheetColumn(Offer.pickById(opticalSheetColumnData[2]))
         opticalSheetColumn.setIdOpticalSheet(opticalSheetColumnData[1])
         opticalSheetColumn.idOpticalSheetColumn = opticalSheetColumnData[0]
-        print opticalSheetColumnData
         if opticalSheetColumnData[3] != None:
             opticalSheetColumn.setCode(opticalSheetColumnData[3])
         elif opticalSheetColumnData[4] != None:
@@ -159,7 +158,7 @@ class OpticalSheetColumn(object):
         oscs = []
         for oscData in oscsData:
             osc = OpticalSheetColumn(Offer.pickById(oscData[2]))
-            osc.setIdOpticalSheet = oscData[1]
+            osc.setIdOpticalSheet(oscData[1])
             osc.idOpticalSheetColumn = oscData[0]
             if oscData[3] != None:
                 osc.setCode(oscData[3])
@@ -179,6 +178,11 @@ class OpticalSheetColumn(object):
         cursor = MySQLConnection()
         if self.idOpticalSheet == None:
             raise OpticalSheetColumnError("idOpticalSheet is not defined")    
+        if self.code == None and self.courseIndex == None:
+            raise OpticalSheetColumnError("code or courseIndex must be defined")
+        if self.code != None and self.courseIndex != None:
+            raise OpticalSheetColumnError("code or courseIndex must be undefined")
+
         if self.code == None:
             mySQLCode = 'NULL'  #in MySQL is NULL
         else:

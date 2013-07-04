@@ -302,7 +302,7 @@ class Professor(object):
             mySQLCellphoneNumber = self.cellphoneNumber
    
         if self.idProfessor == None:
-            possibleIds = self.find(name_equal = self.name) #That defines a Professor in the database
+            possibleIds = self.find(name_equal = self.name, memberId = self.memberId) #That defines a Professor in the database
             if len(possibleIds) > 0:
                 professor = possibleIds[0]
                 self.idProfessor = professor.idProfessor

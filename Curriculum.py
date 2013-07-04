@@ -365,7 +365,7 @@ class Curriculum(object):
 #         > faculty
 #         > abbreviation_equal or abbreviation_like
          
-        else: 
+         
                 #Create this curriculum
                 query = "INSERT INTO curriculum (name, curriculumType, curriculumCode" #FALTAM OS OBRIGATORIOS FACULTY E TIMEPERIODTYPE
                 values = ") VALUES('" +self.name +"', '" +str(self.curriculumType) +"', '" +str(self.curriculumCode)

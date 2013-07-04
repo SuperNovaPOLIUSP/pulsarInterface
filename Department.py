@@ -1,4 +1,4 @@
-#coding: utf8
+#encoding: utf8
 from tools.MySQLConnection import MySQLConnection
 
 class DepartmentError(Exception):
@@ -130,23 +130,17 @@ class Department(object):
         @author
         """
         cursor = MySQLConnection()
-        
-        try:
-            values = [self.name, self.departmentCode]
-        except:
-            print "Values error"
-            return False
-        if self.idDepartment is None:
-            possibleIds = self.find(name_equal = self.name, departmentCode_equal = self.departmentCode)
-            if len(possibleIds) > 0:
-                self.idDepartment = possibleIds[0].idDepartment
-                return True
-            query = "INSERT INTO department (name, departmentCode) VALUES " + str(tuple(values))
-        else:
-            query = "UPDATE department SET name = " + unicode(self.name, 'utf8') + ", departmentCode = " + str(self.departmentCode)
-        query += " WHERE idDepartment = " + str(self.idDepartment)
-        cursor.execute(query)
-        cursor.commit()
+        if self.idDepartment == None:
+            departments = Department.find(name_equal = self.name, departmentCode_equal = self.departmentCode)
+            if len(departments) > 0:
+                self.idDepartment = departments[0].idDepartment #Any department that fit those paramaters is the same as this department, so no need to save
+                return
+            else:
+                #Create this department
+                query = 'INSERT INTO department (name, departmentCode) VALUES("' + self.name + '", "' + self.departmentCode + '")'
+                cursor.execute(query)
+                cursor.commit()
+                self.idDepartment = Department.find(name_equal = self.name, departmentCode_equal = self.departmentCode)[0].idDepartment        
         return
 
     def delete(self):

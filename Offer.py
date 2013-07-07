@@ -351,40 +351,21 @@ class Offer(object):
         """
         cursor = MySQLConnection()
         #first prepare the kwargs for the MySQLConnection.find function
+        complement = ''
         parameters = {}
-        parameters['idOffer'] = []
         for key in kwargs:
             if key == 'course':
-                parameters['idCourse'] = kwargs['course'].idCourse
+                parameters['aggr.idCourse'] = kwargs['course'].idCourse
             if key == 'professor':
-                parameters['idProfessor'] = kwargs['professor'].idProfessor
+                parameters['aggr.idProfessor'] = kwargs['professor'].idProfessor
             elif key == 'timePeriod':
-                parameters['idTimePeriod'] = kwargs['timePeriod'].idTimePeriod
+                parameters['aggr.idTimePeriod'] = kwargs['timePeriod'].idTimePeriod
             elif key == 'schedule':
-                offersData = cursor.execute('SELECT idOffer FROM rel_offer_schedule WHERE idSchedule = ' + str(kwargs['schedule'].idSchedule)) 
-                parameters['idOffer'].append([offerData[0] for offerData in offersData])
-            elif key == 'idOffer':
-                if isinstance(kwargs['idOffer'], list):
-                    parameters['idOffer'].append(kwargs['idOffer']) 
-                else:
-                    parameters['idOffer'].append([kwargs['idOffer']])
+                complement = ' JOIN rel_offer_schedule ros ON ros.idOffer = aggr.idOffer'
+                parameters['ros.idSchedule'] = kwargs[key].idSchedule
             else:
-                parameters[key] = kwargs[key]
-        if len(parameters['idOffer']) > 0:
-            #Now you join the idsOffer parameters allowing only the ones that belong to all the lists (execute an AND with them)
-            finalIdOfferList = []
-            for idOffer in parameters['idOffer'][0]:
-                belongToAll = True
-                for idsOffer in parameters['idOffer'][1:]:
-                    if not idOffer in idsOffer:
-                        belongToAll = False
-                        break
-                if belongToAll:
-                    finalIdOfferList.append(idOffer)
-            parameters['idOffer'] = finalIdOfferList
-        else:
-            del parameters['idOffer']
-        offersData = cursor.find('SELECT idOffer, idTimePeriod, idCourse, classNumber, practical, idProfessor, numberOfRegistrations FROM aggr_offer',parameters)
+                parameters['aggr.' + key] = kwargs[key]
+        offersData = cursor.find('SELECT aggr.idOffer, aggr.idTimePeriod, aggr.idCourse, aggr.classNumber, aggr.practical, aggr.idProfessor, aggr.numberOfRegistrations FROM aggr_offer aggr' + complement, parameters)
         offers = []
         for offerData in offersData:
             offer = Offer(TimePeriod.pickById(offerData[1]), Course.pickById(offerData[2]), offerData[3], offerData[4], Professor.pickById(offerData[5]))

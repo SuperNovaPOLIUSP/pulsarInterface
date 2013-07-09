@@ -230,33 +230,17 @@ class Professor(object):
         """
         cursor = MySQLConnection()
         parameters = {}
-        parameters['idProfessor'] = []
+        complement = ''
         for key in kwargs:
             if key == 'department':
-                professorsData = cursor.execute('SELECT idProfessor FROM rel_department_professor WHERE idDepartment = ' + str(kwargs['department'].idDepartment))
-                parameters['idProfessor'].append([professorData[0] for professorData in professorsData])
-            if key == 'idProfessor':
-                 if isinstance(kwargs['idProfessor'], list):
-                     parameters['idProfessor'].append(kwargs['idProfessor'])
-                 else:
-                     parameters['idProfessor'].append([kwargs['idProfessor']])
+                complement = ' JOIN rel_department_professor rdp ON rdp.idProfessor = pro.idProfessor'
+                parameters['rdp.idDepartment'] = kwargs['department'].idDepartment
+            elif key == 'idDepartment':
+                complement = ' JOIN rel_department_professor rdp ON rdp.idProfessor = pro.idProfessor'
+                parameters['rdp.idDepartment'] = kwargs['idDepartment']
             else:
-                parameters[key] = kwargs[key]
-        if len(parameters['idProfessor']) > 0:
-            #Now you join the idsProfessor parameters allowing only the ones that belong to all the lists (execute an AND with them)
-            finalIdProfessorList = []
-            for idProfessor in parameters['idProfessor'][0]:
-                belongToAll = True
-                for idsProfessor in parameters['idProfessor'][1:]:
-                    if not idProfessor in idsProfessor:
-                        belongToAll = False
-                        break
-                if belongToAll:
-                    finalIdProfessorList.append(idProfessor)
-            parameters['idProfessor'] = finalIdProfessorList
-        else:
-            del parameters['idProfessor']
-        professorsData = cursor.find('SELECT name, idProfessor, memberId, office, email, phoneNumber, cellphoneNumber FROM professor',parameters)
+                parameters['pro.' + key] = kwargs[key]
+        professorsData = cursor.find('SELECT pro.name, pro.idProfessor, pro.memberId, pro.office, pro.email, pro.phoneNumber, pro.cellphoneNumber FROM professor pro' + complement ,parameters)
         professors = []
         for professorData in professorsData:
             professor = Professor(professorData[0])

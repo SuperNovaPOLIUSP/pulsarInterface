@@ -1,6 +1,6 @@
 from Question import *
 import time
-from date import *
+from datetime import *
 
 class Questionnaire(object):
 
@@ -42,10 +42,17 @@ class Questionnaire(object):
         @return Questionnaire :
         @author
         """
-        if not isEmpty questionDictionary:
+        cursor = MySQLConnection()
+        possible_assessment_numbers = []
+        if questionDictionary:
             for index in questionDictionary:
                 if not isinstance(questionDictionary[index], Question):
                     raise QuestionnaireError('One or more of the entries in questionDictionary is not a question')
+        assessment_numbers_data = cursor.execute('select distinct assessmentNumber from rel_opticalSheet_questionnaire')
+        for assessment_number in assessment_numbers_data:
+            possible_assessment_numbers.append(assessment_number[0])
+        if assessmentNumber not in possible_assessment_numbers:
+            raise QuestionnaireError('Invalid assessment number')
         self.questions = questionDictionary
         self.description = description
         self.creationDate = date.today().isoformat()
@@ -145,21 +152,14 @@ class Questionnaire(object):
         @author
         """
         cursor = MySQLConnection()
-        query = 'select idQuestionnaire from questionnaire q, 
-            rel_opticalSheet_questionnaire roq, 
-            rel_offer_opticalSheet roo, 
-            aggr_offer o 
-        where q.idQuestionnaire = roq.idQuestionnaire
-            and roq.idOpticalSheet = roo.idOpticalSheet
-            and roo.idOffer = o.idOffer
-            and o.idOffer = ' + str(idOffer)
+        query = 'select idQuestionnaire from questionnaire q, rel_opticalSheet_questionnaire roq, rel_offer_opticalSheet roo, aggr_offer o where q.idQuestionnaire = roq.idQuestionnaire and roq.idOpticalSheet = roo.idOpticalSheet and roo.idOffer = o.idOffer and o.idOffer = ' + str(idOffer)
         questionnaire_list = []
         question_list = []
         try:
             results = cursor.execute(query)
             for result in results:
                 questionnaire_list.append(Questionnaire.pickById(result[0]))
-            for questionnaire in questionnaire_list
+            for questionnaire in questionnaire_list:
                 question_list.extend(questionnaire.questions)
             return question_list
         except:
@@ -179,7 +179,7 @@ class Questionnaire(object):
         try:
             search_for_questions = cursor.execute(query_questions)
             for question_data in search_for_questions:
-                questions{question_data[question_data[1]] = Question.pickById(question_data[0])}
+                questions[question_data[question_data[1]]] = Question.pickById(question_data[0])
             return questions
         except:
             raise QuestionnaireError('Error on linking questionnaire to questions')

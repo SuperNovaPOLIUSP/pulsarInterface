@@ -57,7 +57,7 @@ class Questionnaire(object):
         @return Question :
         @author
         """
-        pass
+        return self.questions.itervalues()
 
     def __eq__(self, other):
         """

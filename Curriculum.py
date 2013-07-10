@@ -86,14 +86,13 @@ class Curriculum(object):
 
     """
 
-    def __init__(self, name, curriculumType, curriculumCode, timePeriodType, faculty, startDate, termLength):
+    def __init__(self, name, curriculumType, curriculumCode, timePeriodType, startDate, termLength):
         """
 
         @param string name : Curriculum's name
         @param string curriculumType : It represents the type of curriculum, (e.g general area, basic cycle,... ).
         @param string curriculumCode : codigo da habilitação (vide jupiter)
         @param string timePeriodType : String representing the period division ("quarter" or "semester").
-        @param Faculty faculty : The curriculum's faculty.
         @param startDate string : Date of the start of this curriculum, in the form year-month-day “xxxx-xx-xx”.Start is defined as the first time this curriculum was given in this University. 
         @param string termLength : Curriculum's daily length (day-time, nigth-time,full-time)
         @return  :
@@ -108,9 +107,6 @@ class Curriculum(object):
         if timePeriodType != None:
             if not isinstance(timePeriodType, (str, unicode)):
                 raise CurriculumError('Parameter timePeriodType must be a string or unicode, or None.')
-        if faculty != None:
-            if not isinstance(faculty, Faculty) or not Faculty.pickById(faculty.idFaculty) == faculty:
-                raise CurriculumError('Parameter faculty must be a Faculty object that exists in the database.')
         if not isinstance(startDate,datetime.date):
             if not isinstance(startDate,(str,unicode)) or not checkDateString(startDate):
                 raise CurriculumError('Parameter startDate must be a datetime.date format or a string in the format year-month-day')
@@ -122,7 +118,6 @@ class Curriculum(object):
         self.curriculumType = curriculumType
         self.curriculumCode = curriculumCode
         self.timePeriodType = timePeriodType
-        self.faculty = faculty
         self.startDate = str(startDate) 
         self.abbreviation = name
         self.termLength = termLength
@@ -223,14 +218,8 @@ class Curriculum(object):
             timePeriodType = timePeriodType[0][0]
         else:
             timePeriodType = None
-        #Now get the faculty
-        facultyData = cursor.execute('SELECT rcf.idFaculty FROM curriculum curr JOIN rel_courseCoordination_curriculum rcc ON curr.idCurriculum = rcc.idCurriculum JOIN rel_courseCoordination_faculty rcf ON rcc.idCourseCoordination = rcf.idCourseCoordination  WHERE curr.idCurriculum = '+ str(idCurriculum))
-        if len(facultyData) > 0:
-            faculty = Faculty.pickById(facultyData[0][0])
-        else:
-            faculty = None
 
-        curriculum = Curriculum(curriculumData[0], curriculumData[1], curriculumData[2], timePeriodType, faculty, curriculumData[3], curriculumData[4])#name, curriculumType, curriculumCode, timePeriodType, faculty, startDate, termLength
+        curriculum = Curriculum(curriculumData[0], curriculumData[1], curriculumData[2], timePeriodType, curriculumData[3], curriculumData[4])#name, curriculumType, curriculumCode, timePeriodType, startDate, termLength
         curriculum.setVacancyNumber(curriculumData[5])
         curriculum.setEndDate(curriculumData[6])
         curriculum.setAbbreviation(curriculumData[7])
@@ -258,7 +247,6 @@ class Curriculum(object):
          > curriculumType
          > curriculumCode
          > timePeriodType_equal or timePeriodType_like
-         > faculty
          > abbreviation_equal or abbreviation_like
          The parameters must be identified by their names when the method is called, and
          those which are strings must be followed by "_like" or by "_equal", in order to
@@ -278,11 +266,6 @@ class Curriculum(object):
                     parameters['mc.name_like'] = kwargs[key]
                 else:
                     parameters['mc.name_equal'] = kwargs[key]
-            elif key == 'faculty':
-                curriculaData = cursor.execute('SELECT curr.idCurriculum FROM curriculum curr JOIN rel_courseCoordination_curriculum rcc ON curr.idCurriculum = rcc.idCurriculum JOIN rel_courseCoordination_faculty rcf ON rcc.idCourseCoordination = rcf.idCourseCoordination WHERE rcf.idFaculty = ' + str(kwargs['faculty'].idFaculty))
-                if len(curriculaData) > 0:
-                    parameters['curr.idCurriculum'].append([curriculumData[0] for curriculumData in curriculaData])
-            
             elif key.find('timePeriodType') != -1:
                 query = 'SELECT rcc.idCurriculum  FROM aggr_offer aggr JOIN timePeriod tp ON tp.idTimePeriod = aggr.idTimePeriod JOIN rel_course_curriculum rcc ON rcc.idCourse = aggr.idCourse JOIN minitableLength ml ON ml.idLength = tp.length '
                 if key.find('like') != -1:
@@ -324,13 +307,8 @@ class Curriculum(object):
                 timePeriodType = timePeriodType[0][0]
             else:
                 timePeriodType = None
-            facultyData = cursor.execute('SELECT rcf.idFaculty FROM curriculum curr JOIN rel_courseCoordination_curriculum rcc ON curr.idCurriculum = rcc.idCurriculum JOIN rel_courseCoordination_faculty rcf ON rcc.idCourseCoordination = rcf.idCourseCoordination  WHERE curr.idCurriculum = '+ str(curriculumData[0]))
-            if len(facultyData) > 0:
-                faculty = Faculty.pickById(facultyData[0][0])
-            else:
-                faculty = None
-
-            curriculum = Curriculum(curriculumData[1], curriculumData[2], curriculumData[3], timePeriodType, faculty, curriculumData[4], curriculumData[5])#name, curriculumType, curriculumCode, timePeriodType, faculty, startDate, termLength
+            
+            curriculum = Curriculum(curriculumData[1], curriculumData[2], curriculumData[3], timePeriodType, curriculumData[4], curriculumData[5])#name, curriculumType, curriculumCode, timePeriodType, startDate, termLength
             curriculum.setVacancyNumber(curriculumData[6])
             curriculum.setEndDate(curriculumData[7])
             curriculum.setAbbreviation(curriculumData[8])
@@ -348,7 +326,7 @@ class Curriculum(object):
         """
         pass #I am not ready        
         if self.idCurriculum == None:
-            curricula = Curriculum.find(idCurriculum = self.idCurriculum, name_equal = self.name, startDate_equal = self.startDate, endDate_equal = self.endDate, curriculumType = self.curriculumType, curriculumCode = self.curriculumCode, timePeriodType_equal = self.timePeriodType, faculty = self.faculty, abbreviation_equal = self.abbreviation)
+            curricula = Curriculum.find(idCurriculum = self.idCurriculum, name_equal = self.name, startDate_equal = self.startDate, endDate_equal = self.endDate, curriculumType = self.curriculumType, curriculumCode = self.curriculumCode, timePeriodType_equal = self.timePeriodType, abbreviation_equal = self.abbreviation)
             if len(curricula) > 0:
                 self.idCurriculum = curricula[0].idCurriculum #Any curriculum that fit those paramaters is the same as this curriculum, so no need to save
                 return
@@ -362,12 +340,11 @@ class Curriculum(object):
 #         > curriculumType
 #         > curriculumCode
 #         > timePeriodType_equal or timePeriodType_like
-#         > faculty
 #         > abbreviation_equal or abbreviation_like
          
          
                 #Create this curriculum
-                query = "INSERT INTO curriculum (name, curriculumType, curriculumCode" #FALTAM OS OBRIGATORIOS FACULTY E TIMEPERIODTYPE
+                query = "INSERT INTO curriculum (name, curriculumType, curriculumCode" #FALTAM OS OBRIGATORIOS FACULTY(excluido) E TIMEPERIODTYPE
                 values = ") VALUES('" +self.name +"', '" +str(self.curriculumType) +"', '" +str(self.curriculumCode)
                 if self.startDate != None:
                     query += ", startDate"
@@ -380,13 +357,12 @@ class Curriculum(object):
                     values += ", " +self.endDate
                 cursor.execute(query + values +")")
                 cursor.commit()
-                self.idCurriculum = Curriculum.find(idCurriculum = self.idCurriculum, name_equal = self.name, startDate_equal = self.startDate, endDate_equal = self.endDate, curriculumType = self.curriculumType, curriculumCode = self.curriculumCode, timePeriodType_equal = self.timePeriodType, faculty = self.faculty, abbreviation_equal = self.abbreviation)[0].idCurriculum 
+                self.idCurriculum = Curriculum.find(idCurriculum = self.idCurriculum, name_equal = self.name, startDate_equal = self.startDate, endDate_equal = self.endDate, curriculumType = self.curriculumType, curriculumCode = self.curriculumCode, timePeriodType_equal = self.timePeriodType, abbreviation_equal = self.abbreviation)[0].idCurriculum 
         
         '''self.name
         self.curriculymType
         self.curriculumCode
         self.timePeriodType
-        self.faculty
         self.idCurriculum
         self.startDate
         self.endDate

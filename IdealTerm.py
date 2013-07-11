@@ -1,5 +1,6 @@
 from Course import Course
 from tools.MySQLConnection import *
+from tools.timeCheck import *
 import sys
 import time
 from datetime import *
@@ -32,9 +33,9 @@ class IdealTerm(object):
 
     term  (private)
 
-     List of courses that belong to this relation.
+     Course that belong to this relation.
 
-    courses  (private)
+    course  (private)
 
      It says if the course is mandatory, elective or free elective.
 
@@ -53,16 +54,17 @@ class IdealTerm(object):
         @param int idCycle : Associated data base key.
         @param int term : Term of the ideal term.
         @param string startDate : Starting date of this ideal term.
+        @param int requisitionType : Type of the requisition of this ideal term.
+        @param Course course : The course associated with this ideal term.
         @return  :
         @author
         """
         cursor = MySQLConnection()              
-        
         if not cursor.execute('SELECT idCycle FROM cycle WHERE idCycle = ' + str(idCycle)):   
             raise IdealTermError('idCycle must be in the database')
-        if not startDate or not isinstance(startDate, (str,unicode)) or not checkDateString(startDate):
+        if not startDate or not isinstance(startDate,(str,unicode)) or not checkDateString(startDate):
             raise IdealTermError('Must provide a valid start date string in unicode')
-        if not requisitionType or not isinstance(requisitionType, (int, long)):
+        if not requisitionType or not isinstance(requisitionType,(int, long)):
             raise IdealTermError('Must provide a valid requisition type integer')
         if not isinstance(course, Course) or Course.pickById(course.idCourse) != course:
             raise IdealTermError('Must provide a valid course from the database')
@@ -100,7 +102,7 @@ class IdealTerm(object):
          folowing parameters:
          > idCycle
          > term
-         > courses
+         > idCourse
          > requisitionType
          > startDate_equal or startDate_like
          > endDate_equal or endDate_like
@@ -119,7 +121,8 @@ class IdealTerm(object):
         idealTerms = []
         for idealTermData in searchData:
             newIdealTerm = IdealTerm(idealTermData[1], idealTermData[4], idealTermData[2].isoformat(), idealTermData[5], Course.pickById(idealTermData[0]))
-            newIdealTerm.setEndDate(idealTermData[3].isoformat())
+            if idealTermData[3]:
+                newIdealTerm.setEndDate(idealTermData[3].isoformat())
             idealTerms.append(newIdealTerm)
         return idealTerms
 
@@ -132,26 +135,28 @@ class IdealTerm(object):
         @author
         """
         cursor = MySQLConnection()
-        if not self.idCycle or not self.idCourse or not self.endDate or not self.startDate or not self.term:
+        if not self.idCycle or not self.course.idCourse or not self.endDate or not self.startDate or not self.term:
             return False
         idCycle = str(self.idCycle)
-        idCourse = str(self.idCourse)
+        idCourse = str(self.course.idCourse)
         term = str(self.term)
         if self.requisitionType:
             requisitionType = str(self.requisitionType)
         else:
             requisitionType = 'NULL'
-        querySelect = 'SELECT idCourse, idCycle, endDate FROM rel_course_cycle WHERE idCourse = ' + idCourse + ' and idCycle = ' + idCycle + ' and endDate = ' + self.endDate
-        queryInsert = 'INSERT INTO rel_course_cycle (idCourse, idCycle, startDate, endDate, term, requisitionType) values (' + idCourse + ', ' + idCycle + ', ' + self.startDate + ', ' + self.endDate + ', ' + term + ', ' + requisitionType + ')'
-        queryUpdate = 'UPDATE rel_course_cycle SET startDate = ' + self.startDate + ', term = ' + term + ', requisitionType = ' + requisitionType + ' WHERE idCourse = ' + idCourse + ' and idCycle = ' + idCycle + ' and endDate = ' + self.endDate
+        querySelect = 'SELECT idCourse, idCycle, startDate, endDate, term, requisitionType FROM rel_course_cycle WHERE idCourse = ' + idCourse + ' and idCycle = ' + idCycle + " and startDate = '" + self.startDate + "' and term = " + term + ' and requisitionType = ' + requisitionType
+        queryInsert = 'INSERT INTO rel_course_cycle (idCourse, idCycle, startDate, endDate, term, requisitionType) values (' + idCourse + ', ' + idCycle + ", '" + self.startDate + "', '" + self.endDate + "', " + term + ', ' + requisitionType + ')'
+        queryUpdate = "UPDATE rel_course_cycle SET endDate = '" + self.endDate + "' WHERE idCourse = " + idCourse + ' and idCycle = ' + idCycle + " and startDate = '" + self.startDate + "'" + ' and term = ' + term + ' and requisitionType = ' + requisitionType
         try:
             searchData = cursor.execute(querySelect)
             if not searchData:
                 cursor.execute(queryInsert)
-                cursor.commit()
             else:
+                if len(searchData) > 1:
+                    raise IdealTermError('More than one object found in query')
+                print queryUpdate
                 cursor.execute(queryUpdate)
-                cursor.commit()
+            cursor.commit()
         except:
             return False
         return True
@@ -172,10 +177,11 @@ class IdealTerm(object):
         @author
         """
         cursor = MySQLConnection()
-        if not self.idCourse or not self.idCycle or not self.endDate:
+        if not self.course.idCourse or not self.idCycle or not self.endDate:
             raise IdealTermError("Can't uniquely identify object, can't delete database tuple")
             return False
-        query = 'DELETE FROM rel_course_cycle WHERE idCourse = ' + str(self.idCourse) + ' and idCycle = ' + str(self.idCycle) + ' and endDate = ' + self.endDate
+        query = 'DELETE FROM rel_course_cycle WHERE idCourse = ' + str(self.course.idCourse) + ' and idCycle = ' + str(self.idCycle) + " and endDate = '" + self.endDate + "'"
+        print query
         try:
             cursor.execute(query)
             cursor.commit()

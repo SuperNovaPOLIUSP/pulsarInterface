@@ -5,7 +5,7 @@ import sys
 import time
 from datetime import *
 
-class IdealTermError(Exception):
+class IdealTermCourseError(Exception):
     """
      Exception reporting an error in the execution of a Faculty method.
 
@@ -14,7 +14,7 @@ class IdealTermError(Exception):
     """
     pass
 
-class IdealTerm(object):
+class IdealTermCourse(object):
 
     """
      It is the group of disciplines that belongs to a cycle's term.
@@ -61,13 +61,13 @@ class IdealTerm(object):
         """
         cursor = MySQLConnection()              
         if not cursor.execute('SELECT idCycle FROM cycle WHERE idCycle = ' + str(idCycle)):   
-            raise IdealTermError('idCycle must be in the database')
+            raise IdealTermCourseError('idCycle must be in the database')
         if not startDate or not isinstance(startDate,(str,unicode)) or not checkDateString(startDate):
-            raise IdealTermError('Must provide a valid start date string in unicode')
+            raise IdealTermCourseError('Must provide a valid start date string in unicode')
         if not requisitionType or not isinstance(requisitionType,(int, long)):
-            raise IdealTermError('Must provide a valid requisition type integer')
+            raise IdealTermCourseError('Must provide a valid requisition type integer')
         if not isinstance(course, Course) or Course.pickById(course.idCourse) != course:
-            raise IdealTermError('Must provide a valid course from the database')
+            raise IdealTermCourseError('Must provide a valid course from the database')
         self.idCycle = idCycle
         self.term = term
         self.course = course
@@ -77,13 +77,13 @@ class IdealTerm(object):
 
     def setEndDate(self, endDate):
         """
-         Set the endDate of this IdealTerm.
+         Set the endDate of this IdealTermCourse.
 
-        @param string endDate : String representing this IdealTerm's end date .
+        @param string endDate : String representing this IdealTermCourse's end date .
         @author
         """
         if not isinstance(endDate, (str,unicode)) or not checkDateString(endDate):
-            raise IdealTermError('endDate parameter must be a valid string representing a date')
+            raise IdealTermCourseError('endDate parameter must be a valid string representing a date')
         self.endDate = endDate
 	
     @staticmethod 
@@ -109,18 +109,18 @@ class IdealTerm(object):
          The parameters must be identified by their names when the method is called, and
          those which are strings must be followed by "_like" or by "_equal", in order to
          determine the kind of search to be done.
-         E.g. IdealTerm.find(course = courseObject, term = 3, startDate_equal =
+         E.g. IdealTermCourse.find(course = courseObject, term = 3, startDate_equal =
          "2008-10-20", endDate_like = "2010")
 
         @param {} **kwargs : Dictionary of arguments to be used as parameters for the search.
-        @return idealTerm[] :
+        @return idealTermCourse[] :
         @author
         """
         cursor = MySQLConnection()
         searchData = cursor.find('SELECT idCourse, idCycle, startDate, endDate, term, requisitionType FROM rel_course_cycle ', kwargs)
         idealTerms = []
         for idealTermData in searchData:
-            newIdealTerm = IdealTerm(idealTermData[1], idealTermData[4], idealTermData[2].isoformat(), idealTermData[5], Course.pickById(idealTermData[0]))
+            newIdealTerm = IdealTermCourse(idealTermData[1], idealTermData[4], idealTermData[2].isoformat(), idealTermData[5], Course.pickById(idealTermData[0]))
             if idealTermData[3]:
                 newIdealTerm.setEndDate(idealTermData[3].isoformat())
             idealTerms.append(newIdealTerm)
@@ -153,7 +153,7 @@ class IdealTerm(object):
                 cursor.execute(queryInsert)
             else:
                 if len(searchData) > 1:
-                    raise IdealTermError('More than one object found in query')
+                    raise IdealTermCourseError('More than one object found in query')
                 print queryUpdate
                 cursor.execute(queryUpdate)
             cursor.commit()
@@ -163,7 +163,7 @@ class IdealTerm(object):
     
 
     def __eq__(self, other):
-        if not isinstance(other, IdealTerm):
+        if not isinstance(other, IdealTermCourse):
             return False
         return self.__dict__ == other.__dict__
 
@@ -178,7 +178,7 @@ class IdealTerm(object):
         """
         cursor = MySQLConnection()
         if not self.course.idCourse or not self.idCycle or not self.endDate:
-            raise IdealTermError("Can't uniquely identify object, can't delete database tuple")
+            raise IdealTermCourseError("Can't uniquely identify object, can't delete database tuple")
             return False
         query = 'DELETE FROM rel_course_cycle WHERE idCourse = ' + str(self.course.idCourse) + ' and idCycle = ' + str(self.idCycle) + " and endDate = '" + self.endDate + "'"
         print query
@@ -186,7 +186,7 @@ class IdealTerm(object):
             cursor.execute(query)
             cursor.commit()
         except:
-            raise IdealTermError("Couldn't delete object")
+            raise IdealTermCourseError("Couldn't delete object")
             return False
         return True
 

@@ -143,7 +143,7 @@ class IdealTerm(object):
             requisitionType = 'NULL'
         querySelect = 'SELECT idCourse, idCycle, endDate FROM rel_course_cycle WHERE idCourse = ' + idCourse + ' and idCycle = ' + idCycle + ' and endDate = ' + self.endDate
         queryInsert = 'INSERT INTO rel_course_cycle (idCourse, idCycle, startDate, endDate, term, requisitionType) values (' + idCourse + ', ' + idCycle + ', ' + self.startDate + ', ' + self.endDate + ', ' + term + ', ' + requisitionType + ')'
-        queryUpdate = 'UPDATE rel_course_cycle SET startDate = ' + self.startDate + ', term = ' + term + ', requisitionType = ' + requisitionType ' WHERE idCourse = ' + idCourse + ' and idCycle = ' + idCycle + ' and endDate = ' + self.endDate
+        queryUpdate = 'UPDATE rel_course_cycle SET startDate = ' + self.startDate + ', term = ' + term + ', requisitionType = ' + requisitionType + ' WHERE idCourse = ' + idCourse + ' and idCycle = ' + idCycle + ' and endDate = ' + self.endDate
         try:
             searchData = cursor.execute(querySelect)
             if not searchData:

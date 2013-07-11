@@ -173,10 +173,11 @@ class Questionnaire(object):
         @author
         """
         cursor = MySQLConnection()
-        query = 'select q.idQuestionnaire from questionnaire q, rel_opticalSheet_questionnaire roq, rel_offer_opticalSheet roo, aggr_offer o where q.idQuestionnaire = roq.idQuestionnaire and roq.idOpticalSheet = roo.idOpticalSheet and roo.idOffer = o.idOffer and o.idOffer = ' + str(idOffer)
+        query = 'select q.idQuestionnaire from questionnaire q, aggr_Survey s, aggr_opticalSheetField osf, aggr_offer o where q.idQuestionnaire = s.idQuestionnaire and s.idOpticalSheet = osf.idOpticalSheet and osf.idOffer = o.idOffer and o.idOffer = ' + str(idOffer)
         questionnaire_list = []
         question_list = []
         try:
+            print query
             results = cursor.execute(query)
             if not results:
                 raise QuestionnaireError('Invalid idOffer to build Questionnaire')
@@ -315,10 +316,8 @@ class Questionnaire(object):
         idQuestionnaire = str(self.idQuestionnaire)
         query = 'delete from questionnaire where idQuestionnaire = ' + idQuestionnaire
         query_rel = 'delete from rel_question_questionnaire where idQuestionnaire = ' + idQuestionnaire
-        query_rel2 = 'delete from rel_opticalSheet_questionnaire where idQuestionnaire = ' + idQuestionnaire
+        query_rel2 = 'delete from aggr_Survey where idQuestionnaire = ' + idQuestionnaire
         cursor.execute(query_rel)
-        cursor.commit()
         cursor.execute(query_rel2)
-        cursor.commit()
         cursor.execute(query)
         cursor.commit()

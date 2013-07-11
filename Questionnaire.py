@@ -2,6 +2,15 @@ from Question import *
 import time
 from datetime import *
 
+class QuestionnaireError(Exception):
+    """
+     Exception that reports errors during the execution of Questionnaire class methods
+  
+    :version:
+    :author:
+    """
+    pass
+
 class Questionnaire(object):
 
     """
@@ -27,36 +36,29 @@ class Questionnaire(object):
      Date on which the questionnaire was created.
     creationDate  (private)
 
-     Number that indicates which assessment the questionnaire refers to.
-    assessmentNumber  (private)
     """
 
-    def __init__(self, questionDictionary, description, assessmentNumber):
+    def __init__(self, questionDictionary, description):
         """
          Constructor method. When creating a questionary, this method sets its date to
          the the same as the date of the object's creation.
 
         @param Question{} questionDictionary : Dictionary of Questions objects, in which each key is the question's index in the questionnaire and the value is a Question object.
         @param string description : Indicates who or what the questionnaire refers to (usually to a curriculum's term).
-        @param int assessmentNumber : Number that indicates which assessment the questionnaire refers to.
         @return Questionnaire :
         @author
         """
         cursor = MySQLConnection()
-        possible_assessment_numbers = []
         if questionDictionary:
             for index in questionDictionary:
                 if not isinstance(questionDictionary[index], Question):
                     raise QuestionnaireError('One or more of the entries in questionDictionary is not a question')
-        assessment_numbers_data = cursor.execute('select distinct assessmentNumber from rel_opticalSheet_questionnaire')
-        for assessment_number in assessment_numbers_data:
-            possible_assessment_numbers.append(assessment_number[0])
-        if assessmentNumber not in possible_assessment_numbers:
-            raise QuestionnaireError('Invalid assessment number')
+        if not isinstance(description, (str, unicode)):
+            raise QuestionnaireError('Description must be a string')
         self.questions = questionDictionary
         self.description = description
         self.creationDate = date.today().isoformat()
-        self.assessmentNumber = assessmentNumber
+        self.idQuestionnaire = None
 
     def __iter__(self):
         """
@@ -64,7 +66,10 @@ class Questionnaire(object):
         @return Question :
         @author
         """
-        return self.questions.itervalues()
+        if self.questions:
+            return self.questions.itervalues()
+        else:
+            return None #No questions, no iterator needed
 
     def __eq__(self, other):
         """
@@ -99,13 +104,23 @@ class Questionnaire(object):
         @return bool :
         @author
         """
-        try:
-            all_keys = self.questions.keys()
-            if index in all_keys:
-                return false #Adding a second question to the same index
-            self.questions[index] = question
-            return True
-        except:
+        if isinstance(question, Question):
+            if self.questions:
+                try:
+                    all_keys = self.questions.keys()
+                    allQuestions = self.questions.values()
+                    if index in all_keys:
+                        return False #Adding a second question to the same index
+                    if question in allQuestions:
+                        return False #Adding a repeated question
+                    self.questions[index] = question
+                    return True
+                except:
+                    return False
+            else:
+                self.questions = {index : question}
+                return True
+        else:
             return False
 
     def removeQuestionByIndex(self, index):
@@ -116,14 +131,17 @@ class Questionnaire(object):
         @return bool :
         @author
         """
-        try:
-            all_keys = self.questions.keys()
-            if index not in all_keys:
-                return false #Key not in dict
-            del self.questions[index]
-            return True
-        except:
-            return False
+        if self.questions:
+            try:
+                all_keys = self.questions.keys()
+                if index not in all_keys:
+                    return false #Key not in dict
+                del self.questions[index]
+                return True
+            except:
+                return False
+        else:
+            return True #No question removed
 
     def removeQuestionById(self, idQuestion):
         """
@@ -134,17 +152,20 @@ class Questionnaire(object):
         @author
         """
         question = Question.pickById(idQuestion)
-        associations = self.questions.items()
-        try:
-            for association in associations:
-                if association[1] == question:
-                    self.removeQuestionByIndex(association[0])
-            return True
-        except:
-            return False
+        if self.questions:
+            associations = self.questions.items()
+            try:
+                for association in associations:
+                    if association[1] == question:
+                        return self.removeQuestionByIndex(association[0])
+                return False #Question not found
+            except:
+                return False
+        else:
+            return True #No question removed
 
     @staticmethod
-    def buildQuestionsQuestionnaire(self, idOffer):
+    def buildQuestionsQuestionnaire(idOffer):
         """
          Method that returns a list with all the questions from questionnaires that refer to a specific offer.
         @param int idOffer : Database ID of the discipline's offer.
@@ -152,40 +173,45 @@ class Questionnaire(object):
         @author
         """
         cursor = MySQLConnection()
-        query = 'select idQuestionnaire from questionnaire q, rel_opticalSheet_questionnaire roq, rel_offer_opticalSheet roo, aggr_offer o where q.idQuestionnaire = roq.idQuestionnaire and roq.idOpticalSheet = roo.idOpticalSheet and roo.idOffer = o.idOffer and o.idOffer = ' + str(idOffer)
+        query = 'select q.idQuestionnaire from questionnaire q, rel_opticalSheet_questionnaire roq, rel_offer_opticalSheet roo, aggr_offer o where q.idQuestionnaire = roq.idQuestionnaire and roq.idOpticalSheet = roo.idOpticalSheet and roo.idOffer = o.idOffer and o.idOffer = ' + str(idOffer)
         questionnaire_list = []
         question_list = []
         try:
             results = cursor.execute(query)
+            if not results:
+                raise QuestionnaireError('Invalid idOffer to build Questionnaire')
             for result in results:
                 questionnaire_list.append(Questionnaire.pickById(result[0]))
             for questionnaire in questionnaire_list:
                 question_list.extend(questionnaire.questions)
             return question_list
         except:
-            raise QuestionnaireError('Error joining offer with optical ')
+            raise QuestionnaireError('Error joining offer with opticalSheet')
 
     @staticmethod
-    def getQuestionsById(self, idQuestionnaire):
+    def getQuestionsById(idQuestionnaire):
         """
             Returns a dictionary containing the questions related to a questionnaire's
             id passed as argument
 
             @param int idQuestionnaire : Database ID of the questionnaire
         """
-        cursor = MySqlConnection()
+        cursor = MySQLConnection()
         questions = {}
-        query_questions = 'select idQuestion, questionIndex from rel_question_questionnaire where idQuestionnnaire = ' + str(idQuestionnnaire)
+        query_questions = 'select idQuestion, questionIndex from rel_question_questionnaire where idQuestionnaire = ' + str(idQuestionnaire)
         try:
             search_for_questions = cursor.execute(query_questions)
-            for question_data in search_for_questions:
-                questions[question_data[question_data[1]]] = Question.pickById(question_data[0])
+            if search_for_questions:
+                for question_data in search_for_questions:
+                    index = question_data[1]
+                    question = Question.pickById(question_data[0])
+                    questions[index] = question
             return questions
         except:
             raise QuestionnaireError('Error on linking questionnaire to questions')
 
     @staticmethod
-    def pickById(self, idQuestionnaire):
+    def pickById(idQuestionnaire):
         """
          Returns a Questionnaire object specified by its database ID.
 
@@ -197,13 +223,20 @@ class Questionnaire(object):
         query = 'select description, creationDate from questionnaire where idQuestionnaire = ' + str(idQuestionnaire)
         try:
             result = cursor.execute(query)
-            return Questionnaire(questions, result[0][0], result[0][1])
+            if result:
+                questions = Questionnaire.getQuestionsById(idQuestionnaire)
+                questionnaire = Questionnaire(questions, result[0][0])
+                Questionnaire.creationDate = result[0][1].isoformat()
+                questionnaire.idQuestionnaire = idQuestionnaire
+                return questionnaire
+            else:
+                return None
         except:
-            raise QuestionnaireError('Error on creating new Questionnnaire object')
+            raise QuestionnaireError('Error on creating new Questionnaire object')
             
 
     @staticmethod
-    def find(self, _kwargs):
+    def find(**kwargs):
         """
          Searches the database to find one or more objects that fit the description
          specified by the method's parameters. It is possible to perform two kinds of
@@ -219,28 +252,27 @@ class Questionnaire(object):
          > idQuestionnaire
          > description_equal or description_like
          > creationDate_equal or creationDate_like
-         > assessmentNumber
          The parameters must be identified by their names when the method is called, and
          those which are strings must be followed by "_like" or by "_equal", in order to
          determine the kind of search to be done.
          E. g. Questionnaire.find(description_like = "3rdYear", creationDate_equal =
          "2013-01-01", assessmentNumber = 1)
 
-        @param {} _kwargs : Dictionary of arguments to be used as parameters for the search.
+        @param {} **kwargs : Dictionary of arguments to be used as parameters for the search.
         @return  :
         @author
         """
         cursor = MySQLConnection()
-        query = 'select * from questionnaire '
-        questionnaire_list = []
-        try:
-            results = cursor.find(query, _kwargs)
-            for data in results:
-                questionnaire = Questionnaire(getQuestions(data[0]), data[1], data[2].isoformat())
-                questionnaire_list.append(questionnaire)
-            return questionnaire_list
-        except:
-            raise QuestionnaireError('Error searching for a questionnaire')
+        questionnairesData = cursor.find('SELECT idQuestionnaire, description, creationDate FROM questionnaire',kwargs)
+        questionnaires = []
+        for questionnaireData in questionnairesData:
+            idQuestionnaire = questionnaireData[0]
+            questionnaire = Questionnaire(Questionnaire.getQuestionsById(idQuestionnaire), questionnaireData[1])
+            questionnaire.idQuestionnaire = idQuestionnaire
+            if questionnaireData[2]:
+                questionnaire.creationDate = questionnaireData[2].isoformat()
+            questionnaires.append(questionnaire)
+        return questionnaires
 
     def store(self):
         """
@@ -249,19 +281,29 @@ class Questionnaire(object):
         @author
         """
         cursor = MySQLConnection()
-        main_query = 'insert into questionnaire values ('
-        rel_query = 'insert into rel_question_questionnaire values (' + self.idQuestionnaire + ', '
-        main_query += self.description + ', ' + self.creationDate + ')'
-        try: 
-            cursor.execute(main_query)
-        except:
-            raise QuestionnaireError('Error trying to insert a new questionnaire')
-        try:
-            for question_index in self.questions:
-                rel_query_to_execute = rel_query + str(self.questions[question_index]) + ', ' + str(question_index) + ')'
-                cursor.execute(rel_query_to_execute)
-        except:
-            raise QuestionnaireError('Error trying to add questionnaire-question relation')
+        if self.idQuestionnaire:
+            updateQuery = "update questionnaire set description = '" + self.description + "', creationDate = '" + self.creationDate + "'" + ' where idQuestionnaire = ' + str(self.idQuestionnaire)
+            cursor.execute(updateQuery)
+            cursor.commit()
+        else:
+            possibleMatch = Questionnaire.find(description_equal = self.description, creationDate_equal = self.creationDate)
+            if possibleMatch:
+                self.idQuestionnaire = possibleMatch[0].idQuestionnaire
+            else:
+                insertQuery = "insert into questionnaire (description, creationDate) values ('" + self.description + "', '" + self.creationDate + "')"
+                cursor.execute(insertQuery)
+                cursor.commit()
+                self.idQuestionnaire = Questionnaire.find(description_equal = self.description, creationDate_equal = self.creationDate)[0].idQuestionnaire
+        if self.questions:
+            insertRelQuestionQuery = 'insert into rel_question_questionnaire values ('
+            for questionIndex in self.questions:
+                idQuestionnaire = str(self.idQuestionnaire)
+                idQuestion = str(self.questions[questionIndex])
+                relationAlreadyStored = cursor.execute('select * from rel_question_questionnaire where idQuestionnaire = ' + idQuestionnaire + ' and idQuestion = ' + idQuestion + ' and questionIndex = ' + str(questionIndex))
+                if not relationAlreadyStored:
+                    insertRelQuestionQuery += idQuestionnaire + ', ' + idQuestion + ', ' + str(questionIndex) + ')'
+                    cursor.execute(insertRelQuestionQuery)
+                    cursor.commit()
 
     def delete(self):
         """
@@ -269,8 +311,14 @@ class Questionnaire(object):
         @return  :
         @author
         """
-        cursor = MySQLConnection
-        query = 'delete from questionnaire where idQuestionnaire = ' + str(self.idQuestionnaire)
-        query_rel = 'delete from rel_question_questionnaire where idQuestionnaire = ' + str(self.idQuestionnaire)
-        cursor.execute(query)
+        cursor = MySQLConnection()
+        idQuestionnaire = str(self.idQuestionnaire)
+        query = 'delete from questionnaire where idQuestionnaire = ' + idQuestionnaire
+        query_rel = 'delete from rel_question_questionnaire where idQuestionnaire = ' + idQuestionnaire
+        query_rel2 = 'delete from rel_opticalSheet_questionnaire where idQuestionnaire = ' + idQuestionnaire
         cursor.execute(query_rel)
+        cursor.commit()
+        cursor.execute(query_rel2)
+        cursor.commit()
+        cursor.execute(query)
+        cursor.commit()

@@ -181,8 +181,13 @@ class Cycle(object):
         @return bool :
         @author
         """
-        pass
-        #TODO
+        mandatoryIdealTerms = IdealTerm.find(idCycle = self.idCycle, requisitionType = 1)
+        self.mandatoryIdealTerms = {}
+        for mIdealTerm in mandatoryIdealTerms:
+            if not isinstance(self.mandatoryIdealTerms[mIdealTerm.term], list):
+                self.mandatoryIdealTerms[mIdealTerm.term] = []
+            self.mandatoryIdealTerms[mIdealTerm.term].append(mIdealTerm)
+        
 
     def completeElectiveIdealTerms(self):
         """
@@ -192,8 +197,12 @@ class Cycle(object):
         @return bool :
         @author
         """
-        pass
-        #TODO
+        electiveIdealTerms = IdealTerm.find(idCycle = self.idCycle, requisitionType = 2)
+        self.electiveIdealTerms = {}
+        for eIdealTerm in electiveIdealTerms:
+            if not isinstance(self.electiveIdealTerms[eIdealTerm.term], list):
+                self.electiveIdealTerms[eIdealTerm.term] = []
+            self.electiveIdealTerms[eIdealTerm.term].append(eIdealTerm)
         
     def getIdCycleType(self)
         """

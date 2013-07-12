@@ -1,6 +1,3 @@
-from OpticalSheetField import *
-from Survey import *
-from OpticalSheet import *
 from Question import *
 
 class AnswerError(Exception):

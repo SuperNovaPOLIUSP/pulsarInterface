@@ -45,7 +45,7 @@ class OpticalSheetField(object):
 
     """
 
-    def __init__(self, offer):
+    def __init__(self, idOpticalSheet, offer):
         """
          Constructur method.
 
@@ -54,11 +54,14 @@ class OpticalSheetField(object):
         @return  :
         @author
         """
+        if not isinstance(idOpticalSheet, (int, long)):
+            raise OpticalSheetFieldError('Parameter idOpticalSheetField must be an int or long.')
+
         if not isinstance(offer,Offer) or not Offer.pickById(offer.idOffer) == offer:
             raise OpticalSheetFieldError('Parameter offer must be an Offer object that exists in the database.')
 
         self.offer = offer
-        self.idOpticalSheet = None 
+        self.idOpticalSheet = idOpticalSheet 
         self.code = None
         self.courseIndex = None 
         self.idOpticalSheetField = None
@@ -83,12 +86,6 @@ class OpticalSheetField(object):
         if not isinstance(code,(int,long)):
             raise OpticalSheetFieldError('code must be and int or long')
         self.code = code
-
-    def setIdOpticalSheet(self, idOpticalSheet):
-
-        if not isinstance(idOpticalSheet,(int,long)):
-            raise OpticalSheetFieldError('idOpticalSheet must be and int or long')
-        self.idOpticalSheet = idOpticalSheet
 
     def setCourseIndex(self, courseIndex):
         """
@@ -115,8 +112,7 @@ class OpticalSheetField(object):
         """
         cursor = MySQLConnection()
         opticalSheetFieldData = cursor.execute('SELECT idOpticalSheetField, idOpticalSheet, idOffer, code, courseIndex FROM aggr_opticalSheetField WHERE idOpticalSheetField = ' + str(idOpticalSheetField))[0]
-        opticalSheetField = OpticalSheetField(Offer.pickById(opticalSheetFieldData[2]))
-        opticalSheetField.setIdOpticalSheet(opticalSheetFieldData[1])
+        opticalSheetField = OpticalSheetField(opticalSheetFieldData[1], Offer.pickById(opticalSheetFieldData[2]))
         opticalSheetField.idOpticalSheetField = opticalSheetFieldData[0]
         if opticalSheetFieldData[3] != None:
             opticalSheetField.setCode(opticalSheetFieldData[3])
@@ -154,18 +150,17 @@ class OpticalSheetField(object):
                 parameters['idOffer'] = kwargs['offer'].idOffer
             else:
                 parameters[key] = kwargs[key]
-        oscsData = cursor.find('SELECT idOpticalSheetField, idOpticalSheet, idOffer, code, courseIndex FROM aggr_opticalSheetField', parameters)
-        oscs = []
-        for oscData in oscsData:
-            osc = OpticalSheetField(Offer.pickById(oscData[2]))
-            osc.setIdOpticalSheet(oscData[1])
-            osc.idOpticalSheetField = oscData[0]
-            if oscData[3] != None:
-                osc.setCode(oscData[3])
-            elif oscData[4] != None:
-                osc.setCourseIndex(oscData[4])
-            oscs.append(osc)
-        return oscs
+        osfsData = cursor.find('SELECT idOpticalSheetField, idOpticalSheet, idOffer, code, courseIndex FROM aggr_opticalSheetField', parameters)
+        osfs = []
+        for osfData in osfsData:
+            osf = OpticalSheetField(osfData[1], Offer.pickById(osfData[2]))
+            osf.idOpticalSheetField = osfData[0]
+            if osfData[3] != None:
+                osf.setCode(osfData[3])
+            elif osfData[4] != None:
+                osf.setCourseIndex(osfData[4])
+            osfs.append(osf)
+        return osfs
 
     def store(self):
         """
@@ -176,8 +171,6 @@ class OpticalSheetField(object):
         @author
         """
         cursor = MySQLConnection()
-        if self.idOpticalSheet == None:
-            raise OpticalSheetFieldError("idOpticalSheet is not defined")    
         if self.code == None and self.courseIndex == None:
             raise OpticalSheetFieldError("code or courseIndex must be defined")
         if self.code != None and self.courseIndex != None:
@@ -194,10 +187,10 @@ class OpticalSheetField(object):
         if self.idOpticalSheetField == None:
             opticalSheetFields = self.find(offer = self.offer, idOpticalSheet = self.idOpticalSheet, code = self.code, courseIndex = self.courseIndex)
             if len(opticalSheetFields) > 0:
-                self.idOpticalSheetField = opticalSheetFields[0].idOpticalSheetField #Any osc that fit those paramaters is the same as this osc
+                self.idOpticalSheetField = opticalSheetFields[0].idOpticalSheetField #Any osf that fit those paramaters is the same as this osf
                 return
             else: 
-                #Create this osc
+                #Create this osf
                 query = 'INSERT INTO aggr_opticalSheetField (idOffer, idOpticalSheet, code, courseIndex) VALUES(' + str(self.offer.idOffer) + ', ' + str(self.idOpticalSheet) + ', ' + str(mySQLCode) + ', ' + str(mySQLCourseIndex) + ')'
                 cursor.execute(query)
                 cursor.commit()

@@ -100,9 +100,8 @@ class Cycle(object):
             raise CycleError('Parameter cycleType must be a string or unicode.')            
         if not isinstance(cycleCode, (int, long)):
             raise CycleError('Parameter cycleCode must be an int or a long.')
-        if termLength != None:
-            if not isinstance(termLength, (str, unicode)):
-                raise CycleError('Parameter termLength must be a string or unicode, or None.')
+        if not isinstance(termLength, (str, unicode)):
+            raise CycleError('Parameter termLength must be a string or unicode.')
         if not isinstance(startDate,datetime.date):
             if not isinstance(startDate,(str,unicode)) or not checkDateString(startDate):
                 raise CycleError('Parameter startDate must be a datetime.date format or a string in the format year-month-day')
@@ -204,13 +203,13 @@ class Cycle(object):
                 self.electiveIdealTerms[eIdealTerm.term] = []
             self.electiveIdealTerms[eIdealTerm.term].append(eIdealTerm)
         
-    def getIdCycleType(self)
+    def getIdCycleType(self):
         """
         Once set a Cycle type, returns its Id on the DB.
         Creates one if it does not exist
         """
         cursor = MySQLConnection()
-        query = "SELECT idCycleType FROM minitableCycleType WHERE nome = '" + self.cycleType + "'"
+        query = "SELECT idCycleType FROM minitableCycleType WHERE name = '" + self.cycleType + "'"
         idCycleType = cursor.execute(query)
         if len(idCycleType) >0:
             return idCycleType[0][0]
@@ -221,7 +220,7 @@ class Cycle(object):
             query = "SELECT idCycleType FROM minitableCycleType WHERE name = '" +self.cycleType +"'"
             return cursor.execute(query)[0][0]
             
-    def getIdTermLength(self)
+    def getIdTermLength(self):
         """
         Once set a term length, returns its Id on the DB.
         Creates one if it does not exist
@@ -250,17 +249,11 @@ class Cycle(object):
         cursor = MySQLConnection()  
         try:
             #Here get most of the cycles data
-            cycleData = cursor.execute('SELECT curr.name,  mc.name, curr.cycleCode, curr.startDate, curr.dayPeriod, curr.vacancyNumber, curr.endDate, curr.abbreviation  FROM cycle curr JOIN minitableCycleType mc ON curr.idCycleType = mc.idCycleType WHERE curr.idCycle = '+ str(idCycle))[0]
+            cycleData = cursor.execute('SELECT curr.name,  mc.name, curr.cycleCode, curr.startDate, curr.dayPeriod, curr.vacancyNumber, curr.endDate, curr.abbreviation, ml.length  FROM cycle curr JOIN minitableCycleType mc ON curr.idCycleType = mc.idCycleType JOIN minitableLength ml ON ml.idLength = curr.termLength WHERE curr.idCycle = '+ str(idCycle))[0]
         except:
             return None
-        #Now get the termLength
-        termLength = cursor.execute('SELECT ml.length FROM aggr_offer aggr JOIN timePeriod tp ON tp.idTimePeriod = aggr.idTimePeriod JOIN rel_course_cycle rcc ON rcc.idCourse = aggr.idCourse JOIN minitableLength ml ON ml.idLength = tp.length WHERE rcc.idCycle = ' + str(idCycle)  + ' GROUP BY idCycle')
-        if len(termLength) > 0:
-            termLength = termLength[0][0]
-        else:
-            termLength = None
-
-        cycle = Cycle(cycleData[0], cycleData[1], cycleData[2], termLength, cycleData[3], cycleData[4])#name, cycleType, cycleCode, termLength, startDate, dayPeriod
+        
+        cycle = Cycle(cycleData[0], cycleData[1], cycleData[2], cycleData[8], cycleData[3], cycleData[4])#name, cycleType, cycleCode, termLength, startDate, dayPeriod
         cycle.setVacancyNumber(cycleData[5])
         cycle.setEndDate(cycleData[6])
         cycle.setAbbreviation(cycleData[7])
@@ -300,56 +293,19 @@ class Cycle(object):
         """
         cursor = MySQLConnection()
         parameters = {}
-        parameters['curr.idCycle'] = []
         for key in kwargs:
             if key.find('cycleType') != -1:
                 if key.find('like') != -1:
                     parameters['mc.name_like'] = kwargs[key]
                 else:
                     parameters['mc.name_equal'] = kwargs[key]
-            elif key.find('termLength') != -1:
-                query = 'SELECT rcc.idCycle  FROM aggr_offer aggr JOIN timePeriod tp ON tp.idTimePeriod = aggr.idTimePeriod JOIN rel_course_cycle rcc ON rcc.idCourse = aggr.idCourse JOIN minitableLength ml ON ml.idLength = tp.length '
-                if key.find('like') != -1:
-                    query = query + 'WHERE ml.length like "%' + kwargs[key]  + '%" GROUP BY rcc.idCycle'
-                else:
-                    query = query + 'WHERE ml.length = "' + kwargs[key]  + '" GROUP BY rcc.idCycle'
-                cyclesData = cursor.execute(query)
-                if len(cyclesData) > 0:
-                    parameters['curr.idCycle'].append([cycleData[0] for cycleData in cyclesData])
-
-            elif key == 'idCycle':
-                if isinstance(kwargs['idCycle'], list):
-                    parameters['curr.idCycle'].append(kwargs['idCycle']) 
-                else:
-                    parameters['curr.idCycle'].append([kwargs['idCycle']])
             else:
                 parameters['curr.' + key] = kwargs[key]
 
-        if len(parameters['curr.idCycle']) > 0:
-            #Now you join the idsCycle parameters allowing only the ones that belong to all the lists (execute an AND with them)
-            finalIdCycleList = []
-            for idCycle in parameters['curr.idCycle'][0]:
-                belongToAll = True
-                for idsCycle in parameters['curr.idCycle'][1:]:
-                    if not idCycle in idsCycle:
-                        belongToAll = False
-                        break
-                if belongToAll:
-                    finalIdCycleList.append(idCycle)
-            parameters['curr.idCycle'] = finalIdCycleList
-        else:
-            del parameters['curr.idCycle']
-
-        cyclesData = cursor.find('SELECT curr.idCycle, curr.name,  mc.name, curr.cycleCode, curr.startDate, curr.dayPeriod, curr.vacancyNumber, curr.endDate, curr.abbreviation  FROM cycle curr JOIN minitableCycleType mc ON curr.idCycleType = mc.idCycleType',parameters)
+        cyclesData = cursor.find('SELECT curr.idCycle, curr.name,  mc.name, curr.cycleCode, curr.startDate, curr.dayPeriod, curr.vacancyNumber, curr.endDate, curr.abbreviation, ml.length FROM cycle curr JOIN minitableCycleType mc ON curr.idCycleType = mc.idCycleType JOIN minitableLength ml ON ml.idLength = curr.termLength ',parameters)
         cycles = []
         for cycleData in cyclesData:
-            termLength = cursor.execute('SELECT ml.length FROM aggr_offer aggr JOIN timePeriod tp ON tp.idTimePeriod = aggr.idTimePeriod JOIN rel_course_cycle rcc ON rcc.idCourse = aggr.idCourse JOIN minitableLength ml ON ml.idLength = tp.length WHERE rcc.idCycle = ' + str(cycleData[0])  + ' GROUP BY rcc.idCycle')
-            if len(termLength) > 0:
-                termLength = termLength[0][0]
-            else:
-                termLength = None
-            
-            cycle = Cycle(cycleData[1], cycleData[2], cycleData[3], termLength, cycleData[4], cycleData[5])#name, cycleType, cycleCode, termLength, startDate, dayPeriod
+            cycle = Cycle(cycleData[1], cycleData[2], cycleData[3], cycleData[9], cycleData[4], cycleData[5])#name, cycleType, cycleCode, termLength, startDate, dayPeriod
             cycle.setVacancyNumber(cycleData[6])
             cycle.setEndDate(cycleData[7])
             cycle.setAbbreviation(cycleData[8])
@@ -364,8 +320,7 @@ class Cycle(object):
 
         @return bool :
         @author
-        """
-        pass #I am not ready        
+        """     
         if self.idCycle == None:
             cycles = Cycle.find(idCycle = self.idCycle, name_equal = self.name, startDate_equal = self.startDate, endDate_equal = self.endDate, cycleType = self.cycleType, cycleCode = self.cycleCode, termLength_equal = self.termLength, abbreviation_equal = self.abbreviation)
             if len(cycles) > 0:
@@ -391,60 +346,60 @@ class Cycle(object):
                 if self.dayPeriod != None:
                     query += ", dayPeriod"
                     values += ", '" +self.dayPeriod +"'"
+                cursor = MySQLConnection()
                 cursor.execute(query + values +")")
                 cursor.commit()
                 self.idCycle = Cycle.find(idCycle = self.idCycle, name_equal = self.name, startDate_equal = self.startDate, endDate_equal = self.endDate, cycleType = self.cycleType, cycleCode = self.cycleCode, termLength_equal = self.termLength, abbreviation_equal = self.abbreviation)[0].idCycle 
         
         else:#we need to update the object in the bank
-        #let's find out what needs to be updated
-        oldCycle = Cycle.find(idCycle = self.idCycle)
-        if self == oldCycle:
-            #nothing to update
-            return
-        else:
-            query = '''UPDATE cycle SET '''
-            firstItem = 1
-            if self.name != old.name
-                query += "name = '" +self.name +"'"
-            if self.startDate != old.startDate
-                if firstItem == 0: query += ", "
-                else: firstItem = 0
-                query += "startDate = " +self.startDate
-            self.endDate != old.endDate
-                if firstItem == 0: query += ", "
-                else: firstItem = 0
-                query += "endDate = " + self.endDate
-            self.cycleType != old.cycleType
-                if firstItem == 0: query += ", "
-                else: firstItem = 0
-                idCycleType = getIdCycleType()
-                query += "idCycleType = " +str(idCycleType)
-            self.cycleCode != old.cycleCode
-                if firstItem == 0: query += ", "
-                else: firstItem = 0
-                query += "cycleCode = " +str(self.cycleCode)
-            self.idTermLength != old.idTermLength
-                if firstItem == 0: query += ", "
-                else: firstItem = 0
-                query += "termLength = " + str(idTermLength)
-            self.abbreviation != old.abbreviation
-                if firstItem == 0: query += ", "
-                else: firstItem = 0
-                query += "abbreviation = '" +self.abbreviation +"'"
-            self.vacancyNumber != old.vacancyNumber
-                if firstItem == 0: query += ", "
-                else: firstItem = 0
-                query += "vacancyNumber = " +str(self.vacancyNumber)
-            self.dayPeriod != old.dayPeriod
-                if firstItem == 0: query += ", "
-                else: firstItem = 0
-                query += "dayPeriod = '" +self.dayPeriod +"'"
-            
-            self.mandatoryIdealTerms
-            self.electiveIdealTerms
-            
-            query += '''WHERE idCycle = ''' +str(self.idCycle)
-            
+            #let's find out what needs to be updated
+            oldCycle = Cycle.find(idCycle = self.idCycle)
+            if self == oldCycle:
+                #nothing to update
+                return
+            else:
+                query = '''UPDATE cycle SET '''
+                firstItem = 1
+                if self.name != old.name:
+                    query += "name = '" +self.name +"'"
+                if self.startDate != old.startDate:
+                    if firstItem == 0: query += ", "
+                    else: firstItem = 0
+                    query += "startDate = " +self.startDate
+                if self.endDate != old.endDate:
+                    if firstItem == 0: query += ", "
+                    else: firstItem = 0
+                    query += "endDate = " + self.endDate
+                if self.cycleType != old.cycleType:
+                    if firstItem == 0: query += ", "
+                    else: firstItem = 0
+                    idCycleType = getIdCycleType()
+                    query += "idCycleType = " +str(idCycleType)
+                if self.cycleCode != old.cycleCode:
+                    if firstItem == 0: query += ", "
+                    else: firstItem = 0
+                    query += "cycleCode = " +str(self.cycleCode)
+                if self.idTermLength != old.idTermLength:
+                    if firstItem == 0: query += ", "
+                    else: firstItem = 0
+                    query += "termLength = " + str(idTermLength)
+                if self.abbreviation != old.abbreviation:
+                    if firstItem == 0: query += ", "
+                    else: firstItem = 0
+                    query += "abbreviation = '" +self.abbreviation +"'"
+                if self.vacancyNumber != old.vacancyNumber:
+                    if firstItem == 0: query += ", "
+                    else: firstItem = 0
+                    query += "vacancyNumber = " +str(self.vacancyNumber)
+                if self.dayPeriod != old.dayPeriod:
+                    if firstItem == 0: query += ", "
+                    else: firstItem = 0
+                    query += "dayPeriod = '" +self.dayPeriod +"'"
+                
+                query += '''WHERE idCycle = ''' +str(self.idCycle)
+                cursor = MySQLConnection()
+                cursor.execute(query)
+                cursor.commit()
 
 
     def delete(self):

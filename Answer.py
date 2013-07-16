@@ -56,8 +56,6 @@ class Answer(object):
 
     def __init__(self, question, alternative, identifier):
         """
-         
-
         @param Question question : Question to which the answer has been given.
         @param char alternative : The alternative corresponding to a multiple choice question answer. Its values must be:
 'A', 'B', 'C', 'D', 'E' or 'X'.
@@ -68,11 +66,10 @@ class Answer(object):
         validAlternatives = ['A', 'B', 'C', 'D', 'E', 'X']
         if not question or not isinstance(question, Question):
             raise AnswerError('Must provide a valid question')
-        if not alternative or not isinstance(alternative, string) or len(alternative) > 1 or alternative not in alternatives:
+        if not alternative or not isinstance(alternative, (str,unicode)) or len(alternative) > 1 or alternative not in validAlternatives:
             raise AnswerError('Must provide a valid alternative')
         if not identifier or not isinstance(identifier, (int,long)):
             raise AnswerError('Must provide a valid identifier')
-        print 'h'
         self.question = question
         self.alternative = alternative
         self.identifier = identifier
@@ -170,36 +167,41 @@ class Answer(object):
                     queryComplement += ' and '
                 queryComplement += ' tp.idTimePeriod = o.idTimePeriod and tp.idTimePeriod = ' + str(kwargs[key].idTimePeriod)
                 offerBranchFlag = True
+                andFlag = True
             elif key == 'cycle':
-                query += ', cycle c, rel_cycle_opticalSheet rco, opticalSheet o'
+                query += ', cycle c, rel_cycle_opticalSheet rco, opticalSheet o, aggr_opticalSheetField osf, rel_answer_opticalSheetField_survey r'
                 if andFlag:
                     queryComplement += ' and '
-                queryComplement += ' c.idCycle = rco.idCycle and c.idCycle = ' + str(kwargs[key].idCycle)
-                offerBranchFlag = True
+                queryComplement += ' c.idCycle = rco.idCycle and c.idCycle = ' + str(kwargs[key].idCycle) + ' and rco.idOpticalSheet = o.idOpticalSheet and o.idOpticalSheet = osf.idOpticalSheet and osf.idOpticalSheetField = r.idOpticalSheetField and r.idAnswer = a.idAnswer'
+                andFlag = True
             elif key == 'course':
                 query += ', course co, aggr_offer o'
                 if andFlag:
                     queryComplement += ' and '
                 queryComplement += ' co.idCourse = o.idCourse and co.idCourse = ' + str(kwargs[key].idCourse)
                 offerBranchFlag = True
+                andFlag = True
             elif key == 'offer_byClass':
                 query += ', aggr_offer o'
                 if andFlag:
                     queryComplement += ' and '
-                queryComplement += ' o.classNumber = ' + str(kwargs[key].classNumber)
+                queryComplement += ' o.classNumber = ' + str(kwargs[key])
                 offerBranchFlag = True
+                andFlag = True
             elif key == 'offer_byProfessor':
                 query += ', aggr_offer o'
                 if andFlag:
                     queryComplement += ' and '
-                queryComplement += ' o.idProfessor = ' + str(kwargs[key].idProfessor)
+                queryComplement += ' o.idProfessor = ' + str(kwargs[key])
                 offerBranchFlag = True
+                andFlag = True
         if offerBranchFlag:
             query += ', aggr_opticalSheetField osf, rel_answer_opticalSheetField_survey r'
             if andFlag:
                 queryComplement += ' and '
-            queryComplement += ' o.idOpticalSheet = osf.idOpticalSheet and osf.idOpticalSheetField = r.idOpticalSheetField and r.idAnswer = a.idAnswer group by a.alternative '
-        query += queryComplement
+            queryComplement += ' o.idOffer = osf.idOffer and osf.idOpticalSheetField = r.idOpticalSheetField and r.idAnswer = a.idAnswer '
+        query += queryComplement + ' group by a.alternative'
+        print query
         searchData = cursor.execute(query)
         if searchData:
             for data in searchData:
@@ -256,19 +258,23 @@ class Answer(object):
         """
         cursor = MySQLConnection()
         answers = []
-        if question in kwargs:
-            kwargs['idQuestion'] = kwargs[question].idQuestion
-            del(kwargs[question])
+        if 'question' in kwargs:
+            kwargs['idQuestion'] = kwargs['question'].idQuestion
+            del(kwargs['question'])
+        if 'alternative' in kwargs:
+            alt = kwargs['alternative']
+            del(kwargs['alternative'])
+            kwargs['alternative_equal'] = alt
         query = 'select idAnswer, idQuestion, idDatafile, alternative, identifier from answer '
         searchData = cursor.find(query, kwargs)
         if searchData:
             for answerData in searchData:
                 question = Question.pickById(answerData[1])
-                alternative = searchData[3]
-                identifier = searchData[4]
-                idDatafile = searchData[2]
+                alternative = answerData[3]
+                identifier = answerData[4]
+                idDatafile = answerData[2]
                 answer = Answer(question, alternative, identifier)
-                answer.idAnswer = searchData[0]
+                answer.idAnswer = answerData[0]
                 answer.setIdDatafile(idDatafile)
                 answer.setCode()
                 answer.setCourseIndex()

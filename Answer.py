@@ -72,6 +72,7 @@ class Answer(object):
             raise AnswerError('Must provide a valid alternative')
         if not identifier or not isinstance(identifier, (int,long)):
             raise AnswerError('Must provide a valid identifier')
+        print 'h'
         self.question = question
         self.alternative = alternative
         self.identifier = identifier

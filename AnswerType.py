@@ -101,9 +101,10 @@ class AnswerType(object):
         # verifies if alternativeMeaning is a proper parameter
         if isinstance(alternativeMeaning, dict):
             if len(alternativeMeaning) is 5:
-                if 'A' and 'B' and 'C' and 'D' and 'E' in alternativeMeaning.keys():
+                alternativeLetters = alternativeMeaning.keys()
+                if ('A' in alternativeLetters) and ('B' in alternativeLetters) and ('C' in alternativeLetters) and ('D' in alternativeLetters) and ('E' in alternativeLetters):
                     for meaning in alternativeMeaning.values():
-                        if not isinstance(meaning, unicode) and not isinstance(meaning, str):
+                        if not isinstance(meaning, (unicode, str)):
                             raise AnswerTypeError("Invalid meaning found.")
                     self.alternativeMeaning = alternativeMeaning
                 else:
@@ -180,7 +181,10 @@ class AnswerType(object):
 
         if "meaning_like" in kwargs:
             # finds the IDs of the database objects that contains all the meanings in the list that was passed
-            query = "SELECT idAnswerType FROM alternativeMeaning WHERE meaning LIKE '%" + "%' AND meaning LIKE '%".join(kwargs['meaning']) + "%'"
+            query = "SELECT idAnswerType FROM alternativeMeaning WHERE"
+            for alternative, meaning in kwargs['meaning_like'].items():
+                query += "(meaning LIKE '%" + meaning + "%' AND alternative = '" + alternative + "') OR"
+            query = query[:-3] # removes last ' OR' inserted
             foundAnswerTypeIdsByMeaning = databaseConnection.execute(query)
 
             # changes the resoult found to a list, instead of a tuple of tuples
@@ -191,15 +195,13 @@ class AnswerType(object):
 
         elif "meaning_equal" in kwargs:
             # finds the IDS of the database objects that contains the dictionary of meanings passed
+            query = "SELECT idAnswerType FROM alternativeMeaning WHERE"
             for alternative, meaning in kwargs['meaning_equal'].items():
-                # find the IDs for a specific alternative and its meaning
-                foundAnswerTypeIdsByAlternativeAndMeaning = databaseConnection.execute("SELECT idAnswerType FROM alternativeMeaning WHERE alternative = '" + alternative + "' AND meaning = '" + meaning + "'")
-                foundAnswerTypeIdsByAlternativeAndMeaning = [int(foundAnswerTypeId[0]) for foundAnswerTypeId in foundAnswerTypeIdsByAlternativeAndMeaning]
-                # adds the IDs found for this specific alternative to the list of all IDs found
-                foundAnswerTypeIdsByMeaning += foundAnswerTypeIdsByAlternativeAndMeaning
-
-            # excludes duplicate IDs from the list by turning it to a set and back again to a list
-            foundAnswerTypeIdsByMeaning = list(set(foundAnswerTypeIdsByMeaning))
+                query += "(meaning = '" + meaning + "' AND alternative = '" + alternative + "') OR"
+            query = query[:-3] # removes last ' OR' inserted
+            query += "GROUP BY idAnswerType HAVING count(idAnswerType) = 5"
+            foundAnswerTypeIdsByMeaning = databaseConnection.execute(query)
+            foundAnswerTypeIdsByMeaning = [int(foundAnswerTypeId[0]) for foundAnswerTypeId in foundAnswerTypeIdsByMeaning]
 
             # removes the 'meaning_equal' key from kwargs in order to call the MySQLConnection find method
             del kwargs['meaning_equal']
@@ -233,43 +235,47 @@ class AnswerType(object):
         """
         # gets connection with the mysql database
         databaseConnection = MySQLConnection()
+       
+        # does several queries in order to determine, later, the conditions that must be satisfied in order to store the object
+        sameMeaningAnswerTypes = AnswerType.find(meaning_equal = self.alternativeMeaning)
+        sameNameAnswerTypes = AnswerType.find(name_equal = self.name)
+        sameNameAndMeaningAnswerTypes = AnswerType.find(meaning_equal = self.alternativeMeaning, name_equal = self.name)
+
+        #print sameMeaningAnswerTypes[0].name, sameMeaningAnswerTypes[0].alternativeMeaning
+        #print sameNameAnswerTypes[0].name, sameNameAnswerTypes[0].alternativeMeaning
+        #print sameNameAndMeaningAnswerTypes[0].name, sameNameAndMeaningAnswerTypes[0].alternativeMeaning
+
+        # verifies if the database already has an object like the one to be stored
+            
+        # if the alternatives exist and the name doesn't, the name in the database must be replaced by the object's name
+        if len(sameMeaningAnswerTypes) == 1 and len(sameNameAnswerTypes) == 0:
+            databaseConnection.execute("UPDATE answerType SET name = '" + self.name + "' WHERE idAnswerType = " + str(sameMeaningAnswerTypes[0].idAnswerType))
+
+        # if the name exists and the alternatives don't, the alternatives in the database must be replaced by the object's alternatives
+        elif len(sameMeaningAnswerTypes) == 0 and len(sameNameAnswerTypes) == 1:
+            for alternative, meaning in self.alternativeMeaning.items():
+                #print alternative, meaning, sameNameAnswerTypes[0].idAnswerType
+                databaseConnection.execute("UPDATE alternativeMeaning SET meaning = '" + meaning + "' WHERE alternative = '" + alternative + "' AND idAnswerType = " + str(sameNameAnswerTypes[0].idAnswerType))
+
+        # if both the name and the alternatives exist, the object exists in the database
+        # if the object still doesn't have its associated ID, this ID is retrieved and assigned to its respective attribute
+        elif len(sameNameAndMeaningAnswerTypes) == 1:
+            if not hasattr(self, 'idAnswerType'):
+                self.idAnswerType = int(databaseConnection.execute("SELECT idAnswerType FROM answerType WHERE name = '" + self.name + "'")[0][0])
+
+        # if both the alternative and the name doesn't exist, the object is new and must be created
+        else:
+            databaseConnection.execute("INSERT INTO answerType (name) VALUES ('" + self.name + "')")
+            # retrieves the idAnswerType for the most recently created object
+            self.idAnswerType = int(databaseConnection.execute("SELECT idAnswerType FROM answerType WHERE name = '" + self.name + "'")[0][0])
+            # inserts alternative meanings in the database
+            for alternative, meaning in self.alternativeMeaning.items():
+                #print self.idAnswerType, alternative, meaning
+                databaseConnection.execute("INSERT INTO alternativeMeaning (idAnswerType, alternative, meaning) VALUES (" + str(self.idAnswerType) + ", '" + alternative + "', '" + meaning + "')")
         
-        # verifies if the database already has an object like the one to be stored
-        exists = False
-        '''
-        try:
-            # se alternativa existe e nome não existe ou se alternativa não existe e nome existe, altera
-            if 
-            # se alternativa exite e nome existe, havendo mais de um id, apaga todos os ids e cria um novo
-            # se alternativa existe e nome existe, havendo apenas um id, pega o id se necessário
-            # se alternativa não existe e nome não existe, cria um novo
-            if len(AnswerType.find(name_equal = self.name)) > 0:
-                pass
-        '''
-                
-
-
-        '''
-        # verifies if the database already has an object like the one to be stored
-        try:
-            # verifies if the database possesses instances of the object
-            if len(databaseConnection.execute("SELECT * FROM answerType WHERE idAnswerType = " + str(self.idAnswerType))) > 0:
-                # updates the database instance of the object
-                databaseConnection.execute("UPDATE answerType SET name = " + self.name + " WHERE idAnswerType = " + str(self.idAnswerType))
-                databaseConnection.execute("UPDATE answerType SET alternative = " + alternative + ", meaning = " + meaning + " WHERE idAnswerType = " + str(self.idAnswerType))
-
-                # validates the updates made in the database
-                # databaseConnection.commit()
-                return True
-
-            else: 
-                # if the query was successful and no result was returned, the object has an invalid database ID
-                raise MySQLQueryError("Invalid AnswerType database ID")
-        except:
-            # creates new instance, for this object, in the database
-            databaseConnection.execute("INSERT INTO answerType (name) VALUES (" + self.name)
-        '''
-
+        # commit changes to the database
+        databaseConnection.commit()
+        
     def delete(self):
         """
          Deletes object from the database.

@@ -1,7 +1,7 @@
 # coding: utf-8
 
 from Course import *
-from IdealTerm import *
+from IdealTermCourse import *
 import datetime
 from tools.timeCheck import *
 
@@ -56,18 +56,14 @@ class Cycle(object):
 
      String representing the time period division ("quarter" or "semester")
 
-    timePeriodType  (public)
-
-     The cycle's faculty.
-
-    faculty  (public)
+    termLength  (public)
 
      List of Idealterm where each one contains a set of mandatory courses of this
      cycle.
 
     mandatoryIdealTerms  (public)
 
-     List of IdealTerm where each one contains a set of elective courses of this
+     List of IdealTermCourse where each one contains a set of elective courses of this
      cycle.
 
     electiveIdealTerms  (public)
@@ -82,19 +78,19 @@ class Cycle(object):
 
      Cycle's daily length (day-time, nigth-time,full-time)
 
-    termLength  (public)
+    dayPeriod  (public)
 
     """
 
-    def __init__(self, name, cycleType, cycleCode, timePeriodType, startDate, termLength):
+    def __init__(self, name, cycleType, cycleCode, termLength, startDate, dayPeriod):
         """
 
         @param string name : Cycle's name
         @param string cycleType : It represents the type of cycle, (e.g general area, basic cycle,... ).
         @param string cycleCode : codigo da habilitação (vide jupiter)
-        @param string timePeriodType : String representing the period division ("quarter" or "semester").
+        @param string termLength : String representing the period division ("quarter" or "semester").
         @param startDate string : Date of the start of this cycle, in the form year-month-day “xxxx-xx-xx”.Start is defined as the first time this cycle was given in this University. 
-        @param string termLength : Cycle's daily length (day-time, nigth-time,full-time)
+        @param string dayPeriod : Cycle's daily length (day-time, nigth-time,full-time)
         @return  :
         @author
         """
@@ -104,23 +100,25 @@ class Cycle(object):
             raise CycleError('Parameter cycleType must be a string or unicode.')            
         if not isinstance(cycleCode, (int, long)):
             raise CycleError('Parameter cycleCode must be an int or a long.')
-        if timePeriodType != None:
-            if not isinstance(timePeriodType, (str, unicode)):
-                raise CycleError('Parameter timePeriodType must be a string or unicode, or None.')
+        if not isinstance(termLength, (str, unicode)):
+            raise CycleError('Parameter termLength must be a string or unicode.')
         if not isinstance(startDate,datetime.date):
             if not isinstance(startDate,(str,unicode)) or not checkDateString(startDate):
                 raise CycleError('Parameter startDate must be a datetime.date format or a string in the format year-month-day')
-        if not isinstance(termLength, (int, long)):
-            raise CycleError('Parameter termLength must be an int or a long.')
+        if not isinstance(dayPeriod, (str, unicode)):
+            raise CycleError('Parameter dayPeriod must be a string or unicode.')
 
 
         self.name = name
         self.cycleType = cycleType
+        self.idCycleType = self.getIdCycleType()
         self.cycleCode = cycleCode
-        self.timePeriodType = timePeriodType
+        self.termLength = termLength
+        self.idTermLength = self.getIdTermLength()
         self.startDate = str(startDate) 
         self.abbreviation = name
-        self.termLength = termLength
+        self.dayPeriod = dayPeriod
+        self.vacancyNumber = None
         self.idCycle = None
         self.endDate = None
         self.mandatoryIdealTerms = None
@@ -157,9 +155,9 @@ class Cycle(object):
         @return  :
         @author
         """
-
-        if not isinstance(vacancyNumber, (int, long)):
-            raise CycleError('Parameter vacancyNumber must be a int or a long.')
+        if vacancyNumber != None:
+            if not isinstance(vacancyNumber, (int, long)):
+                raise CycleError('Parameter vacancyNumber must be a int or a long.')
         self.vacancyNumber = vacancyNumber
        
 
@@ -173,29 +171,72 @@ class Cycle(object):
         """
         if not isinstance(abbreviation, (str, unicode)):    
             raise CycleError('Parameter abbreviation must be a string or unicode.')
-        self.abbreviatio = abbreviation
+        self.abbreviation = abbreviation
 
     def completeMandatoryIdealTerms(self):
         """
-         Completes the mandatoryIdealTerms list with the objects idealTerm related to the
+         Completes the mandatoryIdealTerms list with the objects idealTermCourse related to the
          mandatories time period of this cycle.
 
         @return bool :
         @author
         """
-        pass
-        #TODO
+        mandatoryIdealTerms = IdealTermCourse.find(idCycle = self.idCycle, requisitionType = 1)
+        self.mandatoryIdealTerms = {}
+        for mIdealTermCourse in mandatoryIdealTerms:
+            if not mIdealTermCourse.term in self.mandatoryIdealTerms.keys():
+                self.mandatoryIdealTerms[mIdealTermCourse.term] = []
+            self.mandatoryIdealTerms[mIdealTermCourse.term].append(mIdealTermCourse)
+        
 
     def completeElectiveIdealTerms(self):
         """
-         Completes the electiveIdealTerms list with the objects idealTerm related to the
+         Completes the electiveIdealTerms list with the objects idealTermCourse related to the
          electives time period of this cycle.
 
         @return bool :
         @author
         """
-        pass
-        #TODO
+        electiveIdealTerms = IdealTermCourse.find(idCycle = self.idCycle, requisitionType = 2)
+        self.electiveIdealTerms = {}
+        for eIdealTermCourse in electiveIdealTerms:
+            if not eIdealTermCourse.term in self.electiveIdealTerms.keys():
+                self.electiveIdealTerms[eIdealTermCourse.term] = []
+            self.electiveIdealTerms[eIdealTermCourse.term].append(eIdealTermCourse)
+        
+    def getIdCycleType(self):
+        """
+        Once set a Cycle type, returns its Id on the DB.
+        Creates one if it does not exist
+        """
+        cursor = MySQLConnection()
+        query = "SELECT idCycleType FROM minitableCycleType WHERE name = '" + self.cycleType + "'"
+        idCycleType = cursor.execute(query)
+        if len(idCycleType) >0:
+            return idCycleType[0][0]
+        else:#we have to create it on the DB
+            query = "INSERT INTO minitableCycleType (name) VALUES ('" +self.cycleType +"')"
+            cursor.execute(query)
+            cursor.commit()
+            query = "SELECT idCycleType FROM minitableCycleType WHERE name = '" +self.cycleType +"'"
+            return cursor.execute(query)[0][0]
+            
+    def getIdTermLength(self):
+        """
+        Once set a term length, returns its Id on the DB.
+        Creates one if it does not exist
+        """
+        cursor = MySQLConnection()
+        query = "SELECT idLength FROM minitableLength WHERE length = '" + self.termLength + "'"
+        idTermLength = cursor.execute(query)
+        if len(idTermLength) >0:
+            return idTermLength[0][0]
+        else:#we have to create it on the DB
+            query = "INSERT INTO minitableLength (length) VALUES ('" +self.termLength +"')"
+            cursor.execute(query)
+            cursor.commit()
+            query = "SELECT idLength FROM minitableLength WHERE length = '" +self.termLength +"'"
+            return cursor.execute(query)[0][0]
 
     @staticmethod
     def pickById(idCycle):
@@ -209,17 +250,11 @@ class Cycle(object):
         cursor = MySQLConnection()  
         try:
             #Here get most of the cycles data
-            cycleData = cursor.execute('SELECT curr.name,  mc.name, curr.cycleCode, curr.startDate, curr.termLength, curr.vacancyNumber, curr.endDate, curr.abbreviation  FROM cycle curr JOIN minitableCycleType mc ON curr.idCycleType = mc.idCycleType WHERE curr.idCycle = '+ str(idCycle))[0]
+            cycleData = cursor.execute('SELECT curr.name,  mc.name, curr.cycleCode, curr.startDate, curr.dayPeriod, curr.vacancyNumber, curr.endDate, curr.abbreviation, ml.length  FROM cycle curr JOIN minitableCycleType mc ON curr.idCycleType = mc.idCycleType JOIN minitableLength ml ON ml.idLength = curr.termLength WHERE curr.idCycle = '+ str(idCycle))[0]
         except:
             return None
-        #Now get the timePeriodType
-        timePeriodType = cursor.execute('SELECT ml.length FROM aggr_offer aggr JOIN timePeriod tp ON tp.idTimePeriod = aggr.idTimePeriod JOIN rel_course_cycle rcc ON rcc.idCourse = aggr.idCourse JOIN minitableLength ml ON ml.idLength = tp.length WHERE rcc.idCycle = ' + str(idCycle)  + ' GROUP BY idCycle')
-        if len(timePeriodType) > 0:
-            timePeriodType = timePeriodType[0][0]
-        else:
-            timePeriodType = None
-
-        cycle = Cycle(cycleData[0], cycleData[1], cycleData[2], timePeriodType, cycleData[3], cycleData[4])#name, cycleType, cycleCode, timePeriodType, startDate, termLength
+        
+        cycle = Cycle(cycleData[0], cycleData[1], cycleData[2], cycleData[8], cycleData[3], cycleData[4])#name, cycleType, cycleCode, termLength, startDate, dayPeriod
         cycle.setVacancyNumber(cycleData[5])
         cycle.setEndDate(cycleData[6])
         cycle.setAbbreviation(cycleData[7])
@@ -246,12 +281,12 @@ class Cycle(object):
          > endDate_equal or endDate_like
          > cycleType
          > cycleCode
-         > timePeriodType_equal or timePeriodType_like
+         > termLength_equal or termLength_like
          > abbreviation_equal or abbreviation_like
          The parameters must be identified by their names when the method is called, and
          those which are strings must be followed by "_like" or by "_equal", in order to
          determine the kind of search to be done.
-         E. g. Cycle.find(timePeriodTime_equal = "night", name_like = "Computer")
+         E. g. Cycle.find(termLength_equal = "night", name_like = "Computer")
 
         @param dictionary _kwargs : 
         @return Curriculo[] :
@@ -259,56 +294,20 @@ class Cycle(object):
         """
         cursor = MySQLConnection()
         parameters = {}
-        parameters['curr.idCycle'] = []
         for key in kwargs:
             if key.find('cycleType') != -1:
                 if key.find('like') != -1:
                     parameters['mc.name_like'] = kwargs[key]
                 else:
                     parameters['mc.name_equal'] = kwargs[key]
-            elif key.find('timePeriodType') != -1:
-                query = 'SELECT rcc.idCycle  FROM aggr_offer aggr JOIN timePeriod tp ON tp.idTimePeriod = aggr.idTimePeriod JOIN rel_course_cycle rcc ON rcc.idCourse = aggr.idCourse JOIN minitableLength ml ON ml.idLength = tp.length '
-                if key.find('like') != -1:
-                    query = query + 'WHERE ml.length like "%' + kwargs[key]  + '%" GROUP BY rcc.idCycle'
-                else:
-                    query = query + 'WHERE ml.length = "' + kwargs[key]  + '" GROUP BY rcc.idCycle'
-                cyclesData = cursor.execute(query)
-                if len(cyclesData) > 0:
-                    parameters['curr.idCycle'].append([cycleData[0] for cycleData in cyclesData])
-
-            elif key == 'idCycle':
-                if isinstance(kwargs['idCycle'], list):
-                    parameters['curr.idCycle'].append(kwargs['idCycle']) 
-                else:
-                    parameters['curr.idCycle'].append([kwargs['idCycle']])
+            elif key.find('termLength') != -1:
+                parameters['ml.length' + key.split('termLength')[1]] = kwargs[key]
             else:
                 parameters['curr.' + key] = kwargs[key]
-
-        if len(parameters['curr.idCycle']) > 0:
-            #Now you join the idsCycle parameters allowing only the ones that belong to all the lists (execute an AND with them)
-            finalIdCycleList = []
-            for idCycle in parameters['curr.idCycle'][0]:
-                belongToAll = True
-                for idsCycle in parameters['curr.idCycle'][1:]:
-                    if not idCycle in idsCycle:
-                        belongToAll = False
-                        break
-                if belongToAll:
-                    finalIdCycleList.append(idCycle)
-            parameters['curr.idCycle'] = finalIdCycleList
-        else:
-            del parameters['curr.idCycle']
-
-        cyclesData = cursor.find('SELECT curr.idCycle, curr.name,  mc.name, curr.cycleCode, curr.startDate, curr.termLength, curr.vacancyNumber, curr.endDate, curr.abbreviation  FROM cycle curr JOIN minitableCycleType mc ON curr.idCycleType = mc.idCycleType',parameters)
+        cyclesData = cursor.find('SELECT curr.idCycle, curr.name,  mc.name, curr.cycleCode, curr.startDate, curr.dayPeriod, curr.vacancyNumber, curr.endDate, curr.abbreviation, ml.length FROM cycle curr JOIN minitableCycleType mc ON curr.idCycleType = mc.idCycleType JOIN minitableLength ml ON ml.idLength = curr.termLength ',parameters)
         cycles = []
         for cycleData in cyclesData:
-            timePeriodType = cursor.execute('SELECT ml.length FROM aggr_offer aggr JOIN timePeriod tp ON tp.idTimePeriod = aggr.idTimePeriod JOIN rel_course_cycle rcc ON rcc.idCourse = aggr.idCourse JOIN minitableLength ml ON ml.idLength = tp.length WHERE rcc.idCycle = ' + str(cycleData[0])  + ' GROUP BY rcc.idCycle')
-            if len(timePeriodType) > 0:
-                timePeriodType = timePeriodType[0][0]
-            else:
-                timePeriodType = None
-            
-            cycle = Cycle(cycleData[1], cycleData[2], cycleData[3], timePeriodType, cycleData[4], cycleData[5])#name, cycleType, cycleCode, timePeriodType, startDate, termLength
+            cycle = Cycle(cycleData[1], cycleData[2], cycleData[3], cycleData[9], cycleData[4], cycleData[5])#name, cycleType, cycleCode, termLength, startDate, dayPeriod
             cycle.setVacancyNumber(cycleData[6])
             cycle.setEndDate(cycleData[7])
             cycle.setAbbreviation(cycleData[8])
@@ -316,59 +315,94 @@ class Cycle(object):
             cycles.append(cycle)
         return cycles
         
-        
+        #name, cycleType, cycleCode, termLength, startDate, dayPeriod
     def store(self):
         """
          Alters the cycle's data in the data base.
 
         @return bool :
         @author
-        """
-        pass #I am not ready        
+        """     
         if self.idCycle == None:
-            cycles = Cycle.find(idCycle = self.idCycle, name_equal = self.name, startDate_equal = self.startDate, endDate_equal = self.endDate, cycleType = self.cycleType, cycleCode = self.cycleCode, timePeriodType_equal = self.timePeriodType, abbreviation_equal = self.abbreviation)
+            cycles = Cycle.find(name_equal = self.name, startDate_equal = self.startDate, endDate_equal = self.endDate, cycleType_equal = self.cycleType, cycleCode = self.cycleCode, termLength_equal = self.termLength, abbreviation_equal = self.abbreviation)
             if len(cycles) > 0:
                 self.idCycle = cycles[0].idCycle #Any cycle that fit those paramaters is the same as this cycle, so no need to save
                 return
             else:
-                
-                
-#         > idCycle
-#         > name_equal or name_like
-#         > startDate_equal or startDate_like
-#         > endDate_equal or endDate_like
-#         > cycleType
-#         > cycleCode
-#         > timePeriodType_equal or timePeriodType_like
-#         > abbreviation_equal or abbreviation_like
-         
-         
                 #Create this cycle
-                query = "INSERT INTO cycle (name, cycleType, cycleCode" #FALTAM OS OBRIGATORIOS FACULTY(excluido) E TIMEPERIODTYPE
-                values = ") VALUES('" +self.name +"', '" +str(self.cycleType) +"', '" +str(self.cycleCode)
-                if self.startDate != None:
-                    query += ", startDate"
-                    values += ", " +self.startDate
+                query = "INSERT INTO cycle (name, idCycleType, cycleCode, startDate, abbreviation"
+                values = ") VALUES('" +self.name +"', '" +str(self.idCycleType) +"', '" +str(self.cycleCode) +"', '" +self.startDate +"', '" + self.abbreviation + "'"
                 if self.endDate != None:
                     query += ", endDate"
-                    values += ", " +self.endDate
-                if self.abbreviation != None:
-                    query += ", abbreviation"
-                    values += ", " +self.endDate
+                    values += ", '" +self.endDate + "'"
+                if self.termLength != None:
+                    query += ", termLength"
+                    values += ", " + str(self.idTermLength)
+                if self.vacancyNumber != None:
+                    query += ", vacancyNumber"
+                    values += ", " + str(self.vacancyNumber)
+                if self.dayPeriod != None:
+                    query += ", dayPeriod"
+                    values += ", '" +self.dayPeriod +"'"
+                cursor = MySQLConnection()
                 cursor.execute(query + values +")")
                 cursor.commit()
-                self.idCycle = Cycle.find(idCycle = self.idCycle, name_equal = self.name, startDate_equal = self.startDate, endDate_equal = self.endDate, cycleType = self.cycleType, cycleCode = self.cycleCode, timePeriodType_equal = self.timePeriodType, abbreviation_equal = self.abbreviation)[0].idCycle 
+                self.idCycle = Cycle.find(name_equal = self.name, startDate_equal = self.startDate, endDate_equal = self.endDate, cycleType_equal = self.cycleType, cycleCode = self.cycleCode, termLength_equal = self.termLength, abbreviation_equal = self.abbreviation)[0].idCycle 
         
-        '''self.name
-        self.curriculymType
-        self.cycleCode
-        self.timePeriodType
-        self.idCycle
-        self.startDate
-        self.endDate
-        self.mandatoryIdealTerms
-        self.electiveIdealTerms
-        self.abbreviation'''
+        else:#we need to update the object in the bank
+            #let's find out what needs to be updated
+            old = Cycle.pickById(self.idCycle)
+            if self == old:
+                #nothing to update
+                return
+            else:
+                query = '''UPDATE cycle SET '''
+                firstItem = 1
+                if self.name != old.name:
+                    query += "name = '" +self.name +"'"
+                if self.startDate != old.startDate:
+                    if firstItem == 0: query += ", "
+                    else: firstItem = 0
+                    query += "startDate = " +self.startDate
+                if self.endDate != old.endDate:
+                    if firstItem == 0: query += ", "
+                    else: firstItem = 0
+                    if self.endDate != None:
+                        query += "endDate = '" + self.endDate + "'"
+                    else:
+                        query += "endDate = NULL"
+                if self.cycleType != old.cycleType:
+                    if firstItem == 0: query += ", "
+                    else: firstItem = 0
+                    idCycleType = getIdCycleType()
+                    query += "idCycleType = " +str(idCycleType)
+                if self.cycleCode != old.cycleCode:
+                    if firstItem == 0: query += ", "
+                    else: firstItem = 0
+                    query += "cycleCode = " +str(self.cycleCode)
+                if self.idTermLength != old.idTermLength:
+                    if firstItem == 0: query += ", "
+                    else: firstItem = 0
+                    query += "termLength = " + str(idTermLength)
+                if self.abbreviation != old.abbreviation:
+                    if firstItem == 0: query += ", "
+                    else: firstItem = 0
+                    query += "abbreviation = '" +self.abbreviation +"'"
+                if self.vacancyNumber != old.vacancyNumber:
+                    if firstItem == 0: query += ", "
+                    else: firstItem = 0
+                    query += "vacancyNumber = " +str(self.vacancyNumber)
+                if self.dayPeriod != old.dayPeriod:
+                    if firstItem == 0: query += ", "
+                    else: firstItem = 0
+                    query += "dayPeriod = '" +self.dayPeriod +"'"
+                
+                query += ''' WHERE idCycle = ''' +str(self.idCycle)
+                cursor = MySQLConnection()
+                print query
+                cursor.execute(query)
+                cursor.commit()
+
 
     def delete(self):
         """
@@ -383,12 +417,12 @@ class Cycle(object):
         if self.idCycle != None:
             cursor = MySQLConnection()
             if self == Cycle.pickById(self.idCycle):
-                cursor.execute('DELETE FROM cycle WHERE idCycle = ' + str(self.idCycle))
                 cursor.execute('DELETE FROM rel_course_cycle WHERE idCycle = ' + str(self.idCycle))
                 cursor.execute('DELETE FROM rel_courseCoordination_cycle WHERE idCycle = ' + str(self.idCycle))
                 cursor.execute('DELETE FROM rel_academicProgram_cycle WHERE idCycle = ' + str(self.idCycle))
                 cursor.execute('DELETE FROM rel_course_cycle_course WHERE idCycle = ' + str(self.idCycle))
                 cursor.execute('DELETE FROM rel_cycle_opticalSheet WHERE idCycle = ' + str(self.idCycle))
+                cursor.execute('DELETE FROM cycle WHERE idCycle = ' + str(self.idCycle))
                 cursor.commit()
             else:
                 raise CourseError("Can't delete non saved object.")

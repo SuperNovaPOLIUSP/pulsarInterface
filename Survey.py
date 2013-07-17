@@ -1,4 +1,13 @@
-#from Questionnaire import *
+from Questionnaire import *
+
+class SurveyError(Exception):
+    """
+     Exception reporting an error in the execution of a Offer method.
+
+    :version:
+    :author:
+    """
+    pass
 
 class Survey(object):
 
@@ -54,8 +63,17 @@ class Survey(object):
         self.assessmentNumber = assessmentNumber 
         self.idSurvey = None
 
+    def __eq__(self, other):
+        if not isinstance(other, Survey):
+            return False
+        return self.__dict__ == other.__dict__
+  
+    def __ne__(self,other):
+        return not self.__eq__(other)
 
-    def pickById(self, idSurvey):
+
+    @staticmethod
+    def pickById(idSurvey):
         """
          Returns one complete Survey object where its ID is equal to the chosen.
 
@@ -69,8 +87,8 @@ class Survey(object):
         survey.idSurvey = idSurvey
         return survey
 
-
-    def find(self, _kwargs):
+    @staticmethod
+    def find(**kwargs):
         """
          Searches the database to find one or more objects that fit the description
          specified by the method's parameters. It is possible to perform two kinds of
@@ -99,11 +117,11 @@ class Survey(object):
                 parameters['idQuestionnaire'] = kwargs['questionnaire'].idQuestionnaire
             else:
                 parameters[key] = kwargs[key]
-        surveysData = cursor.find('SELECT idOpticalSheetField, idOpticalSheet, idQuestionnaire, assessmentNumber FROM aggr_survey', parameters)
+        surveysData = cursor.find('SELECT idSurvey, idOpticalSheet, idQuestionnaire, assessmentNumber FROM aggr_survey', parameters)
         surveys = []
         for surveyData in surveysData:
-            survey = Survey(surveyData[0], Questionnaire.pickById(surveyData[1]), surveyData[2])
-            survey.idSurvey = idSurvey
+            survey = Survey(surveyData[1], Questionnaire.pickById(surveyData[2]), surveyData[3])
+            survey.idSurvey = surveyData[0]
             surveys.append(survey)
         return surveys
 
@@ -114,6 +132,7 @@ class Survey(object):
         @return  :
         @author
         """
+        cursor = MySQLConnection()
         if self.idSurvey == None:
             #Try to find this survey in the database
             surveys = self.find(idOpticalSheet = self.idOpticalSheet, questionnaire = self.questionnaire, assessmentNumber = self.assessmentNumber)
@@ -123,7 +142,7 @@ class Survey(object):
                 return
             else:
                 #Create this survey
-                cursor.execute('INSERT INTO aggr_survey (idOpticalSheet, idQuestionnaire, assessmentNumber) VALUES(' + str(self.idOpticalSheet) + ', ' + str(self.questionnaire.idQuestionnaire) + ', ' + str(assessmentnumber) + ')')
+                cursor.execute('INSERT INTO aggr_survey (idOpticalSheet, idQuestionnaire, assessmentNumber) VALUES(' + str(self.idOpticalSheet) + ', ' + str(self.questionnaire.idQuestionnaire) + ', ' + str(self.assessmentNumber) + ')')
                 cursor.commit()
                 self.idSurvey = self.find(idOpticalSheet = self.idOpticalSheet, questionnaire = self.questionnaire, assessmentNumber = self.assessmentNumber)[0].idSurvey
         #in this class there is no update, so if idSurvey != None no need to do nothing
@@ -137,7 +156,7 @@ class Survey(object):
         """
         if self.idSurvey != None:
             cursor = MySQLConnection()
-            if self = Survey.pickById(self.idSurvey):
+            if self == Survey.pickById(self.idSurvey):
                 cursor.execute('DELETE FROM aggr_survey WHERE idSurvey = ' + str(self.idSurvey))
                 cursor.commit()
             else:

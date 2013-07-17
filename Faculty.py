@@ -1,3 +1,5 @@
+from Cycle import *
+from CourseCoordination import *
 from tools.MySQLConnection import *
 
 class FacultyError(Exception):
@@ -61,6 +63,7 @@ class Faculty(object):
         self.abbreviation = abbreviation
         self.campus = None
         self.city = None
+        self.courseCoordinations = []
         self.idFaculty = None
   
     def __eq__(self, other):
@@ -95,6 +98,50 @@ class Faculty(object):
             raise FacultyError("Parameter city must be a string or an unicode")
         self.city = city
  
+    def addCourseCoordination(self, courseCoordination):
+        """
+         Adds a CourseCoordination to the list CourseCoordinations.
+
+        @param CourseCoordination : CourseCoordination to be added to this faculty
+        @return bool :
+        @author
+        """
+
+        if not isinstance(courseCoordination, CourseCoordination) or not CourseCoordination.pickById(courseCoordination.idCourseCoordination) == courseCoordination or courseCoordination in self.courseCoordinations: 
+            raise FacultyError('Parameter CourseCoordination must be a CourseCoordination object that exists in the database and does not exist in courseCoordinations.')
+         
+        self.courseCoordinations.append(courseCoordination)
+
+    def removeCourseCoordination(self, courseCoordination):
+        """
+         Removes a CourseCoordination from the list courseCoordinations.
+         
+        @param CourseCoordination: The CourseCoordination to be removed.
+        @return bool :
+        @author
+        """
+
+        if not courseCoordination in self.courseCoordinations: #if the CourseCoordination is in courseCoordination, surely it will be a CourseCoordination object that exists in the database
+            raise FacultyError('Parameter courseCoordination must be a courseCoordination object that exists in the list of courseCoordinations of the Faculty.')
+    
+        self.courseCoordinations.remove(courseCoordination)       
+    
+    def fillCourseCoordinations(self):
+        """
+         Finds the courseCoordinations associated to this Faculty through a query in the database.
+
+        @param  :
+        @return  :
+        @author
+        """
+        if self.idFaculty != None:
+            cursor = MySQLConnection()
+            courseCoordinationsData = cursor.execute('SELECT idCourseCoordination FROM rel_courseCoordination_faculty WHERE idFaculty = ' + str(self.idFaculty))
+            for courseCoordinationData in courseCoordinationsData:
+                self.courseCoordinations.append(CourseCoordination.pickById(courseCoordinationData[0]))
+        else:
+            raise FacultyError ('idFaculty is not defined')
+
     @staticmethod
     def pickById(idFaculty):
         """
@@ -117,6 +164,7 @@ class Faculty(object):
         faculty.idFaculty = facultyData[4]
         faculty.setCampus(facultyData[2])
         faculty.setCity(facultyData[3])
+        faculty.fillCourseCoordinations()        
         return faculty
 
     @staticmethod
@@ -147,13 +195,23 @@ class Faculty(object):
         @author
         """
         cursor = MySQLConnection()
-        facultiesData = cursor.find('SELECT name, abbreviation, campus, city, idFaculty FROM faculty',kwargs)
+        #first prepare the kwargs for the MySQLConnection.find function
+        complement = ''
+        parameters = {}
+        for key in kwargs:
+            if key == 'courseCoordinations':      
+                complement = ' JOIN rel_courseCoordination_faculty rcf ON rcf.idFaculty = faculty.idFaculty'
+                parameters['rcf.idCourseCoordination'] = [courseCoordination.idCourseCoordination for courseCoordination in kwargs['courseCoordinations']]
+            else:
+                parameters['faculty.' + key] = kwargs[key]
+        facultiesData = cursor.find('SELECT faculty.name, faculty.abbreviation, faculty.campus, faculty.city, faculty.idFaculty FROM faculty' + complement ,parameters)
         faculties = []
         for facultyData in facultiesData:
             faculty = Faculty(facultyData[0], facultyData[1])
             faculty.setCampus(facultyData[2])
             faculty.setCity(facultyData[3])
             faculty.idFaculty = facultyData[4]
+            faculty.fillCourseCoordinations() 
             faculties.append(faculty)
         return faculties
 
@@ -179,33 +237,40 @@ class Faculty(object):
             possibleIds = self.find(name_equal = self.name, abbreviation_equal = self.abbreviation, city_equal = self.city, campus_equal = self.campus)
             if len(possibleIds) > 0:
                 self.idFaculty = possibleIds[0].idFaculty   #Since all results are the same faculty pick the first one.
-                return 
+                 
             else:
                 #If there is no idFaculty create row
                 query = 'INSERT INTO faculty (name, abbreviation, city, campus) VALUES("' + self.name + '", "' + self.abbreviation + '", ' + MySQLcity + ', ' + MySQLcampus + ')'
                 cursor.execute(query)
                 cursor.commit()
                 self.idFaculty = self.find(name_equal = self.name, abbreviation_equal = self.abbreviation, city_equal = self.city, campus_equal = self.campus)[0].idFaculty
-                return
+                
         else:
             #If there is an idFaculty try to update row
-            query = 'UPDATE faculty SET name = "' + self.name + '", abbreviation = "' + self.abbreviation + '", city = ' + MySQLcity + ', campus = ' + MySQLcampus + ' WHERE idFaculty = ' + str(self.idFaculty)
+            query = 'UPDATE faculty SET city = ' + MySQLcity + ', campus = ' + MySQLcampus + ' WHERE idFaculty = ' + str(self.idFaculty)
             cursor.execute(query)
             cursor.commit()
-            return
+
+        #Storing the courseCoordinations of this Faculty
+        cursor.execute('DELETE FROM rel_courseCoordination_faculty WHERE idFaculty = ' + str(self.idFaculty))
+        for courseCoordination in self.courseCoordinations:
+            query = 'INSERT INTO rel_courseCoordination_faculty (idCourseCoordination, idFaculty) VALUES (' + str(courseCoordination.idCourseCoordination) + ', ' + str(self.idFaculty) + ')'
+            cursor.execute(query)
+
+        cursor.commit()
 
     def delete(self):
         """
          Deletes the faculty's data in the data base.
          
-         Return: true if succesful or false otherwise
-
+         
         @return :
         @author
         """
         if self.idFaculty != None:
             cursor = MySQLConnection()
             if self == Faculty.pickById(self.idFaculty):
+                cursor.execute('DELETE FROM rel_courseCoordination_faculty WHERE idFaculty = ' + str(self.idFaculty))
                 cursor.execute('DELETE FROM faculty WHERE idFaculty = ' + str(self.idFaculty))
                 cursor.commit()
                 return True

@@ -1,6 +1,4 @@
 from Answer import *
-from Answer[] import *
-from {} import *
 
 class DatafileError(Exception):
     """
@@ -46,7 +44,7 @@ class Datafile(object):
         @author
         """
         #Parameters verification:
-        if not isinstance(fileName, (str, unicode))
+        if not isinstance(fileName, (str, unicode)):
             raise DatafileError('Parameter filename must be a string or unicode.')
 
         # Setting parameters
@@ -78,33 +76,42 @@ class Datafile(object):
                 raise DatafileError('Each item on list must be an Answer object')
         self.answers = answers
 
-    def getAnswers(self):
+    def fillAnswers(self):
+        """
+         Fills the object's list containing the answers kept by the datafile with DB data.
+
+        @param Answer[] answers : List of answers that the datafile keeps.
+        @return  :
+        @author
+        """
+        cursor = MySQLConnection()
         answers = []
         answerData = cursor.execute('SELECT idAnswer FROM answer WHERE idDatafile = ' + str(self.idDatafile))
+        
         if answerData:
-            for idAnswer in answerData:
-                answers.append(Answer.pickById(idAnswer[0]))
-        return answers
+            for answerDatum in answerData:
+                answers.append(Answer.pickById(answerDatum[0]))
+        self.answers = answers
 
-    def pickById(self, idDataFile):
+    @staticmethod
+    def pickById(idDatafile):
         """
          Returns one complete Datafile object where its ID is equal to the chosen.
 
-        @param int idDataFile : Object's associated database key.
+        @param int idDatafile : Object's associated database key.
         @return Datafile :
         @author
         """
         cursor = MySQLConnection()
-        try:
-            datafileData = cursor.execute('SELECT idDatafile, fileName FROM datafile where idDatafile = ' + str(idDatafile))[0]
-        except:
+        datafileData = cursor.execute('SELECT idDatafile, fileName FROM datafile where idDatafile = ' + str(idDatafile))
+        if len(datafileData) == 0:
             return None
-        datafile = Datafile(datafileData[1])
-        datafile.idDatafile = datafileData[0]
-        datafile.setAnswers(datafile.getAnswers())
+        datafile = Datafile(datafileData[0][1])
+        datafile.idDatafile = datafileData[0][0]
         return datafile
 
-    def find(self, **kwargs):
+    @staticmethod
+    def find(**kwargs):
         """
          Searches the database to find one or more objects that fit the description
          specified by the method's parameters. It is possible to perform two kinds of
@@ -131,7 +138,6 @@ class Datafile(object):
             for objectData in datafileData:
                 datafile = Datafile(objectData[1])
                 datafile.idDatafile = objectData[0]
-                datafile.setAnswers(datafile.getAnswers())
                 datafiles.append(datafile)
         except:
             return []

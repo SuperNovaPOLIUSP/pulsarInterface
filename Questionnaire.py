@@ -1,4 +1,4 @@
-from Question import *
+from Question import Question
 import time
 from datetime import *
 
@@ -48,7 +48,6 @@ class Questionnaire(object):
         @return Questionnaire :
         @author
         """
-        cursor = MySQLConnection()
         if questionDictionary:
             for index in questionDictionary:
                 if not isinstance(questionDictionary[index], Question):
@@ -69,7 +68,7 @@ class Questionnaire(object):
         if self.questions:
             return self.questions.itervalues()
         else:
-            return None #No questions, no iterator needed
+            return None  # No questions, no iterator needed
 
     def __eq__(self, other):
         """
@@ -81,7 +80,6 @@ class Questionnaire(object):
         if not isinstance(other, Questionnaire):
             return False
         return self.__dict__ == other.__dict__
-
 
     def __ne__(self, other):
         """
@@ -110,15 +108,15 @@ class Questionnaire(object):
                     all_keys = self.questions.keys()
                     allQuestions = self.questions.values()
                     if index in all_keys:
-                        return False #Adding a second question to the same index
+                        return False  # Adding a second question to the same index
                     if question in allQuestions:
-                        return False #Adding a repeated question
+                        return False  # Adding a repeated question
                     self.questions[index] = question
                     return True
                 except:
                     return False
             else:
-                self.questions = {index : question}
+                self.questions = {index: question}
                 return True
         else:
             return False
@@ -135,13 +133,13 @@ class Questionnaire(object):
             try:
                 all_keys = self.questions.keys()
                 if index not in all_keys:
-                    return false #Key not in dict
+                    return false  # Key not in dict
                 del self.questions[index]
                 return True
             except:
                 return False
         else:
-            return True #No question removed
+            return True  # No question removed
 
     def removeQuestionById(self, idQuestion):
         """
@@ -158,11 +156,11 @@ class Questionnaire(object):
                 for association in associations:
                     if association[1] == question:
                         return self.removeQuestionByIndex(association[0])
-                return False #Question not found
+                return False  # Question not found
             except:
                 return False
         else:
-            return True #No question removed
+            return True  # No question removed
 
     @staticmethod
     def buildQuestionsQuestionnaire(idOffer):
@@ -234,7 +232,6 @@ class Questionnaire(object):
                 return None
         except:
             raise QuestionnaireError('Error on creating new Questionnaire object')
-            
 
     @staticmethod
     def find(**kwargs):
@@ -287,14 +284,14 @@ class Questionnaire(object):
             cursor.execute(updateQuery)
             cursor.commit()
         else:
-            possibleMatch = Questionnaire.find(description_equal = self.description, creationDate_equal = self.creationDate)
+            possibleMatch = Questionnaire.find(description_equal=self.description, creationDate_equal=self.creationDate)
             if possibleMatch:
                 self.idQuestionnaire = possibleMatch[0].idQuestionnaire
             else:
                 insertQuery = "insert into questionnaire (description, creationDate) values ('" + self.description + "', '" + self.creationDate + "')"
                 cursor.execute(insertQuery)
                 cursor.commit()
-                self.idQuestionnaire = Questionnaire.find(description_equal = self.description, creationDate_equal = self.creationDate)[0].idQuestionnaire
+                self.idQuestionnaire = Questionnaire.find(description_equal=self.description, creationDate_equal=self.creationDate)[0].idQuestionnaire
         if self.questions:
             insertRelQuestionQuery = 'insert into rel_question_questionnaire values ('
             for questionIndex in self.questions:

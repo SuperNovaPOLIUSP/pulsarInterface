@@ -1,4 +1,4 @@
-from Question import *
+from pulsarInterface.Question import *
 
 class AnswerError(Exception):
     """
@@ -66,9 +66,9 @@ class Answer(object):
         validAlternatives = ['A', 'B', 'C', 'D', 'E', 'X']
         if not question or not isinstance(question, Question):
             raise AnswerError('Must provide a valid question')
-        if not alternative or not isinstance(alternative, (str,unicode)) or len(alternative) > 1 or alternative not in validAlternatives:
+        if not alternative or not isinstance(alternative, (str, unicode)) or alternative not in validAlternatives:
             raise AnswerError('Must provide a valid alternative')
-        if not identifier or not isinstance(identifier, (int,long)):
+        if not identifier or not isinstance(identifier, (int, long)):
             raise AnswerError('Must provide a valid identifier')
         self.question = question
         self.alternative = alternative
@@ -153,54 +153,63 @@ class Answer(object):
         cursor = MySQLConnection()
         query = 'select a.alternative, count(a.alternative) from answer a'
         queryComplement = ' where '
+        linkComplements = set([])
+        complements = set([])
         offerBranchFlag = False
-        andFlag = False
-        answers = {}
-        for key in kwargs:
-            if key == 'question':
-                query += ', question q'
-                queryComplement += ' a.idQuestion = q.idQuestion and q.idQuestion = ' + str(kwargs[key].idQuestion)
-                andFlag = True
-            elif key == 'timePeriod':
-                query += ', timePeriod tp, aggr_offer o'
-                if andFlag:
-                    queryComplement += ' and '
-                queryComplement += ' tp.idTimePeriod = o.idTimePeriod and tp.idTimePeriod = ' + str(kwargs[key].idTimePeriod)
-                offerBranchFlag = True
-                andFlag = True
-            elif key == 'cycle':
-                query += ', cycle c, rel_cycle_opticalSheet rco, opticalSheet o, aggr_opticalSheetField osf, rel_answer_opticalSheetField_survey r'
-                if andFlag:
-                    queryComplement += ' and '
-                queryComplement += ' c.idCycle = rco.idCycle and c.idCycle = ' + str(kwargs[key].idCycle) + ' and rco.idOpticalSheet = o.idOpticalSheet and o.idOpticalSheet = osf.idOpticalSheet and osf.idOpticalSheetField = r.idOpticalSheetField and r.idAnswer = a.idAnswer'
-                andFlag = True
-            elif key == 'course':
-                query += ', course co, aggr_offer o'
-                if andFlag:
-                    queryComplement += ' and '
-                queryComplement += ' co.idCourse = o.idCourse and co.idCourse = ' + str(kwargs[key].idCourse)
-                offerBranchFlag = True
-                andFlag = True
-            elif key == 'offer_byClass':
-                query += ', aggr_offer o'
-                if andFlag:
-                    queryComplement += ' and '
-                queryComplement += ' o.classNumber = ' + str(kwargs[key])
-                offerBranchFlag = True
-                andFlag = True
-            elif key == 'offer_byProfessor':
-                query += ', aggr_offer o'
-                if andFlag:
-                    queryComplement += ' and '
-                queryComplement += ' o.idProfessor = ' + str(kwargs[key])
-                offerBranchFlag = True
-                andFlag = True
+        linkOffer = 'aggr_offer o'
+        joinOpticalSheetOpticalSheetField = 'os.idOpticalSheet = osf.idOpticalSheet'
+        joinOfferOpticalSheet = 'rco.idOpticalSheet = os.idOpticalSheet'
+        joinOfferOpticalSheetField = 'o.idOffer = osf.idOffer'
+        joinOpticalSheetFieldRel = 'osf.idOpticalSheetField = r.idOpticalSheetField'
+        joinRelAnswer = 'r.idAnswer = a.idAnswer'
+        if 'question' in kwargs:
+            linkComplements.add('question q')
+            complements.add(' a.idQuestion = q.idQuestion and q.idQuestion = ' + str(kwargs['question'].idQuestion))
+        if 'timePeriod' in kwargs:
+            linkComplements.add('timePeriod tp')
+            linkComplements.add(linkOffer)
+            complements.add(' tp.idTimePeriod = o.idTimePeriod and tp.idTimePeriod = ' + str(kwargs['timePeriod'].idTimePeriod))
+            offerBranchFlag = True
+        if 'cycle' in kwargs:
+            linkComplements.add('cycle c')
+            linkComplements.add('rel_cycle_opticalSheet rco')
+            linkComplements.add('opticalSheet os')
+            linkComplements.add('rel_answer_opticalSheetField_survey r')
+            linkComplements.add('aggr_opticalSheetField osf')
+            complements.add(' c.idCycle = rco.idCycle and c.idCycle = ' + str(kwargs['cycle'].idCycle))
+            complements.add(joinOfferOpticalSheet)
+            complements.add(joinOpticalSheetOpticalSheetField)
+            complements.add(joinOpticalSheetFieldRel)
+            complements.add(joinRelAnswer)
+        if 'course' in kwargs:
+            linkComplements.add('course co')
+            linkComplements.add(linkOffer)
+            complements.add(' co.idCourse = o.idCourse and co.idCourse = ' + str(kwargs['course'].idCourse))
+            offerBranchFlag = True
+        if 'offer_byClass' in kwargs:
+            linkComplements.add(linkOffer)
+            complements.add(' o.classNumber = ' + str(kwargs['offer_byClass']))
+            offerBranchFlag = True
+        if 'offer_byProfessor' in kwargs:
+            linkComplements.add(linkOffer)
+            complements.add(' o.idProfessor = ' + str(kwargs['offer_byProfessor']))
+            offerBranchFlag = True
         if offerBranchFlag:
-            query += ', aggr_opticalSheetField osf, rel_answer_opticalSheetField_survey r'
-            if andFlag:
-                queryComplement += ' and '
-            queryComplement += ' o.idOffer = osf.idOffer and osf.idOpticalSheetField = r.idOpticalSheetField and r.idAnswer = a.idAnswer '
+            linkComplements.add('aggr_opticalSheetField osf')
+            linkComplements.add('rel_answer_opticalSheetField_survey r')
+            complements.add(joinOfferOpticalSheetField)
+            complements.add(joinOpticalSheetFieldRel)
+            complements.add(joinRelAnswer)
+        for linkComplement in linkComplements:
+            query += ', '
+            query += linkComplement
+        for complement in complements:
+            queryComplement += complement
+            queryComplement += ' and '
+        queryComplement = queryComplement[:-5]
         query += queryComplement + ' group by a.alternative'
+        print query
+        answers = {}
         searchData = cursor.execute(query)
         if searchData:
             for data in searchData:

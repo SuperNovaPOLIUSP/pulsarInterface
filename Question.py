@@ -1,5 +1,5 @@
 #coding: utf8
-#from AnswerType import *
+from AnswerType import *
 from tools.MySQLConnection import MySQLConnection
 
 class QuestionError(Exception):
@@ -22,11 +22,11 @@ class Question(object):
 
     """ ATTRIBUTES
 
-     Question's written statement
+     Question's written questionWording
      
      o enunciado da pergunta
 
-    statement  (private)
+    questionWording  (private)
 
      
 
@@ -38,20 +38,20 @@ class Question(object):
 
     """
 
-    def __init__(self, statement, answerType):
+    def __init__(self, questionWording, answerType):
         """
          
 
-        @param string statement : 
+        @param string questionWording : 
         @param AnswerType answerType : 
         @return  :
         @author
         """
-        if not isinstance(statement, (str, unicode)):
-            raise QuestionError("'statement' must be a string or unicode type")
-        if not isinstance(answerType, (str, unicode)):
-            raise QuestionError("'statement' must be a string or unicode type")
-        self.statement = statement
+        if not isinstance(questionWording, (str, unicode)):
+            raise QuestionError("'questionWording' must be a string or unicode type")
+        if not isinstance(answerType, AnswerType):
+            raise QuestionError("'answerType' must be an AnswerType type")
+        self.questionWording = questionWording
         self.answerType = answerType
         self.idQuestion = None
         
@@ -97,18 +97,18 @@ class Question(object):
         question.idQuestion = questionData[0]
         return question
 
-    def setStatement(self, newStatement):
+    def setQuestionWording(self, newQuestionWording):
         """
          
 
-        @param string newStatement : novo enunciado para a pergunta
+        @param string newQuestionWording : novo enunciado para a pergunta
         @return  :
         @author
         """
         #Checked, is OK   
-        if not isinstance(newStatement, (str, unicode)):
-            raise QuestionError("'statement' must be a string or unicode type")
-        self.statement = newStatement
+        if not isinstance(newQuestionWording, (str, unicode)):
+            raise QuestionError("'questionWording' must be a string or unicode type")
+        self.questionWording = newQuestionWording
         return
 
     @staticmethod
@@ -126,15 +126,21 @@ class Question(object):
         A list of objects that match the specifications made by one (or more) of the
         folowing parameters:
         > idQuestion
-        > statement_equal or statement_like
+        > questionWording_equal or questionWording_like
         > category_equal or category_like
         The parameters must be identified by their names when the method is called, and
         those which are strings must be followed by "_like" or by "_equal", in order to
         determine the kind of search to be done.
-        E. g. Question.find(statement_like = "How many", category_equal = "Hour")
+        E. g. Question.find(questionWording_like = "How many", category_equal = "Hour")
         """
+        parameters = {}
         cursor = MySQLConnection()
-        questionsData = cursor.find("""SELECT idQuestion, questionWording, idAnswerType FROM question""",kwargs)
+        for key in kwargs:
+            if key.find("category") != -1:
+                parameters["answerType.name"+key.split("category")[1]] = kwargs[key]
+            else:
+                parameters["question."+key] = kwargs[key]
+        questionsData = cursor.find("""SELECT idQuestion, questionWording, question.idAnswerType FROM question JOIN answerType on question.idAnswerType = answerType.idAnswerType """,parameters)
         questions = []
         for questionData in questionsData:
             question = Question(questionData[1], AnswerType.pickById(questionData[2]))
@@ -158,20 +164,21 @@ class Question(object):
         if self.idQuestion:
             #Yes, the question exists
             #We will update its data
-            query = """UPDATE question SET idAnswerType = """ +str(self.answerType.idAnswerType) +""", questionWording = '""" +self.statement + """'"""
+            query = """UPDATE question SET idAnswerType = """ +str(self.answerType.idAnswerType) +""", questionWording = '""" +self.questionWording + """'"""
             query += """ WHERE idQuestion = """ +str(self.idQuestion)
             #Doesn't save changes in AnswerType parameter
         else:
             #No, the question does not exist
             #Is there one just like it?
-            possibleQuestions = Question.find(statement_equal = self.statement, category_equal = self.answerType.name)
+            possibleQuestions = Question.find(questionWording_equal = self.questionWording, category_equal = self.answerType.name)
             if len(possibleQuestions) > 0:
                 #There's one just like it!
                 self.idQuestion = possibleQuestions[0].idQuestion
                 return
+            else:
                 #No, let's create it
                 query = """INSERT INTO question (idAnswerType, questionWording) VALUES ("""
-                query += str(self.answerType.idAnswerType), """'"""+self.statement+"""')"""
+                query += str(self.answerType.idAnswerType) + """, '""" +self.questionWording +"""')"""
         #Execute query
         cursor.execute(query)
         cursor.commit()

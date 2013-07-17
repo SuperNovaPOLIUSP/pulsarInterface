@@ -2,6 +2,16 @@
 from tools.MySQLConnection import MySQLConnection
 from Department import *
 
+class ProfessorError(Exception):
+     """
+      Exception reporting an error in the execution of a Professor method.
+ 
+     :version:
+     :author:
+     """
+     pass
+
+
 class Professor(object):
 
     """
@@ -25,10 +35,25 @@ class Professor(object):
 
     idDepartment  (public)
 
-     Professor's identification number
+     Professor's identification number 0 by defaut
 
     memberId  (public)
+
+     Professor's office, can be None
     
+    office (public)
+
+     Professor's email, can be None
+
+    email (public)
+
+     Professor's phone number, can be None
+
+    phoneNumber (public)
+
+     Professor's cellphone number, can be None
+
+    cellphoneNumber (public)    
     """
 
     def __init__(self, name):
@@ -40,14 +65,107 @@ class Professor(object):
         @return  :
         @author
         """
+        if not isinstance(name, (str, unicode)):
+            raise ProfessorError('Parameter name must be a string or an unicode')
         self.name = name
         self.idProfessor = None
-        self.memberId = None
+        self.idDepartment = None
+        self.memberId = 0
+        self.office = None
+        self.email = None
+        self.phoneNumber = None
+        self.cellphoneNumber = None 
 
     def __eq__(self, other):
         if not isinstance(other, Professor):
             return False
         return self.__dict__ == other.__dict__
+
+    def __ne__(self,other):
+        return not self.__eq__(other)
+
+    def setCellphoneNumber(self, cellphoneNumber):
+        """
+         With the cellphoneNumber parameter given set the cellphoneNumber.
+
+        @param int cellphoneNumber : Professor's cellphone number.
+        @return  :
+        @author
+        """
+        if not isinstance(cellphoneNumber, (int, long)):
+            raise ProfessorError('Parameter email must be a string or an unicode')
+        self.cellphoneNumber = cellphoneNumber
+
+    def setPhoneNumber(self, phoneNumber):
+        """
+         With the phoneNumber parameter given set the phoneNumber.
+
+        @param int phoneNumber : Professor's phone number.
+        @return  :
+        @author
+        """
+        if not isinstance(phoneNumber, (int, long)):
+            raise ProfessorError('Parameter email must be a string or an unicode')
+        self.phoneNumber = phoneNumber
+
+    def setEmail(self, email):
+        """
+         With the email parameter given set the email.
+
+        @param string email : Professor's email.
+        @return  :
+        @author
+        """
+        if not isinstance(email, (str, unicode)):
+            raise ProfessorError('Parameter email must be a string or an unicode')
+        self.email = email
+
+    def setOffice(self, office):
+        """
+         With the office parameter given set the office.
+
+        @param string office : Professor's office.
+        @return  :
+        @author
+        """
+        if not isinstance(office, (str, unicode)):
+            raise ProfessorError('Parameter office must be a string or an unicode')
+        self.office = office
+
+    def setMemberId(self, memberId):
+        """
+         With the memberId given set the memberId.
+
+        @param memberId int : 
+        @return  :
+        @author
+        """
+        if not isinstance(memberId, (int , long)):
+            raise ProfessorError('Parameter memberId must be an int or a long')
+        self.memberId = memberId
+      
+
+    def setDepartment(self, department):
+        """
+         With the Department objects given set the idDepartment.
+
+        @param Department department : 
+        @return  :
+        @author
+        """
+        if not isinstance(department, Department) or not Department.pickById(department.idDepartment) == department :
+            raise ProfessorError('Parameter department must be a Department object')
+        self.idDepartment = department.idDepartment
+
+    def getDepartment(self):
+        """
+         Returns the Department object associated with the idDepartment of this object.
+
+        @return Department :
+        @author
+        """
+        
+        return Department.pickById(self.idDepartment)
 
 
     @staticmethod
@@ -60,113 +178,23 @@ class Professor(object):
         @author
         """
         cursor = MySQLConnection()
-        query = 'SELECT * FROM professor WHERE idProfessor =  '+ str(idProfessor)
         try:
-            professor_sql = cursor.execute(query)[0]
+            professorData = cursor.execute('SELECT idProfessor, memberId, name, office, email, phoneNumber, cellphoneNumber FROM professor WHERE idProfessor =  '+ str(idProfessor))[0]
         except:
             return None
-        professor = Professor(professor_sql[2])
-        professor.idProfessor = professor_sql[0]
-        professor.memberId = professor_sql[1]
+        professor = Professor(professorData[2])
+        professor.idProfessor = professorData[0]
+        professor.memberId = professorData[1]
+        professor.office = professorData[3]
+        professor.email = professorData[4]
+        professor.phoneNumber = professorData[5]
+        professor.cellphoneNumber = professorData[6]
+
+        #Find the department
+        idDepartmentData = cursor.execute('SELECT idDepartment from rel_department_professor WHERE idProfessor = ' + str(idProfessor))
+        if len(idDepartmentData) == 1:
+            professor.idDepartment = idDepartmentData[0][0]
         return professor
-
-    def store(self):
-        """
-         Creates or alters the professor's data in the data base.
-
-        @return bool :
-        @author
-        """
-        cursor = MySQLConnection()
-        try:
-            Professor.name
-        except:
-            print "'Professor' object must have name atribute"
-            return False
-        if self.idProfessor is None:
-            possibleIds = self.find(name_equal = self.name, memberId = self.memberId)
-            if len(possibleIds) > 0:
-                self.idProfessor = possibleIds[0].idProfessor
-                return True
-            
-            not_None_att = ["name"]
-            not_None_values = [self.name]
-            not_None_att.append("memberId")
-            if self.memberId is None:
-                memberId = 0
-            not_None_values.append(self.memberId)
-            query = "INSERT INTO professor " +str(tuple(not_None_att)) +" VALUES " + str(tuple(not_None_values))
-            
-        else:
-            if self.memberId is None:
-                memberId = 0
-            query = "UPDATE professor SET name = " +self.name +", memberId = " +str(self.memberId)
-            query += " WHERE idTimePeriod = " +str(self.idTimePeriod)
-        try:
-            cursor.execute(query)
-            cursor.commit()
-            return True
-        except:
-            return False
-
-    def delete(self):
-        """
-         Deletes the professor's data in the data base.
-         
-         Return: true if succesful or false otherwise
-
-        @return bool :
-        @author
-        """
-        cursor = MySQLConnection()
-        query = "DELETE FROM professor WHERE idProfessor = " +str(self.idProfessor) +" AND name = '" +self.name +"' AND memberId = " +str(self.membrerId)
-        try:
-            cursor.execute(query)
-            cursor.commit()
-            return True
-        except:
-            return False
-
-    def setDepartment(self, department):
-        """
-         With the Department objects given set the idDepartment.
-
-        @param Department department : 
-        @return  :
-        @author
-        """
-        cursor = MySQLConnection()
-        #Checking if professor is already related to a department
-        if len(cursor.execute("SELECT idProfessor FROM rel_department_professor WHERE idProfessor = " +str(self.idProfessor))) > 0:
-            query = "UPDATE rel_department_professor SET idDepartment=" +str(department.idDepartment) +"WHERE idProfessor=" +str(self.idProfessor)
-        else:
-            values = (self.idProfessor, department.idDepartment)
-            query = "INSERT INTO rel_department_professor (idProfessor, idDepartment) VALUES " +str(values)
-        try:
-            cursor.execute(query)
-            cursor.commit()
-            return True
-        except:
-            return False
-
-    def getDepartment(self):
-        """
-         Returns the Department object associated with the idDepartment of this object.
-
-        @return Department :
-        @author
-        """
-        cursor = MySQLConnection()
-        query = '''SELECT idDepartment, name, departmentCode FROM rel_department_professor JOIN department
-ON rel_department_professor.idDepartment = department.idDepartment
-WHERE idProfessor = ''' + str(self.idProfessor)
-        try:
-            professor_sql = cursor.execute(query)
-        except:
-            return None
-        department = Department(professor_sql[0][1], professor_sql[0][2])
-        department.idDepartment = department_sql[0][0]
-        return department
 
     @staticmethod
     def find(**kwargs):
@@ -184,7 +212,13 @@ WHERE idProfessor = ''' + str(self.idProfessor)
          folowing parameters:
          > idProfessor
          > name_equal or name_like
+         > memberId
          > department
+         > office
+         > email
+         > phoneNumber
+         > cellphoneNumber
+
          The parameters must be identified by their names when the method is called, and
          those which are strings must be followed by "_like" or by "_equal", in order to
          determine the kind of search to be done.
@@ -195,12 +229,103 @@ WHERE idProfessor = ''' + str(self.idProfessor)
         @author
         """
         cursor = MySQLConnection()
-        professorsData = cursor.find('SELECT name, idProfessor, memberId FROM professor',kwargs)
+        parameters = {}
+        complement = ''
+        for key in kwargs:
+            if key == 'department':
+                complement = ' JOIN rel_department_professor rdp ON rdp.idProfessor = pro.idProfessor'
+                parameters['rdp.idDepartment'] = kwargs['department'].idDepartment
+            elif key == 'idDepartment':
+                complement = ' JOIN rel_department_professor rdp ON rdp.idProfessor = pro.idProfessor'
+                parameters['rdp.idDepartment'] = kwargs['idDepartment']
+            else:
+                parameters['pro.' + key] = kwargs[key]
+        professorsData = cursor.find('SELECT pro.name, pro.idProfessor, pro.memberId, pro.office, pro.email, pro.phoneNumber, pro.cellphoneNumber FROM professor pro' + complement ,parameters)
         professors = []
         for professorData in professorsData:
             professor = Professor(professorData[0])
             professor.idProfessor = professorData[1]
             professor.memberId = professorData[2]
+            professor.office = professorData[3]
+            professor.email = professorData[4]
+            professor.phoneNumber = professorData[5]
+            professor.cellphoneNumber = professorData[6]
+            idDepartmentData = cursor.execute('SELECT idDepartment from rel_department_professor WHERE idProfessor = ' + str(professorData[1]))
+            if len(idDepartmentData) == 1:
+                professor.idDepartment = idDepartmentData[0][0]
             professors.append(professor)
         return professors
+
+    def store(self):
+        """
+         Creates or alters the professor's data in the data base.
+
+        @return :
+        @author
+        """
+        cursor = MySQLConnection()
+        #First correct the parameters that can be None
+        if self.office == None:
+            mySQLOffice = 'NULL'  #in MySQL is NULL
+        else:
+            mySQLOffice = '"' + self.office + '"'
+
+        if self.email == None:
+            mySQLEmail = 'NULL'  #in MySQL is NULL
+        else:
+            mySQLEmail = '"' + self.email + '"'
+
+        if self.phoneNumber == None:
+            mySQLPhoneNumber = 'NULL'  #in MySQL is NULL
+        else:
+            mySQLPhoneNumber = self.phoneNumber
+
+        if self.cellphoneNumber == None:
+            mySQLCellphoneNumber = 'NULL'  #in MySQL is NULL
+        else:
+            mySQLCellphoneNumber = self.cellphoneNumber
+   
+        if self.idProfessor == None:
+            possibleIds = self.find(name_equal = self.name, memberId = self.memberId) #That defines a Professor in the database
+            if len(possibleIds) > 0:
+                professor = possibleIds[0]
+                self.idProfessor = professor.idProfessor
+                return
+            else:
+                query = 'INSERT INTO professor (name, memberId, office, email, phoneNumber, cellphoneNumber) VALUES ("' + self.name + '", ' + str(self.memberId) + ', ' + mySQLOffice + ', ' + mySQLEmail + ', ' + str(mySQLPhoneNumber) + ', ' + str(mySQLCellphoneNumber) + ')'
+                cursor.execute(query)
+                cursor.commit()
+                self.idProfessor = self.find(name_equal = self.name, memberId = self.memberId, office = self.office, email = self.email, phoneNumber = self.phoneNumber, cellphoneNumber = self.cellphoneNumber)[0].idProfessor
+        else:
+            query = 'UPDATE professor SET memberId = ' + str(self.memberId) + ', office = ' + mySQLOffice + ', email = ' + mySQLEmail + ', phoneNumber = ' + str(mySQLPhoneNumber) + ', cellphoneNumber = ' + str(mySQLCellphoneNumber)
+            query += " WHERE idProfessor = " +str(self.idProfessor)
+            cursor.execute(query)
+            cursor.commit()
+        #First delete old department relations
+        cursor.execute('DELETE FROM rel_department_professor WHERE idProfessor = ' + str(self.idProfessor))
+        #Now create the new ones
+        if self.idDepartment != None:
+            cursor.execute('INSERT INTO rel_department_professor (idProfessor, idDepartment) VALUES (' + str(self.idProfessor) + ', ' + str(self.idDepartment)  + ')')
+        cursor.commit()
+
+    def delete(self):
+        """
+         Deletes the professor's data in the data base.
+         
+         Return: true if succesful or false otherwise
+
+        @return bool :
+        @author
+        """
+        if self.idProfessor != None:
+            cursor = MySQLConnection()
+            if self == Professor.pickById(self.idProfessor):
+                cursor.execute('DELETE FROM rel_department_professor WHERE idProfessor = ' + str(self.idProfessor))
+                cursor.execute('DELETE FROM professor WHERE idProfessor = ' + str(self.idProfessor))
+                cursor.commit()
+            else:
+                raise ProfessorError("Can't delete non saved object.")
+        else:
+            raise ProfessorError('No idProfessor defined.')
+
 

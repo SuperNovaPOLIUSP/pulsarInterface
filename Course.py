@@ -67,12 +67,11 @@ class Course(object):
             raise CourseError('Parameter courseCode must be a string or an unicode')
         if not isinstance(name,(str,unicode)):
             raise CourseError('Parameter name must be a string or an unicode')
-
         if not isinstance(startDate,datetime.date):
             if not isinstance(startDate,(str,unicode)) or checkDateString(startDate) == None:
                 raise CourseError('Parameter startDate must be a datetime.date format or a string in the format year-month-day')
 
-        self.startDate = startDate
+        self.startDate = str(startDate)
         self.courseCode = courseCode
         self.name = name
         self.abbreviation = name #By default abbreviation is equal to name
@@ -111,7 +110,9 @@ class Course(object):
             if not isinstance(endDate,datetime.date):
                 if not isinstance(endDate,(str,unicode)) or checkDateString(endDate) == None:
                     raise CourseError('Parameter endDate must be a datetime.date format or a string in the format year-month-day')
-        self.endDate = endDate
+            self.endDate = str(endDate)
+        else:
+            self.endDate = endDate
 
     @staticmethod
     def pickById(idCourse):
@@ -124,11 +125,12 @@ class Course(object):
         """
         cursor = MySQLConnection()
         try:
+            #If courseData is None or an empty list the [0] at the end will raise an error that will fall to returning None
             courseData = cursor.execute('SELECT idCourse, courseCode, abbreviation, name, startDate, endDate FROM course WHERE idCourse = ' + str(idCourse))[0]
         except:
             return None
 
-        course = Course(courseData[1],courseData[3],courseData[4])
+        course = Course(courseData[1],courseData[3],str(courseData[4]))
         course.idCourse = courseData[0]
         course.setAbbreviation(courseData[2])
         course.setEndDate(courseData[5]) 
@@ -167,7 +169,7 @@ class Course(object):
         coursesData = cursor.find('SELECT idCourse, courseCode, abbreviation, name, startDate, endDate FROM course',kwargs)
         courses = []
         for courseData in coursesData:
-            course = Course(courseData[1],courseData[3],courseData[4])
+            course = Course(courseData[1],courseData[3], str(courseData[4]))
             course.idCourse = courseData[0]
             course.setAbbreviation(courseData[2])
             course.setEndDate(courseData[5]) 
@@ -199,7 +201,7 @@ class Course(object):
         else:
             #Update Course
             oldCourse = Course.pickById(self.idCourse)
-            query = 'UPDATE course SET courseCode = "' + self.courseCode + '", abbreviation = "' + self.abbreviation + '", name = "' + self.name + '", startDate = "' + str(self.startDate) + '", endDate = ' + mySQLEndDate + ' WHERE idCourse = ' + str(self.idCourse)
+            query = 'UPDATE course SET abbreviation = "' + self.abbreviation + '", endDate = ' + mySQLEndDate + ' WHERE idCourse = ' + str(self.idCourse)
             cursor.execute(query)
             cursor.commit() 
         return
@@ -216,6 +218,8 @@ class Course(object):
             cursor = MySQLConnection()
             if self == Course.pickById(self.idCourse):
                 cursor.execute('DELETE FROM course WHERE idCourse = ' + str(self.idCourse))
+                cursor.execute('DELETE FROM rel_course_curriculum WHERE idCourse = ' + str(self.idCourse))
+                cursor.execute('DELETE FROM rel_course_curriculum_course WHERE idCourse = ' + str(self.idCourse) + ' or idRequirement = ' + str(self.idCourse))        
                 cursor.commit()
             else:
                 raise CourseError("Can't delete non saved object.")

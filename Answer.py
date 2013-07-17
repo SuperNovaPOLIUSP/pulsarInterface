@@ -201,7 +201,6 @@ class Answer(object):
                 queryComplement += ' and '
             queryComplement += ' o.idOffer = osf.idOffer and osf.idOpticalSheetField = r.idOpticalSheetField and r.idAnswer = a.idAnswer '
         query += queryComplement + ' group by a.alternative'
-        print query
         searchData = cursor.execute(query)
         if searchData:
             for data in searchData:
@@ -280,31 +279,3 @@ class Answer(object):
                 answer.setCourseIndex()
                 answers.append(answer)
         return answers
-
-    def store(self, answers):
-        """
-         Static method that stores a list of answers in the database only if idDataFile
-         is not None and if either code or courseIndex is not None. It should only be
-         used by an OpticalSheet object, so that a set of answers is not stored without
-         being related to its Optical Sheet.
-
-        @param Answer[] answers : List of answers to be stored in a single query.
-        @return  :
-        @author
-        """
-        pass
-
-    def delete(self, answers):
-        """
-         Static method that deletes a list of answers from the database. It should only
-         be used by an OpticalSheet object, so that a set of answers is not deleted
-         without being related to its Optical Sheet.
-
-        @param Answer[] answers : List of answers to be deleted in a single query.
-        @return  :
-        @author
-        """
-        pass
-
-
-

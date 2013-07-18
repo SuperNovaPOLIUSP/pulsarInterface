@@ -269,7 +269,10 @@ class Questionnaire(object):
             idQuestionnaire = questionnaireData[0]
             questionnaire = Questionnaire(Questionnaire.getQuestionsById(idQuestionnaire), questionnaireData[1])
             questionnaire.idQuestionnaire = idQuestionnaire
-            questionnaire.creationDate = questionnaireData[2].isoformat()
+            if questionnaireData[2]:
+                questionnaire.creationDate = questionnaireData[2].isoformat()
+            else:
+                questionnaire.creationDate = '0000-00-00'
             questionnaires.append(questionnaire)
         return questionnaires
 

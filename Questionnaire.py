@@ -1,4 +1,4 @@
-from Question import Question
+from Question import *
 import time
 from datetime import *
 

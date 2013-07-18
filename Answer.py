@@ -154,7 +154,7 @@ class Answer(object):
         query = 'select a.alternative, count(a.alternative) from answer a'
         queryComplement = ' where '
         linkComplements = set([])
-        complements = set([])
+        joinComplements = set([])
         offerBranchFlag = False
         linkOffer = 'aggr_offer o'
         joinOpticalSheetOpticalSheetField = 'os.idOpticalSheet = osf.idOpticalSheet'
@@ -164,11 +164,11 @@ class Answer(object):
         joinRelAnswer = 'r.idAnswer = a.idAnswer'
         if 'question' in kwargs:
             linkComplements.add('question q')
-            complements.add(' a.idQuestion = q.idQuestion and q.idQuestion = ' + str(kwargs['question'].idQuestion))
+            joinComplements.add(' a.idQuestion = q.idQuestion and q.idQuestion = ' + str(kwargs['question'].idQuestion))
         if 'timePeriod' in kwargs:
             linkComplements.add('timePeriod tp')
             linkComplements.add(linkOffer)
-            complements.add(' tp.idTimePeriod = o.idTimePeriod and tp.idTimePeriod = ' + str(kwargs['timePeriod'].idTimePeriod))
+            joinComplements.add(' tp.idTimePeriod = o.idTimePeriod and tp.idTimePeriod = ' + str(kwargs['timePeriod'].idTimePeriod))
             offerBranchFlag = True
         if 'cycle' in kwargs:
             linkComplements.add('cycle c')
@@ -176,41 +176,41 @@ class Answer(object):
             linkComplements.add('opticalSheet os')
             linkComplements.add('rel_answer_opticalSheetField_survey r')
             linkComplements.add('aggr_opticalSheetField osf')
-            complements.add(' c.idCycle = rco.idCycle and c.idCycle = ' + str(kwargs['cycle'].idCycle))
-            complements.add(joinOfferOpticalSheet)
-            complements.add(joinOpticalSheetOpticalSheetField)
-            complements.add(joinOpticalSheetFieldRel)
-            complements.add(joinRelAnswer)
+            joinComplements.add(' c.idCycle = rco.idCycle and c.idCycle = ' + str(kwargs['cycle'].idCycle))
+            joinComplements.add(joinOfferOpticalSheet)
+            joinComplements.add(joinOpticalSheetOpticalSheetField)
+            joinComplements.add(joinOpticalSheetFieldRel)
+            joinComplements.add(joinRelAnswer)
         if 'course' in kwargs:
             linkComplements.add('course co')
             linkComplements.add(linkOffer)
-            complements.add(' co.idCourse = o.idCourse and co.idCourse = ' + str(kwargs['course'].idCourse))
+            joinComplements.add(' co.idCourse = o.idCourse and co.idCourse = ' + str(kwargs['course'].idCourse))
             offerBranchFlag = True
         if 'offer_byClass' in kwargs:
             linkComplements.add(linkOffer)
-            complements.add(' o.classNumber = ' + str(kwargs['offer_byClass']))
+            joinComplements.add(' o.classNumber = ' + str(kwargs['offer_byClass']))
             offerBranchFlag = True
         if 'offer_byProfessor' in kwargs:
             linkComplements.add(linkOffer)
-            complements.add(' o.idProfessor = ' + str(kwargs['offer_byProfessor']))
+            joinComplements.add(' o.idProfessor = ' + str(kwargs['offer_byProfessor']))
             offerBranchFlag = True
         if offerBranchFlag:
             linkComplements.add('aggr_opticalSheetField osf')
             linkComplements.add('rel_answer_opticalSheetField_survey r')
-            complements.add(joinOfferOpticalSheetField)
-            complements.add(joinOpticalSheetFieldRel)
-            complements.add(joinRelAnswer)
+            joinComplements.add(joinOfferOpticalSheetField)
+            joinComplements.add(joinOpticalSheetFieldRel)
+            joinComplements.add(joinRelAnswer)
         for linkComplement in linkComplements:
             query += ', '
             query += linkComplement
-        for complement in complements:
+        for complement in joinComplements:
             queryComplement += complement
             queryComplement += ' and '
         queryComplement = queryComplement[:-5]
-        query += queryComplement + ' group by a.alternative'
-        print query
+        query += queryComplement + ' group by a.idAnswer'
+        mainQuery = 'select b.alternative, count(*) from (' + query + ') b group by b.alternative'
         answers = {}
-        searchData = cursor.execute(query)
+        searchData = cursor.execute(mainQuery)
         if searchData:
             for data in searchData:
                 answers[data[0]] = data[1]

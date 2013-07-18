@@ -133,14 +133,11 @@ class Datafile(object):
         """
         cursor = MySQLConnection()
         datafiles = []
-        datafileData = cursor.find('SELECT idDatafile, fileName FROM datafile', kwargs)
-        try:
-            for objectData in datafileData:
-                datafile = Datafile(objectData[1])
-                datafile.idDatafile = objectData[0]
-                datafiles.append(datafile)
-        except:
-            return []
+        datafileData = cursor.find('SELECT idDatafile, fileName FROM datafile ', kwargs)
+        for objectData in datafileData:
+            datafile = Datafile(objectData[1])
+            datafile.idDatafile = objectData[0]
+            datafiles.append(datafile)
         return datafiles
 
     def store(self):
@@ -151,12 +148,13 @@ class Datafile(object):
         @author
         """
         cursor = MySQLConnection()
-        if Datafile.find(fileName = self.fileName):
-            cursor.execute('UPDATE datafile SET fileName = '+ self.fileName + ' WHERE idDatafile = '+ str(self.idDatafile))
-        else: 
-            cursor.execute('INSERT INTO datafile (fileName) VALUES (' + self.fileName + ')')
-            self.idDatafile = Datafile.find(fileName = self.fileName)[0].idDatafile
-        cursor.commit()
+        if self.idDatafile is not None:
+            cursor.execute('UPDATE datafile SET fileName = "'+ self.fileName + '" WHERE idDatafile = '+ str(self.idDatafile))
+            cursor.commit()
+        else:
+            cursor.execute("INSERT INTO datafile (fileName) VALUES ('" + self.fileName + "')")
+            cursor.commit()
+            self.idDatafile = Datafile.find(fileName_equal = self.fileName)[0].idDatafile
 
     def delete(self):
         """
@@ -165,7 +163,14 @@ class Datafile(object):
         @return  :
         @author
         """
-        cursor = MySQLConnection()
-        cursor.execute('DELETE FROM datafile WHERE idDatafile = ' + str(self.idDatafile))
-        cursor.commit()
+        if self.idDatafile is not None:
+            if self == Datafile.pickById(self.idDatafile):
+                cursor = MySQLConnection()
+                cursor.execute('DELETE FROM datafile WHERE idDatafile = ' + str(self.idDatafile))
+                cursor.execute('DELETE FROM answer WHERE idDatafile = '+str(self.idDatafile))
+                cursor.commit()
+            else:
+                raise DatafileError("Can't delete non saved object.")
+        else:
+            raise DatafileError('idDatafile not defined.')
 

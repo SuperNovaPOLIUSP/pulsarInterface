@@ -171,11 +171,10 @@ class Questionnaire(object):
         @author
         """
         cursor = MySQLConnection()
-        query = 'select q.idQuestionnaire from questionnaire q, aggr_Survey s, aggr_opticalSheetField osf, aggr_offer o where q.idQuestionnaire = s.idQuestionnaire and s.idOpticalSheet = osf.idOpticalSheet and osf.idOffer = o.idOffer and o.idOffer = ' + str(idOffer)
+        query = 'select q.idQuestionnaire from questionnaire q, aggr_survey s, aggr_opticalSheetField osf, aggr_offer o where q.idQuestionnaire = s.idQuestionnaire and s.idOpticalSheet = osf.idOpticalSheet and osf.idOffer = o.idOffer and o.idOffer = ' + str(idOffer)
         questionnaire_list = []
         question_list = []
         try:
-            print query
             results = cursor.execute(query)
             if not results:
                 raise QuestionnaireError('Invalid idOffer to build Questionnaire')
@@ -225,7 +224,10 @@ class Questionnaire(object):
             if result:
                 questions = Questionnaire.getQuestionsById(idQuestionnaire)
                 questionnaire = Questionnaire(questions, result[0][0])
-                Questionnaire.creationDate = result[0][1].isoformat()
+                if result[0][1]:
+                    Questionnaire.creationDate = result[0][1].isoformat()
+                else:
+                    Questionnaire.creationDate = '0000-00-00'
                 questionnaire.idQuestionnaire = idQuestionnaire
                 return questionnaire
             else:
@@ -267,8 +269,7 @@ class Questionnaire(object):
             idQuestionnaire = questionnaireData[0]
             questionnaire = Questionnaire(Questionnaire.getQuestionsById(idQuestionnaire), questionnaireData[1])
             questionnaire.idQuestionnaire = idQuestionnaire
-            if questionnaireData[2]:
-                questionnaire.creationDate = questionnaireData[2].isoformat()
+            questionnaire.creationDate = questionnaireData[2].isoformat()
             questionnaires.append(questionnaire)
         return questionnaires
 
@@ -313,7 +314,7 @@ class Questionnaire(object):
         idQuestionnaire = str(self.idQuestionnaire)
         query = 'delete from questionnaire where idQuestionnaire = ' + idQuestionnaire
         query_rel = 'delete from rel_question_questionnaire where idQuestionnaire = ' + idQuestionnaire
-        query_rel2 = 'delete from aggr_Survey where idQuestionnaire = ' + idQuestionnaire
+        query_rel2 = 'delete from aggr_survey where idQuestionnaire = ' + idQuestionnaire
         cursor.execute(query_rel)
         cursor.execute(query_rel2)
         cursor.execute(query)

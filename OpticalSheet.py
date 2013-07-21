@@ -1,7 +1,7 @@
 #coding: utf8
-#from Questionario import *
-from OpticalSheetColumn import *
-#from Curriculum import *
+from Survey import *
+from OpticalSheetField import *
+from Cycle import *
 
 class OpticalSheetError(Exception):
     """
@@ -30,24 +30,26 @@ class OpticalSheet (object):
 
     idOpticalSheet  (public)
 
-     A string specifying the type of survey that will be used:
-     e = Encoded
-     n = not encoded
+    A string specifying the type of survey that will be used as is defined by minitableSurveyType.
 
     surveyType  (public)
 
-     List of dictionaries in the form [{"term" : termOfTheCurriculum, "curriculum" :
-     curriculumObject },{...].
+    Id related to surveyType, as defined in the minitableSurveyType.
 
-    curricula  (public)
+    idSurveyType  (public)
 
-     List of questionnaires associated to this Optical Sheet.
+     List of dictionaries in the form [{"term" : termOfTheCycle, "cycle" :
+     cycleObject },{...].
 
-    questionnaires  (public)
+    cycles  (public)
 
-     A list of OpticalSheetColumn objects.
+     List of surveys associated to this Optical Sheet.
 
-    columns  (public)
+    surveys  (public)
+
+     A list of OpticalSheetField objects.
+
+    fields  (public)
 
     """
 
@@ -55,67 +57,89 @@ class OpticalSheet (object):
         """
          
 
-        @param string surveyType : A string specifying the type of survey that will be used:
-e = Encoded
-n = not encoded
+        @param string surveyType : A string specifying the type of survey that will be used as is defined by minitableSurveyType.
         @return  :
         @author
         """
-        if surveyType != 'e' and surveyType != 'n':
-            raise OpticalSheetError('Parameter surveyType must be "e" or "n"')
+        if not isinstance(surveyType, (str, unicode)):
+            raise OpticalSheetError('Parameter surveyType must be a string')
+        else:
+            cursor = MySQLConnection()
+            try:
+                idSurveyType = cursor.execute('SELECT idSurveyType FROM minitableSurveyType WHERE typeName = "' + surveyType + '"')[0]
+            except:
+                raise OpticalSheetError('Parameter surveyType must be a defined in the minitableSurveyType')
+
+        self.idSurveyType = idSurveyType
         self.surveyType = surveyType
         self.idOpticalSheet = None
-        self.curricula = []
-        self.questionnaires = []
-        self.columns = [] 
+        self.cycles = []
+        self.surveys = []
+        self.fields = [] 
 
-    def addQuestionnaire(self, questionnaire):
+    def addSurvey(self, questionnaire, assessmentNumber):
         """
-         Add a questionnaire to the questionnaires list. In case there is already a
-         questionnaire belonging to the same assessment, or if it is not possible to add
-         the questionnaire for any other reason, returns False.
+         Creates and adds a survey to the surveys list with the parameters passed. In
+         case there is already a servey belonging to the same assessment, or if it is not
+         possible to add the survey for any other reason, returns False.
 
-        @param Questionario questionnaire : Questionnaire to be associated to this Optical Sheet.
+        @param undef questionnaire : Questionnaire to be associated to this Optical Sheet.
+        @param undef assessmentNumber : if it is the first, the second, etc. assessment process made in this time period.
         @return  :
         @author
         """
-        pass
+        if self.idOpticalSheet == None:
+            raise OpticalSheetError('idOpticalSheet parameter must be defined in order to add surveys')
+        if not isinstance(questionnaire, Questionnaire) or not Questionnaire.pickById(questionnaire.idQuestionnaire) == questionnaire:
+            raise OpticalSheetError('Parameter questionnaire must be a Questionnaire objects that exists in the database.')
+        for survey in self.surveys:
+            if survey.assessmentNumber == assessmentNumber:
+                raise OpticalSheetError("There can't be more than one survey with the same assessment number in one opticalSheet.")
+        self.surveys.append(Survey(self.idOpticalSheet, questionnaire, assessmentNumber))
+        
 
-    def removeQuestionnaire(self, questionnaire):
+    def removeSurvey(self, assessmentNumber):
         """
-         Removes the questionnaire from the list (questionnaires) and returns False if it
-         does not work.
+         Removes the survey from the list (surveys) with this assessmentNumber and
+         returns False if it does not work.
 
-        @param Questionario questionnaire : 
-        @return bool :
+        @param undef assessmentNumber : if it is the first, the second, etc. assessment process made in this time period.
+        @return undef :
         @author
         """
-        pass
+        if not isinstance(assessmentNumber,(int, long)):
+            raise OpticalSheetError("Parameter assessmentNumber must be int or long")
+        self.surveys = [survey for survey in surveys if survey.assessmentNumber != assessmentNumber]
 
-    def addOpticalSheetColumn(self, offers, index):
+    def addOpticalSheetField(self, offers, index, encoded):
         """
-         Adds an OpticalSheetColumn relating the set of offers to the code or courseIndex
+         Adds an OpticalSheetField relating the set of offers to the code or courseIndex
          in this opticalSheet.
 
-        @param Oferecimento[] offers : List of offers to be appended to this Optical Sheet.
+        @param Offer[] offers : List of offers to be appended to this Optical Sheet.
         @param int index : Index/code of the offers to be appended.
+        @param bool encoded : List of offers to be appended to this Optical Sheet.
         @return  :
         @author
         """
-        #first check if all offers are ok
+        if self.idOpticalSheet == None:
+            raise OpticalSheetError('idOpticalSheet parameter must be defined in order to add offers')
         for offer in offers:
+            #Check if is a valid Offer object
             if not isinstance(offer,Offer) or not Offer.pickById(offer.idOffer) == offer:
                 raise OpticalSheetError('Parameter offers must be a list of Offer object that exists in the database.')
-            opticalSheetColumn = OpticalSheetColumn(offer)
-            if self.surveyType == "e":
-                opticalSheetColumn.setCode(index)
+            #Create an OpticalSheetColumn for this offer and this index
+            opticalSheetField = OpticalSheetColumn(self.idOpticalSheet, offer)
+            if encoded:
+                opticalSheetField.setCode(index)
             else:
-                opticalSheetColumn.setCourseIndex(index)
-            self.columns.append(opticalSheetColumn)
+                opticalSheetField.setCourseIndex(index)
+            self.fields.append(opticalSheetField)
 
-    def removeOpticalSheetColumn(self, index):
+
+    def removeOpticalSheetField(self, index):
         """
-         Removes an OpticalSheetColumn with the selected index in this opticalSheet.
+         Removes an OpticalSheetField with the selected index in this opticalSheet.
 
         @param int index : Index/code of the offers to be removed.
         @return  :
@@ -123,39 +147,64 @@ n = not encoded
         """
         if not isinstance(index,(int, long)):
             raise OpticalSheetError("Parameter index must be int or long")
-        columns = [column for column in columns if column.code != index and column.courseIndex != index]
+        self.fields = [field for field in fields if field.code != index and field.courseIndex != index]
 
-    def addCurriculum_Term(self, curriculum, term):
+    def addCycle_Term(self, cycle, term):
         """
-         Adds a curriculum's term to the Optical  Sheet.
+         Adds a cycle's term to the Optical  Sheet.
 
-        @param Curriculo curriculum : Curriculum to be associated to this Optical Sheet
-        @param int term : Term of the curriculum to be appended to this Optical Sheet.
+        @param Curriculo cycle : Cycle to be associated to this Optical Sheet
+        @param int term : Term of the cycle to be appended to this Optical Sheet.
         @return  :
         @author
         """
-        if not isinstance(curriculum,Curriculum) or not curriculum == Curriculum.pickById(curriculum.idCurriculum):
-            raise OpticalSheetError('Parameter curriculum must be a Curriculum object that exists in the database.')
+        if not isinstance(cycle,Cycle) or not cycle == Cycle.pickById(cycle.idCycle):
+            raise OpticalSheetError('Parameter cycle must be a Cycle object that exists in the database.')
         if not isinstance(term,(int,long)):
             raise OpticalSheetError('Parameter term must be a long or an int')
-        curricula.append({'curriculum':curriculum, 'term':term})
+        cycles.append({'cycle':cycle, 'term':term})
 
-    def removeCurriculum_Term(self, curriculum, term):
+    def removeCycle_Term(self, cycle, term):
         """
-         Removes a curriculum's term from this Optical Sheet.
+         Removes a cycle's term from this Optical Sheet.
 
-        @param Curriculo curriculum : Curriculum to be associated to this Optical Sheet
-        @param int term : Term of the curriculum to be appended to this Optical Sheet.
+        @param Curriculo cycle : Cycle to be associated to this Optical Sheet
+        @param int term : Term of the cycle to be appended to this Optical Sheet.
         @return  :
         @author
         """
-        if not isinstance(curriculum,Curriculum) or not curriculum == Curriculum.pickById(curriculum.idCurriculum):
-            raise OpticalSheetError('Parameter curriculum must be a Curriculum object that exists in the database.')
+        if not isinstance(cycle,Cycle) or not cycle == Cycle.pickById(cycle.idCycle):
+            raise OpticalSheetError('Parameter cycle must be a Cycle object that exists in the database.')
         if not isinstance(term,(int,long)):
             raise OpticalSheetError('Parameter term must be a long or an int')
-        curricula.remove({'curriculum':curriculum,'term':term}) 
+        cycle.remove({'cycle':cycle,'term':term}) 
 
-    def pickById(self, idOpticalSheet):
+
+    def fillCycles(self):
+        cursor = MySQLConnection()
+        cyclesData = cursor.execute('SELECT idCycle, term FROM rel_cycle_opticalSheet WHERE idOPticalSheet = ' + str(self.idOpticalSheet))
+        for cycleData in cyclesData:
+            self.cycles.append({'cycle':Cycle.pickById(cycleData[0]), 'term':cycleData[1]})
+
+    def fillOpticalSheetFields(self):
+        cursor = MySQLConnection()
+        fieldsData = cursor.execute('SELECT idOpticalSheetField FROM aggr_opticalSheetField WHERE idOpticalSheet = ' + str(self.idOpticalSheet))
+        for fieldData in fieldsData:
+            self.fields.append(OpticalSheetField.pickById(fieldData[0]))
+
+    def fillSurveys(self):
+        cursor = MySQLConnection()
+        surveysData = cursor.execute('SELECT idSurvey FROM aggr_survey WHERE aggr_survey.idOpticalSheet = ' + str(self.idOpticalSheet))
+        assessmentNumbers = []
+        for surveyData in surveysData:
+            survey = Survey.pickById(surveyData[0])
+            if survey.assessmentNumber in assessmentNumbers:
+                raise OpticalSheetError("There can't be more than one survey with the same assessment number in one opticalSheet.")
+            assessmentNumbers.append(survey.assessmentNumber)
+            self.surveys.append(survey)
+
+    @staticmethod
+    def pickById(idOpticalSheet):
         """
          Returns one complete Optical Sheet object where its ID is equal to the chosen.
 
@@ -163,27 +212,22 @@ n = not encoded
         @return OpticalSheet :
         @author
         """
-        pass
+        cursor = MySQLConnection()
+        opticalSheetData = cursor.execute('SELECT minitableSurveyType.typeName FROM opticalSheet JOIN minitableSurveyType ON minitableSurveyType.idSurveyType = opticalSheet.idSurveyType WHERE opticalSheet.idOpticalSheet = ' + str(idOpticalSheet))
+        if len(opticalSheetData) == 0:
+            return None
+        else:
+            opticalSheetData = opticalSheetData[0]
+        opticalSheet = OpticalSheet(opticalSheetData[0])
+        opticalSheet.idOpticalSheet = idOpticalSheet
+        opticalSheet.fillSurveys()
+        opticalSheet.fillCycles()
+        #opticalSheet.fillOpticalSheetFields() #it takes a long to do it
+        return opticalSheet
+        
 
-    def store(self):
-        """
-         Saves the information in the database. Returns True if it is successful.
-
-        @return bool :
-        @author
-        """
-        pass
-
-    def delete(self):
-        """
-         Deletes the information in the database. Returns True if it is successful.
-
-        @return bool :
-        @author
-        """
-        pass
-
-    def find(self, _kwargs):
+    @staticmethod
+    def find(**kwargs):
         """
          Searches the database to find one or more objects that fit the description
          specified by the method's parameters. It is possible to perform two kinds of
@@ -198,15 +242,65 @@ n = not encoded
          folowing parameters:
          > idOpticalSheet
          > surveyType
-         > curricula
+         > cycles
+         > term
          > questionnaires
+         > offers
          The parameters must be identified by their names when the method is called, and
          those which are strings must be followed by "_like" or by "_equal", in order to
          determine the kind of search to be done.
-         E. g. OpticalSheet.find(surveyType_like = "n", curricula =
-         listOfCurriculumObjects)
+         E. g. OpticalSheet.find(surveyType_like = "n", cycles = listOfCycleObjects)
 
-        @param {} _kwargs : Dictionary of arguments to be used as parameters for the search.
+        @param undef _kwargs : Dictionary of arguments to be used as parameters for the search.
+        @return  :
+        @author
+        """
+        cursor = MySQLConnection()
+        parameters = {}
+        complement = ''
+        for key in kwargs:
+            if key == 'surveyType_equal':
+                parameters['minitableSurveyType.typeName_equal'] = kwargs[key]
+            elif key == 'surveyType_like':
+                parameters['minitableSurveyType.typeName_like'] = kwargs[key]
+            elif key == 'term':
+                complement = ' JOIN rel_cycle_opticalSheet ON rel_cycle_opticalSheet.idOpticalSheet = opticalSheet.idOpticalSheet'
+                parameters['rel_cycle_opticalSheet.term'] = kwargs[key]
+            elif key == 'cycles':
+                complement = ' JOIN rel_cycle_opticalSheet ON rel_cycle_opticalSheet.idOpticalSheet = opticalSheet.idOpticalSheet'
+                parameters['rel_cycle_opticalSheet.idCycle'] = [cycle.idCycle for cycle in kwargs[key]]
+            elif key == 'questionnaires':
+                complement = ' JOIN aggr_survey ON aggr_survey.idOpticalSheet = opticalSheet.idOpticalSheet'
+                parameters['aggr_survey.idQuestionnaire'] = [questionnaire.idQuestionnaire for questionnaire in kwargs[key]]
+            elif key == 'offers':
+                complement = ' JOIN aggr_opticalSheetField ON aggr_opticalSheetField.idOpticalSheet = opticalSheet.idOpticalSheet'
+                parameters['aggr_opticalSheetField.idOffer'] = [offer.idOffer for offer in kwargs[key]]
+            else:
+                parameters['opticalSheet.' + key] = kwargs[key]
+        opticalSheetsData = cursor.find('SELECT opticalSheet.idOpticalSheet, minitableSurveyType.typeName FROM opticalSheet JOIN minitableSurveyType ON minitableSurveyType.idSurveyType = opticalSheet.idSurveyType' + complement, parameters, ' GROUP BY opticalSheet.idOpticalSheet')
+        opticalSheets = []
+        for opticalSheetData in opticalSheetsData:
+            opticalSheet = OpticalSheet(opticalSheetData[1])
+            opticalSheet.idOpticalSheet = opticalSheetData[0]
+            opticalSheet.fillSurveys()
+            opticalSheet.fillCycles()
+            opticalSheets.append(opticalSheet)
+        return opticalSheets
+           
+
+    def store(self):
+        """
+         Saves the information in the database.
+
+        @return  :
+        @author
+        """
+        pass
+
+    def delete(self):
+        """
+         Deletes the information in the database.
+
         @return  :
         @author
         """

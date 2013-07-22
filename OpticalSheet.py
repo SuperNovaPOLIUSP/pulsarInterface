@@ -75,7 +75,7 @@ class OpticalSheet (object):
         self.idOpticalSheet = None
         self.cycles = []
         self.surveys = []
-        self.fields = [] 
+        self.fields = []
 
     def addSurvey(self, questionnaire, assessmentNumber):
         """
@@ -246,10 +246,11 @@ class OpticalSheet (object):
          > term
          > questionnaires
          > offers
+         > timePeriod
          The parameters must be identified by their names when the method is called, and
          those which are strings must be followed by "_like" or by "_equal", in order to
          determine the kind of search to be done.
-         E. g. OpticalSheet.find(surveyType_like = "n", cycles = listOfCycleObjects)
+         E. g. OpticalSheet.find(surveyType_like = "n", cycles = listOfCycleObjects, timePeriod = TimePeriodObject)
 
         @param undef _kwargs : Dictionary of arguments to be used as parameters for the search.
         @return  :
@@ -275,6 +276,9 @@ class OpticalSheet (object):
             elif key == 'offers':
                 complement = ' JOIN aggr_opticalSheetField ON aggr_opticalSheetField.idOpticalSheet = opticalSheet.idOpticalSheet'
                 parameters['aggr_opticalSheetField.idOffer'] = [offer.idOffer for offer in kwargs[key]]
+            elif key == 'timePeriod':
+                complement = ' JOIN aggr_opticalSheetField ON aggr_opticalSheetField.idOpticalSheet = opticalSheet.idOpticalSheet JOIN aggr_offer ON aggr_offer.idOffer = aggr_opticalSheetField.idOffer'
+                parameters['aggr_offer.idTimePeriod'] = kwargs[key].idTimePeriod
             else:
                 parameters['opticalSheet.' + key] = kwargs[key]
         opticalSheetsData = cursor.find('SELECT opticalSheet.idOpticalSheet, minitableSurveyType.typeName FROM opticalSheet JOIN minitableSurveyType ON minitableSurveyType.idSurveyType = opticalSheet.idSurveyType' + complement, parameters, ' GROUP BY opticalSheet.idOpticalSheet')
@@ -295,7 +299,13 @@ class OpticalSheet (object):
         @return  :
         @author
         """
-        pass
+        if self.idOpticalSheet == None:
+            if len(self.fields) != 0 and len(self.cycles) != 0:  #In order to find out if this opticalSheet is already stored cycles and fields are needed
+                opticalSheets = []
+                for cycle in cycles:
+                    opticalSheets = opticalSheets + OpticalSheet.find()
+                
+                
 
     def delete(self):
         """

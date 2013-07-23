@@ -292,22 +292,26 @@ class OpticalSheet (object):
             elif key == 'surveyType_like':
                 parameters['minitableSurveyType.typeName_like'] = kwargs[key]
             elif key == 'term':
-                complement = ' JOIN rel_cycle_opticalSheet ON rel_cycle_opticalSheet.idOpticalSheet = opticalSheet.idOpticalSheet'
+                if not 'cycles' in kwargs.keys():
+                    complement = complement + ' JOIN rel_cycle_opticalSheet ON rel_cycle_opticalSheet.idOpticalSheet = opticalSheet.idOpticalSheet'
                 parameters['rel_cycle_opticalSheet.term'] = kwargs[key]
             elif key == 'cycles':
-                complement = ' JOIN rel_cycle_opticalSheet ON rel_cycle_opticalSheet.idOpticalSheet = opticalSheet.idOpticalSheet'
+                complement = complement + ' JOIN rel_cycle_opticalSheet ON rel_cycle_opticalSheet.idOpticalSheet = opticalSheet.idOpticalSheet'
                 parameters['rel_cycle_opticalSheet.idCycle'] = [cycle.idCycle for cycle in kwargs[key]]
             elif key == 'questionnaires':
-                complement = ' JOIN aggr_survey ON aggr_survey.idOpticalSheet = opticalSheet.idOpticalSheet'
+                complement = complement + ' JOIN aggr_survey ON aggr_survey.idOpticalSheet = opticalSheet.idOpticalSheet'
                 parameters['aggr_survey.idQuestionnaire'] = [questionnaire.idQuestionnaire for questionnaire in kwargs[key]]
             elif key == 'offers':
-                complement = ' JOIN aggr_opticalSheetField ON aggr_opticalSheetField.idOpticalSheet = opticalSheet.idOpticalSheet'
+                complement = complement + ' JOIN aggr_opticalSheetField ON aggr_opticalSheetField.idOpticalSheet = opticalSheet.idOpticalSheet'
                 parameters['aggr_opticalSheetField.idOffer'] = [offer.idOffer for offer in kwargs[key]]
             elif key == 'timePeriod':
-                complement = ' JOIN aggr_opticalSheetField ON aggr_opticalSheetField.idOpticalSheet = opticalSheet.idOpticalSheet JOIN aggr_offer ON aggr_offer.idOffer = aggr_opticalSheetField.idOffer'
+                if not 'offers' in kwargs.keys():
+                    complement = complement + ' JOIN aggr_opticalSheetField ON aggr_opticalSheetField.idOpticalSheet = opticalSheet.idOpticalSheet JOIN aggr_offer ON aggr_offer.idOffer = aggr_opticalSheetField.idOffer'
+                else:
+                    complement = complement + ' JOIN aggr_offer ON aggr_offer.idOffer = aggr_opticalSheetField.idOffer'
                 parameters['aggr_offer.idTimePeriod'] = kwargs[key].idTimePeriod
             elif key == 'name_like' or key == 'name_equal':
-                complement = ' JOIN encoding ON encoding.idOpticalSheet = opticalSheet.idOpticalSheet'
+                complement = complement + ' JOIN encoding ON encoding.idOpticalSheet = opticalSheet.idOpticalSheet'
                 parameters['encoding.' + key] = kwargs[key] 
             else:
                 parameters['opticalSheet.' + key] = kwargs[key]

@@ -66,16 +66,37 @@ class OpticalSheet (object):
         else:
             cursor = MySQLConnection()
             try:
-                idSurveyType = cursor.execute('SELECT idSurveyType FROM minitableSurveyType WHERE typeName = "' + surveyType + '"')[0]
+                idSurveyType = cursor.execute('SELECT idSurveyType FROM minitableSurveyType WHERE typeName = "' + surveyType + '"')[0][0]
             except:
                 raise OpticalSheetError('Parameter surveyType must be a defined in the minitableSurveyType')
-
         self.idSurveyType = idSurveyType
         self.surveyType = surveyType
         self.idOpticalSheet = None
         self.cycles = []
         self.surveys = []
-        self.fields = []
+        self.fields = None
+        self.name = None
+
+    def __eq__(self, other):
+        if not isinstance(other, OpticalSheet):
+            return False
+        return self.__dict__ == other.__dict__
+  
+    def __ne__(self,other):
+        return not self.__eq__(other)
+
+    
+
+    def setName(self, name):
+        """
+         Set the opticalSheet's name, needed if the opticalSheet is encoded.
+        @param str name : OpticalSheet's name
+        @return :
+        @author
+        """
+        if not isinstance(name, (str, unicode)):
+            raise OpticalSheetError('Name must be string or unicode.')
+        self.name = name
 
     def addSurvey(self, questionnaire, assessmentNumber):
         """
@@ -109,7 +130,7 @@ class OpticalSheet (object):
         """
         if not isinstance(assessmentNumber,(int, long)):
             raise OpticalSheetError("Parameter assessmentNumber must be int or long")
-        self.surveys = [survey for survey in surveys if survey.assessmentNumber != assessmentNumber]
+        self.surveys = [survey for survey in self.surveys if survey.assessmentNumber != assessmentNumber]
 
     def addOpticalSheetField(self, offers, index, encoded):
         """
@@ -124,12 +145,14 @@ class OpticalSheet (object):
         """
         if self.idOpticalSheet == None:
             raise OpticalSheetError('idOpticalSheet parameter must be defined in order to add offers')
+        if self.fields == None:
+            self.fields = []
         for offer in offers:
             #Check if is a valid Offer object
             if not isinstance(offer,Offer) or not Offer.pickById(offer.idOffer) == offer:
                 raise OpticalSheetError('Parameter offers must be a list of Offer object that exists in the database.')
             #Create an OpticalSheetColumn for this offer and this index
-            opticalSheetField = OpticalSheetColumn(self.idOpticalSheet, offer)
+            opticalSheetField = OpticalSheetField(self.idOpticalSheet, offer)
             if encoded:
                 opticalSheetField.setCode(index)
             else:
@@ -147,7 +170,7 @@ class OpticalSheet (object):
         """
         if not isinstance(index,(int, long)):
             raise OpticalSheetError("Parameter index must be int or long")
-        self.fields = [field for field in fields if field.code != index and field.courseIndex != index]
+        self.fields = [field for field in self.fields if field.code != index and field.courseIndex != index]
 
     def addCycle_Term(self, cycle, term):
         """
@@ -162,7 +185,7 @@ class OpticalSheet (object):
             raise OpticalSheetError('Parameter cycle must be a Cycle object that exists in the database.')
         if not isinstance(term,(int,long)):
             raise OpticalSheetError('Parameter term must be a long or an int')
-        cycles.append({'cycle':cycle, 'term':term})
+        self.cycles.append({'cycle':cycle, 'term':term})
 
     def removeCycle_Term(self, cycle, term):
         """
@@ -177,23 +200,26 @@ class OpticalSheet (object):
             raise OpticalSheetError('Parameter cycle must be a Cycle object that exists in the database.')
         if not isinstance(term,(int,long)):
             raise OpticalSheetError('Parameter term must be a long or an int')
-        cycle.remove({'cycle':cycle,'term':term}) 
+        self.cycles.remove({'cycle':cycle,'term':term}) 
 
 
     def fillCycles(self):
         cursor = MySQLConnection()
+        self.cycles = []
         cyclesData = cursor.execute('SELECT idCycle, term FROM rel_cycle_opticalSheet WHERE idOPticalSheet = ' + str(self.idOpticalSheet))
         for cycleData in cyclesData:
             self.cycles.append({'cycle':Cycle.pickById(cycleData[0]), 'term':cycleData[1]})
 
     def fillOpticalSheetFields(self):
         cursor = MySQLConnection()
+        self.fields = []
         fieldsData = cursor.execute('SELECT idOpticalSheetField FROM aggr_opticalSheetField WHERE idOpticalSheet = ' + str(self.idOpticalSheet))
         for fieldData in fieldsData:
             self.fields.append(OpticalSheetField.pickById(fieldData[0]))
 
     def fillSurveys(self):
         cursor = MySQLConnection()
+        self.surveys = []
         surveysData = cursor.execute('SELECT idSurvey FROM aggr_survey WHERE aggr_survey.idOpticalSheet = ' + str(self.idOpticalSheet))
         assessmentNumbers = []
         for surveyData in surveysData:
@@ -247,6 +273,7 @@ class OpticalSheet (object):
          > questionnaires
          > offers
          > timePeriod
+         > name
          The parameters must be identified by their names when the method is called, and
          those which are strings must be followed by "_like" or by "_equal", in order to
          determine the kind of search to be done.
@@ -279,6 +306,9 @@ class OpticalSheet (object):
             elif key == 'timePeriod':
                 complement = ' JOIN aggr_opticalSheetField ON aggr_opticalSheetField.idOpticalSheet = opticalSheet.idOpticalSheet JOIN aggr_offer ON aggr_offer.idOffer = aggr_opticalSheetField.idOffer'
                 parameters['aggr_offer.idTimePeriod'] = kwargs[key].idTimePeriod
+            elif key == 'name_like' or key == 'name_equal':
+                complement = ' JOIN encoding ON encoding.idOpticalSheet = opticalSheet.idOpticalSheet'
+                parameters['encoding.' + key] = kwargs[key] 
             else:
                 parameters['opticalSheet.' + key] = kwargs[key]
         opticalSheetsData = cursor.find('SELECT opticalSheet.idOpticalSheet, minitableSurveyType.typeName FROM opticalSheet JOIN minitableSurveyType ON minitableSurveyType.idSurveyType = opticalSheet.idSurveyType' + complement, parameters, ' GROUP BY opticalSheet.idOpticalSheet')
@@ -290,6 +320,25 @@ class OpticalSheet (object):
             opticalSheet.fillCycles()
             opticalSheets.append(opticalSheet)
         return opticalSheets
+
+    def storeDatafile(self, datafile):
+        """
+         Store a Datafile object along with its anwsers, and return the answers that
+         couldn't be stored.
+ 
+        @param answer.Datafile datafile : Datafile to be stored (including its answers) to this opticalSheet.
+        @return answer.Answer[] :
+        @author
+        """
+        cursor = MySQLConnection()
+        #First find the last used id
+        lastId = cursor.execute('SELECT * FROM answer ORDER BY idAnswer DESC LIMIT 1;')[0][0]
+        query1 = 'INSERT INTO answer(idAnswer, questionIndex, idDatafile, alternative, identifier) VALUES'
+        query2 = 'INSERT INTO rel_answer_opticalSheetField_survey(idAnswer, idOpticalSheetField, idSurvey) VALUES '
+        for answer in datafile.answers:
+            query1 = query1 + '(' + str(idAnswer) + ' ,' + str(old[2]) + ', ' + str(old[3]) + ', "' + old[4] + '", ' + str(old[5]) + '), '
+            query2temp  = query2temp + '(' + str(idAnswer) + ', ' + str(idOpticalSheetField) + ' ,' + str(idSurvey) + '), '
+ 
            
 
     def store(self):
@@ -299,13 +348,46 @@ class OpticalSheet (object):
         @return  :
         @author
         """
+        cursor = MySQLConnection()
         if self.idOpticalSheet == None:
-            if len(self.fields) != 0 and len(self.cycles) != 0:  #In order to find out if this opticalSheet is already stored cycles and fields are needed
-                opticalSheets = []
-                for cycle in cycles:
-                    opticalSheets = opticalSheets + OpticalSheet.find()
-                
-                
+            cursor.execute('INSERT INTO opticalSheet (idSurveyType) VALUES (' + str(self.idSurveyType) + ')') 
+            self.idOpticalSheet = cursor.execute('SELECT LAST_INSERT_ID()')[0][0]
+        else:
+            if len(cursor.execute('SELECT * FROM rel_answer_opticalSheetField_survey JOIN aggr_opticalSheetField ON aggr_opticalSheetField.idOpticalSheetField = rel_answer_opticalSheetField_survey.idOpticalSheetField WHERE aggr_opticalSheetField.idOpticalSheet = ' + str(self.idOpticalSheet))) > 0:
+                raise OpticalSheetError("YOU CAN'T ALTER AN OPTICALSHEET WITH ANSWERS!!!!!")
+        #NOW Update cycles relation
+        cursor.execute('DELETE FROM rel_cycle_opticalSheet WHERE idOpticalSheet = ' + str(self.idOpticalSheet)) #Delete all the old ones
+        for cycle in self.cycles:
+            cursor.execute('INSERT INTO rel_cycle_opticalSheet (idOpticalSheet, idCycle, term) VALUES (' + str(self.idOpticalSheet) + ', ' + str(cycle['cycle'].idCycle) + ', ' + str(cycle['term']) + ')')
+        cursor.commit()
+        for survey in self.surveys:
+            newSurveys = self.surveys
+            self.fillSurveys() #to find the old surveys
+            oldSurveys = self.surveys
+            #now compare them
+            if oldSurveys != newSurveys:
+                surveysToRemove = [oldSurvey for oldSurvey in oldSurveys if oldSurvey not in newSurveys]
+                surveysToAdd = [newSurvey for newSurvey in newSurveys if newSurvey not in oldSurveys]
+                for survey in surveysToRemove:
+                    survey.delete()
+                for survey in surveysToAdd:
+                    survey.store()
+            #now put it back
+            self.surveys = newSurveys
+        #NOW Update the fields
+        if self.fields != None:
+            newFields = self.fields
+            self.fillOpticalSheetFields() #First find the old fields
+            if self.fields != newFields:
+                fieldsToRemove = [oldField for oldField in self.fields if oldField not in newFields] #Find the fields that don't belong to the new list
+                fieldsToAdd = [newField for newField in newFields if newField not in self.fields] #Find the fields that don't belong to the old list
+                for field in fieldsToRemove:
+                    field.delete()
+                for field in fieldsToAdd:
+                    field.store()
+            self.fields = newFields
+
+
 
     def delete(self):
         """
@@ -314,7 +396,19 @@ class OpticalSheet (object):
         @return  :
         @author
         """
-        pass
-
-
+        if self.idOpticalSheet != None:
+            cursor = MySQLConnection()
+            tempOpticalSheet = OpticalSheet.pickById(self.idOpticalSheet)
+            if self.fields != None:
+                tempOpticalSheet.fillOpticalSheetFields()
+            if self == tempOpticalSheet:
+                cursor.execute('DELETE FROM rel_cycle_opticalSheet WHERE idOpticalSheet = ' + str(self.idOpticalSheet))
+                cursor.execute('DELETE FROM aggr_opticalSheetField WHERE idOpticalSheet = ' + str(self.idOpticalSheet))
+                cursor.execute('DELETE FROM aggr_survey WHERE idOpticalSheet = ' + str(self.idOpticalSheet))
+                cursor.execute('DELETE FROM opticalSheet WHERE idOpticalSheet = ' + str(self.idOpticalSheet))
+                cursor.commit()
+            else:
+                raise OpticalSheetError("Can't delete non saved object.")
+        else:
+            raise OpticalSheetError('No idOpticalSheet defined.')
 

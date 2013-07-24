@@ -92,9 +92,12 @@ class Question(object):
         """
         #Checked, is OK        
         cursor = MySQLConnection()
-        questionData = cursor.execute("""SELECT idQuestion, questionWording, idAnswerType FROM question WHERE idQuestion = """ + str(idQuestion))[0]
-        question = Question(questionData[1], AnswerType.pickById(questionData[2]))
-        question.idQuestion = questionData[0]
+        question = None
+        questionData = cursor.execute("""SELECT idQuestion, questionWording, idAnswerType FROM question WHERE idQuestion = """ + str(idQuestion))
+        if questionData:
+            questionData = questionData[0]
+            question = Question(questionData[1], AnswerType.pickById(questionData[2]))
+            question.idQuestion = questionData[0]
         return question
 
     def setQuestionWording(self, newQuestionWording):
@@ -179,13 +182,18 @@ class Question(object):
                 #No, let's create it
                 query = """INSERT INTO question (idAnswerType, questionWording) VALUES ("""
                 query += str(self.answerType.idAnswerType) + """, '""" +self.questionWording +"""')"""
+                cursor.execute(query)
+                cursor.commit()
+                questionInBank = Question.find(questionWording_equal = self.questionWording, category_equal = self.answerType.name)[0]
+                self.idQuestion = questionInBank.idQuestion
+                return
         #Execute query
         cursor.execute(query)
         cursor.commit()
         return
         
 
-    def remove(self):
+    def delete(self):
         """
          removes object from database. Returns "true" if succeeds
          
@@ -196,7 +204,7 @@ class Question(object):
         @author
         """
         
-        if self.idQuestion != None:
+        if self.idQuestion is not None:
             cursor = MySQLConnection()
             if self == Question.pickById(self.idQuestion):
                 cursor.execute("""DELETE FROM question WHERE idQuestion = """ + str(self.idQuestion))

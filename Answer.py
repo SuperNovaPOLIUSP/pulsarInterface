@@ -95,7 +95,7 @@ class Answer(object):
             raise AnswerError('Must provide a valid idDatafile')
         self.idDatafile = idDatafile
 
-    def setCode(self):
+    def setCode(self, code):
         """
          Set the code for the course assessed, it should only be used if the OpticalSheet
          is coded.
@@ -103,15 +103,11 @@ class Answer(object):
         @return  :
         @author
         """
-        cursor = MySQLConnection()
-        query = 'select code from answer a, rel_answer_opticalSheetField_survey ra, aggr_opticalSheetField ao where a.idAnswer = ra.idAnswer and ra.idOpticalSheetField = ao.idOpticalSheetField and a.idAnswer = ' + str(self.idAnswer)
-        codeData = cursor.execute(query)
-        if codeData:
-            self.code = codeData[0][0]
-        else:
-            raise AnswerError("Couldn't find a code to this Answer")
+        if not code or not isinstance(code, (int, long)):
+            raise AnswerError('Must provide a valid code')
+        self.code = code
 
-    def setCourseIndex(self):
+    def setCourseIndex(self, courseIndex):
         """
          Set the courseIndex for the course assessed, it should only be used if the
          OpticalSheet is not coded.
@@ -119,13 +115,9 @@ class Answer(object):
         @return  :
         @author
         """
-        cursor = MySQLConnection()
-        query = 'select courseIndex from answer a, rel_answer_opticalSheetField_survey ra, aggr_opticalSheetField ao where a.idAnswer = ra.idAnswer and ra.idOpticalSheetField = ao.idOpticalSheetField and a.idAnswer = ' + str(self.idAnswer)
-        indexData = cursor.execute(query)
-        if indexData:
-            self.curseIndex = indexData[0][0]
-        else:
-            raise AnswerError("Couldn't find a course index to this Answer")
+        if not courseIndex or not isinstance(courseIndex, (int, long)):
+            raise AnswerError('Must provide a valid courseIndex')
+        self.curseIndex = courseIndex
         
     @staticmethod
     def countAnswers(**kwargs):

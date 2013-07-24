@@ -75,7 +75,7 @@ class OpticalSheet (object):
         self.cycles = []
         self.surveys = []
         self.fields = None
-        self.name = None
+        self.encodingName = None
 
     def __eq__(self, other):
         if not isinstance(other, OpticalSheet):
@@ -87,16 +87,16 @@ class OpticalSheet (object):
 
     
 
-    def setName(self, name):
+    def setEncodingName(self, encodingName):
         """
-         Set the opticalSheet's name, needed if the opticalSheet is encoded.
-        @param str name : OpticalSheet's name
+         Set the opticalSheet's encoding name, this defines the opticalSheet as encoded.
+        @param str encodingName : OpticalSheet's encoding name
         @return :
         @author
         """
-        if not isinstance(name, (str, unicode)):
-            raise OpticalSheetError('Name must be string or unicode.')
-        self.name = name
+        if not isinstance(encodingName, (str, unicode)):
+            raise OpticalSheetError('EncodingName must be string or unicode.')
+        self.encodingName = encodingName
 
     def addSurvey(self, questionnaire, assessmentNumber):
         """
@@ -132,14 +132,12 @@ class OpticalSheet (object):
             raise OpticalSheetError("Parameter assessmentNumber must be int or long")
         self.surveys = [survey for survey in self.surveys if survey.assessmentNumber != assessmentNumber]
 
-    def addOpticalSheetField(self, offers, index, encoded):
+    def addOpticalSheetField(self, offers, index):
         """
-         Adds an OpticalSheetField relating the set of offers to the code or courseIndex
-         in this opticalSheet.
+         Adds an OpticalSheetField relating the set of offers to thisopticalSheet, if this opticalSheet encodingName is None the offer is added in courseIndex, if the encodingName is defined, the offer is added in code
 
         @param Offer[] offers : List of offers to be appended to this Optical Sheet.
         @param int index : Index/code of the offers to be appended.
-        @param bool encoded : List of offers to be appended to this Optical Sheet.
         @return  :
         @author
         """
@@ -153,7 +151,7 @@ class OpticalSheet (object):
                 raise OpticalSheetError('Parameter offers must be a list of Offer object that exists in the database.')
             #Create an OpticalSheetColumn for this offer and this index
             opticalSheetField = OpticalSheetField(self.idOpticalSheet, offer)
-            if encoded:
+            if self.encodingName != None:
                 opticalSheetField.setCode(index)
             else:
                 opticalSheetField.setCourseIndex(index)
@@ -249,6 +247,9 @@ class OpticalSheet (object):
         opticalSheet.fillSurveys()
         opticalSheet.fillCycles()
         #opticalSheet.fillOpticalSheetFields() #it takes a long to do it
+        encodedData = cursor.execute('SELECT * FROM encoding WHERE idOpticalSheet = ' + str(idOpticalSheet))
+        if len(encodedData) > 0:
+            opticalSheet.setEncodingName(encodedData[0][0])
         return opticalSheet
         
 
@@ -273,7 +274,7 @@ class OpticalSheet (object):
          > questionnaires
          > offers
          > timePeriod
-         > name
+         > encodingName
          The parameters must be identified by their names when the method is called, and
          those which are strings must be followed by "_like" or by "_equal", in order to
          determine the kind of search to be done.
@@ -310,9 +311,9 @@ class OpticalSheet (object):
                 else:
                     complement = complement + ' JOIN aggr_offer ON aggr_offer.idOffer = aggr_opticalSheetField.idOffer'
                 parameters['aggr_offer.idTimePeriod'] = kwargs[key].idTimePeriod
-            elif key == 'name_like' or key == 'name_equal':
+            elif key == 'encodingName_like' or key == 'encodingName_equal':
                 complement = complement + ' JOIN encoding ON encoding.idOpticalSheet = opticalSheet.idOpticalSheet'
-                parameters['encoding.' + key] = kwargs[key] 
+                parameters['encoding.name_' + key.split('_')[1]] = kwargs[key] 
             else:
                 parameters['opticalSheet.' + key] = kwargs[key]
         opticalSheetsData = cursor.find('SELECT opticalSheet.idOpticalSheet, minitableSurveyType.typeName FROM opticalSheet JOIN minitableSurveyType ON minitableSurveyType.idSurveyType = opticalSheet.idSurveyType' + complement, parameters, ' GROUP BY opticalSheet.idOpticalSheet')
@@ -322,10 +323,13 @@ class OpticalSheet (object):
             opticalSheet.idOpticalSheet = opticalSheetData[0]
             opticalSheet.fillSurveys()
             opticalSheet.fillCycles()
+            encodedData = cursor.execute('SELECT name FROM encoding WHERE idOpticalSheet = ' + str(opticalSheet.idOpticalSheet))
+            if len(encodedData) > 0:
+                opticalSheet.setEncodingName(encodedData[0][0])
             opticalSheets.append(opticalSheet)
         return opticalSheets
 
-    def storeDatafile(self, datafile):
+    def storeDatafile(self, datafile, assessmentNumber):
         """
          Store a Datafile object along with its anwsers, and return the answers that
          couldn't be stored.
@@ -335,13 +339,25 @@ class OpticalSheet (object):
         @author
         """
         cursor = MySQLConnection()
+        if self.idOpticalSheet == None:
+            OpticalSheetError("You can't save a datafile in an non saved OpticalSheet")
+        thisSurvey = None
+        for survey in self.surveys:
+            if survey.assessmentNumber == assessmentNumber:
+                thisSurvey = survey
+                break
+        if thisSurvey == None:
+            OpticalSheetError("This chosen assessmentNumber doesn't exist")
+        #if self.fiels[0].code == None:
         #First find the last used id
         lastId = cursor.execute('SELECT * FROM answer ORDER BY idAnswer DESC LIMIT 1;')[0][0]
         query1 = 'INSERT INTO answer(idAnswer, questionIndex, idDatafile, alternative, identifier) VALUES'
         query2 = 'INSERT INTO rel_answer_opticalSheetField_survey(idAnswer, idOpticalSheetField, idSurvey) VALUES '
+        datafile.store()
         for answer in datafile.answers:
-            query1 = query1 + '(' + str(idAnswer) + ' ,' + str(old[2]) + ', ' + str(old[3]) + ', "' + old[4] + '", ' + str(old[5]) + '), '
-            query2temp  = query2temp + '(' + str(idAnswer) + ', ' + str(idOpticalSheetField) + ' ,' + str(idSurvey) + '), '
+            lastId = lastId + 1
+            query1 = query1 + '(' + str(lastId) + ' ,' + str(answer.questionIndex) + ', ' + str(datafile.idDatafile) + ', "' + answer.alternative + '", ' + str(answer.identifier) + '), '
+            query2  = query2 + '(' + str(idAnswer) + ', ' + str(idOpticalSheetField) + ' ,' + str(idSurvey) + '), '
  
            
 
@@ -363,6 +379,9 @@ class OpticalSheet (object):
         cursor.execute('DELETE FROM rel_cycle_opticalSheet WHERE idOpticalSheet = ' + str(self.idOpticalSheet)) #Delete all the old ones
         for cycle in self.cycles:
             cursor.execute('INSERT INTO rel_cycle_opticalSheet (idOpticalSheet, idCycle, term) VALUES (' + str(self.idOpticalSheet) + ', ' + str(cycle['cycle'].idCycle) + ', ' + str(cycle['term']) + ')')
+        if self.encodingName != None:
+            cursor.execute('DELETE FROM encoding WHERE idOpticalSheet = ' + str(self.idOpticalSheet))
+            cursor.execute('INSERT INTO encoding VALUES (idOpticalSheet, name) VALUES (' + str(self.idOpticalSheet) + ', ' + self.encodingName + ')')
         cursor.commit()
         for survey in self.surveys:
             newSurveys = self.surveys
@@ -410,6 +429,7 @@ class OpticalSheet (object):
                 cursor.execute('DELETE FROM aggr_opticalSheetField WHERE idOpticalSheet = ' + str(self.idOpticalSheet))
                 cursor.execute('DELETE FROM aggr_survey WHERE idOpticalSheet = ' + str(self.idOpticalSheet))
                 cursor.execute('DELETE FROM opticalSheet WHERE idOpticalSheet = ' + str(self.idOpticalSheet))
+                cursor.execute('DELETE FROM encoding WHERE idOpticalSheet = ' + str(self.idOpticalSheet))
                 cursor.commit()
             else:
                 raise OpticalSheetError("Can't delete non saved object.")

@@ -1,4 +1,8 @@
-from Question import *
+from pulsarInterface.Question import *
+from pulsarInterface.Course import *
+from pulsarInterface.Offer import *
+from pulsarInterface.Cycle import *
+from pulsarInterface.Professor import *
 
 class AnswerError(Exception):
     """
@@ -54,7 +58,7 @@ class Answer(object):
 
     """
 
-    def __init__(self, question, alternative, identifier):
+    def __init__(self, questionIndex, alternative, identifier):
         """
         @param Question question : Question to which the answer has been given.
         @param char alternative : The alternative corresponding to a multiple choice question answer. Its values must be:
@@ -64,13 +68,13 @@ class Answer(object):
         @author
         """
         validAlternatives = ['A', 'B', 'C', 'D', 'E', 'X']
-        if not question or not isinstance(question, Question):
-            raise AnswerError('Must provide a valid question')
-        if not alternative or not isinstance(alternative, (str,unicode)) or len(alternative) > 1 or alternative not in validAlternatives:
+        if not isinstance(questionIndex, (int, long)):
+            raise AnswerError('Parameter questionIndex must be an int or long')
+        if not alternative or not isinstance(alternative, (str, unicode)) or alternative not in validAlternatives:
             raise AnswerError('Must provide a valid alternative')
-        if not identifier or not isinstance(identifier, (int,long)):
+        if not identifier or not isinstance(identifier, (int, long)):
             raise AnswerError('Must provide a valid identifier')
-        self.question = question
+        self.questionIndex = questionIndex
         self.alternative = alternative
         self.identifier = identifier
         self.idAnswer = None
@@ -91,7 +95,7 @@ class Answer(object):
             raise AnswerError('Must provide a valid idDatafile')
         self.idDatafile = idDatafile
 
-    def setCode(self):
+    def setCode(self, code):
         """
          Set the code for the course assessed, it should only be used if the OpticalSheet
          is coded.
@@ -99,15 +103,11 @@ class Answer(object):
         @return  :
         @author
         """
-        cursor = MySQLConnection()
-        query = 'select code from answer a, rel_answer_opticalSheetField_survey ra, aggr_opticalSheetField ao where a.idAnswer = ra.idAnswer and ra.idOpticalSheetField = ao.idOpticalSheetField and a.idAnswer = ' + str(self.idAnswer)
-        codeData = cursor.execute(query)
-        if codeData:
-            self.code = codeData[0][0]
-        else:
-            raise AnswerError("Couldn't find a code to this Answer")
+        if not code or not isinstance(code, (int, long)):
+            raise AnswerError('Must provide a valid code')
+        self.code = code
 
-    def setCourseIndex(self):
+    def setCourseIndex(self, courseIndex):
         """
          Set the courseIndex for the course assessed, it should only be used if the
          OpticalSheet is not coded.
@@ -115,13 +115,9 @@ class Answer(object):
         @return  :
         @author
         """
-        cursor = MySQLConnection()
-        query = 'select courseIndex from answer a, rel_answer_opticalSheetField_survey ra, aggr_opticalSheetField ao where a.idAnswer = ra.idAnswer and ra.idOpticalSheetField = ao.idOpticalSheetField and a.idAnswer = ' + str(self.idAnswer)
-        indexData = cursor.execute(query)
-        if indexData:
-            self.curseIndex = indexData[0][0]
-        else:
-            raise AnswerError("Couldn't find a course index to this Answer")
+        if not courseIndex or not isinstance(courseIndex, (int, long)):
+            raise AnswerError('Must provide a valid courseIndex')
+        self.curseIndex = courseIndex
         
     @staticmethod
     def countAnswers(**kwargs):
@@ -140,8 +136,8 @@ class Answer(object):
          > timePeriod
          > cycle
          > course
-         > offer_byClass
-         > offer_byProfessor
+         > classNumber
+         > professor
          
          E. g. Answer.countAnswers(question = questionObject, timePeriod =
          timePeriodObject, course = courseObject)
@@ -151,57 +147,82 @@ class Answer(object):
         @author
         """
         cursor = MySQLConnection()
-        query = 'select a.alternative, count(a.alternative) from answer a'
-        queryComplement = ' where '
-        offerBranchFlag = False
-        andFlag = False
+        #query = 'select a.alternative, count(a.alternative) from answer a'
+        #queryComplement = ' where '
+        #linkComplements = set([])
+        #joinComplements = set([])
+        #offerBranchFlag = False
+        #linkOffer = 'aggr_offer o'
+        #joinOpticalSheetOpticalSheetField = 'os.idOpticalSheet = osf.idOpticalSheet'
+        #joinOfferOpticalSheet = 'rco.idOpticalSheet = os.idOpticalSheet'
+        #joinOfferOpticalSheetField = 'o.idOffer = osf.idOffer'
+        #joinOpticalSheetFieldRel = 'osf.idOpticalSheetField = r.idOpticalSheetField'
+        #joinRelAnswer = 'r.idAnswer = a.idAnswer'
+        #if 'question' in kwargs:
+        #    linkComplements.add('question q')
+        #    joinComplements.add(' a.idQuestion = q.idQuestion and q.idQuestion = ' + str(kwargs['question'].idQuestion))
+        #if 'timePeriod' in kwargs:
+        #    linkComplements.add('timePeriod tp')
+        #    linkComplements.add(linkOffer)
+        #    joinComplements.add(' tp.idTimePeriod = o.idTimePeriod and tp.idTimePeriod = ' + str(kwargs['timePeriod'].idTimePeriod))
+        #    offerBranchFlag = True
+        #if 'cycle' in kwargs:
+        #    linkComplements.add('cycle c')
+        #    linkComplements.add('rel_cycle_opticalSheet rco')
+        #    linkComplements.add('opticalSheet os')
+        #    linkComplements.add('rel_answer_opticalSheetField_survey r')
+        #    linkComplements.add('aggr_opticalSheetField osf')
+        #    joinComplements.add(' c.idCycle = rco.idCycle and c.idCycle = ' + str(kwargs['cycle'].idCycle))
+        #    joinComplements.add(joinOfferOpticalSheet)
+        #    joinComplements.add(joinOpticalSheetOpticalSheetField)
+        #    joinComplements.add(joinOpticalSheetFieldRel)
+        #    joinComplements.add(joinRelAnswer)
+        #if 'course' in kwargs:
+        #    linkComplements.add('course co')
+        #    linkComplements.add(linkOffer)
+        #    joinComplements.add(' co.idCourse = o.idCourse and co.idCourse = ' + str(kwargs['course'].idCourse))
+        #    offerBranchFlag = True
+        #if 'offer_byClass' in kwargs:
+        #    linkComplements.add(linkOffer)
+        #    joinComplements.add(' o.classNumber = ' + str(kwargs['offer_byClass']))
+        #    offerBranchFlag = True
+        #if 'offer_byProfessor' in kwargs:
+        #    linkComplements.add(linkOffer)
+        #    joinComplements.add(' o.idProfessor = ' + str(kwargs['offer_byProfessor']))
+        #    offerBranchFlag = True
+        #if offerBranchFlag:
+        #    linkComplements.add('aggr_opticalSheetField osf')
+        #    linkComplements.add('rel_answer_opticalSheetField_survey r')
+        #    joinComplements.add(joinOfferOpticalSheetField)
+        #    joinComplements.add(joinOpticalSheetFieldRel)
+        #    joinComplements.add(joinRelAnswer)
+        #for linkComplement in linkComplements:
+        #    query += ', '
+        #    query += linkComplement
+        #for complement in joinComplements:
+        #    queryComplement += complement
+        #    queryComplement += ' and '
+        #queryComplement = queryComplement[:-5]
+        #query += queryComplement + ' group by a.idAnswer'
+        parameters = ''
+        if 'question' in kwargs.keys():
+            parameters = parameters + ' rel_question_questionnaire.idQuestion = ' + str(kwargs['question'].idQuestion) + ' AND'
+        if 'timePeriod' in kwargs.keys():
+            parameters = parameters + ' aggr_offer.idTimePeriod = ' + str(kwargs['timePeriod'].idTimePeriod) + ' AND'
+        if 'cycle' in kwargs.keys():
+            parameters = parameters + ' rel_cycle_opticalSheet.idCycle = ' + str(kwargs['cycle'].idCycle) + ' AND'
+        if 'course' in kwargs.keys():
+            parameters = parameters + ' aggr_offer.idCourse = ' + str(kwargs['course'].idCourse) + ' AND'
+        if 'professor' in kwargs.keys():
+            parameters = parameters + ' aggr_offer.idProfessor = ' + str(kwargs['professor'].idProfessor) + ' AND'
+        if 'classNumber' in kwargs.keys():
+            parameters = parameters + ' aggr_offer.classNumber = ' + str(kwargs['classNumber']) + ' AND'
+        if parameters != '':
+            parameters = parameters[:-4]
+        query = 'SELECT answer.alternative FROM answer JOIN rel_answer_opticalSheetField_survey ON rel_answer_opticalSheetField_survey.idAnswer = answer.idAnswer JOIN aggr_opticalSheetField ON aggr_opticalSheetField.idOpticalSheetField = rel_answer_opticalSheetField_survey.idOpticalSheetField JOIN aggr_offer ON aggr_offer.idOffer = aggr_opticalSheetField.idOffer  JOIN aggr_survey ON aggr_survey.idSurvey = rel_answer_opticalSheetField_survey.idSurvey JOIN rel_question_questionnaire ON aggr_survey.idQuestionnaire = rel_question_questionnaire.idQuestionnaire AND rel_question_questionnaire.questionIndex = answer.questionIndex JOIN rel_cycle_opticalSheet ON rel_cycle_opticalSheet.idOpticalSheet = aggr_opticalSheetField.idOpticalSheet WHERE '+parameters+' GROUP BY answer.idAnswer'
+        mainQuery = 'select b.alternative, count(*) from (' + query + ') b group by b.alternative'
         answers = {}
-        for key in kwargs:
-            if key == 'question':
-                query += ', question q'
-                queryComplement += ' a.idQuestion = q.idQuestion and q.idQuestion = ' + str(kwargs[key].idQuestion)
-                andFlag = True
-            elif key == 'timePeriod':
-                query += ', timePeriod tp, aggr_offer o'
-                if andFlag:
-                    queryComplement += ' and '
-                queryComplement += ' tp.idTimePeriod = o.idTimePeriod and tp.idTimePeriod = ' + str(kwargs[key].idTimePeriod)
-                offerBranchFlag = True
-                andFlag = True
-            elif key == 'cycle':
-                query += ', cycle c, rel_cycle_opticalSheet rco, opticalSheet o, aggr_opticalSheetField osf, rel_answer_opticalSheetField_survey r'
-                if andFlag:
-                    queryComplement += ' and '
-                queryComplement += ' c.idCycle = rco.idCycle and c.idCycle = ' + str(kwargs[key].idCycle) + ' and rco.idOpticalSheet = o.idOpticalSheet and o.idOpticalSheet = osf.idOpticalSheet and osf.idOpticalSheetField = r.idOpticalSheetField and r.idAnswer = a.idAnswer'
-                andFlag = True
-            elif key == 'course':
-                query += ', course co, aggr_offer o'
-                if andFlag:
-                    queryComplement += ' and '
-                queryComplement += ' co.idCourse = o.idCourse and co.idCourse = ' + str(kwargs[key].idCourse)
-                offerBranchFlag = True
-                andFlag = True
-            elif key == 'offer_byClass':
-                query += ', aggr_offer o'
-                if andFlag:
-                    queryComplement += ' and '
-                queryComplement += ' o.classNumber = ' + str(kwargs[key])
-                offerBranchFlag = True
-                andFlag = True
-            elif key == 'offer_byProfessor':
-                query += ', aggr_offer o'
-                if andFlag:
-                    queryComplement += ' and '
-                queryComplement += ' o.idProfessor = ' + str(kwargs[key])
-                offerBranchFlag = True
-                andFlag = True
-        if offerBranchFlag:
-            query += ', aggr_opticalSheetField osf, rel_answer_opticalSheetField_survey r'
-            if andFlag:
-                queryComplement += ' and '
-            queryComplement += ' o.idOffer = osf.idOffer and osf.idOpticalSheetField = r.idOpticalSheetField and r.idAnswer = a.idAnswer '
-        query += queryComplement + ' group by a.alternative'
-        searchData = cursor.execute(query)
+        searchData = cursor.execute(mainQuery)
         if searchData:
             for data in searchData:
                 answers[data[0]] = data[1]
@@ -217,18 +238,16 @@ class Answer(object):
         @author
         """
         cursor = MySQLConnection()
-        query = 'select idQuestion, idDatafile, alternative, identifier from answer where idAnswer = ' + str(idAnswer)
+        query = 'SELECT questionIndex, idDatafile, alternative, identifier FROM answer WHERE idAnswer = ' + str(idAnswer)
         searchData = cursor.execute(query)
         if searchData:
-            question = Question.pickById(searchData[0][0])
+            questionIndex = searchData[0][0]
             idDatafile = searchData[0][1]
             alternative = searchData[0][2]
             identifier = searchData[0][3]
-            answer = Answer(question, alternative, identifier)
+            answer = Answer(questionIndex, alternative, identifier)
             answer.idAnswer = idAnswer
             answer.setIdDatafile(idDatafile)
-            answer.setCode()
-            answer.setCourseIndex()
             return answer
         raise AnswerError('Answer not found')
 
@@ -245,6 +264,7 @@ class Answer(object):
          folowing parameters:
          > idAnswer
          > question
+         > questionIndex
          > idDataFile
          > alternative
          > identifier
@@ -257,25 +277,28 @@ class Answer(object):
         """
         cursor = MySQLConnection()
         answers = []
+        complement = ''
         if 'question' in kwargs:
             kwargs['idQuestion'] = kwargs['question'].idQuestion
+            complement = ' JOIN rel_answer_opticalSheetField_survey ON rel_answer_opticalSheetField_survey.idAnswer = answer.idAnswer JOIN aggr_survey ON aggr_survey.idSurvey = rel_answer_opticalSheetField_survey.idSurvey JOIN rel_question_questionnaire ON rel_question_questionnaire.idQuestionnaire = aggr_survey.idQuestionnaire'
             del(kwargs['question'])
         if 'alternative' in kwargs:
             alt = kwargs['alternative']
             del(kwargs['alternative'])
             kwargs['alternative_equal'] = alt
-        query = 'select idAnswer, idQuestion, idDatafile, alternative, identifier from answer '
+        if 'idAnswer' in kwargs:
+            kwargs['answer.idAnswer'] = kwargs['idAnswer']
+            del(kwargs['idAnswer'])
+        query = 'SELECT answer.idAnswer, answer.questionIndex, idDatafile, alternative, identifier FROM answer ' + complement
         searchData = cursor.find(query, kwargs)
         if searchData:
             for answerData in searchData:
-                question = Question.pickById(answerData[1])
+                questionIndex = answerData[1]
                 alternative = answerData[3]
                 identifier = answerData[4]
                 idDatafile = answerData[2]
-                answer = Answer(question, alternative, identifier)
+                answer = Answer(questionIndex, alternative, identifier)
                 answer.idAnswer = answerData[0]
                 answer.setIdDatafile(idDatafile)
-                answer.setCode()
-                answer.setCourseIndex()
                 answers.append(answer)
         return answers

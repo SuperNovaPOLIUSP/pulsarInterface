@@ -2,6 +2,7 @@
 from Survey import *
 from OpticalSheetField import *
 from Cycle import *
+from Datafile import *
 
 class OpticalSheetError(Exception):
     """
@@ -214,6 +215,7 @@ class OpticalSheet (object):
         fieldsData = cursor.execute('SELECT idOpticalSheetField FROM aggr_opticalSheetField WHERE idOpticalSheet = ' + str(self.idOpticalSheet))
         for fieldData in fieldsData:
             self.fields.append(OpticalSheetField.pickById(fieldData[0]))
+        #self.fields = OpticalSheetField.find(idOpticalSheet = self.idOpticalSheet)
 
     def fillSurveys(self):
         cursor = MySQLConnection()
@@ -348,17 +350,37 @@ class OpticalSheet (object):
                 break
         if thisSurvey == None:
             OpticalSheetError("This chosen assessmentNumber doesn't exist")
-        #if self.fiels[0].code == None:
+        if self.fields == None:
+            self.fillOpticalSheetFields()
+            if self.fields == None:
+                OpticalSheetError("This opticalSheet doesn't have fields")
         #First find the last used id
         lastId = cursor.execute('SELECT * FROM answer ORDER BY idAnswer DESC LIMIT 1;')[0][0]
         query1 = 'INSERT INTO answer(idAnswer, questionIndex, idDatafile, alternative, identifier) VALUES'
         query2 = 'INSERT INTO rel_answer_opticalSheetField_survey(idAnswer, idOpticalSheetField, idSurvey) VALUES '
         datafile.store()
+        errors = []
         for answer in datafile.answers:
             lastId = lastId + 1
             query1 = query1 + '(' + str(lastId) + ' ,' + str(answer.questionIndex) + ', ' + str(datafile.idDatafile) + ', "' + answer.alternative + '", ' + str(answer.identifier) + '), '
-            query2  = query2 + '(' + str(idAnswer) + ', ' + str(idOpticalSheetField) + ' ,' + str(idSurvey) + '), '
- 
+            chosenFields = []
+            for field in self.fields:
+                if self.encodingName == None: #OpticalSheet is not encoded
+                    if field.courseIndex == answer.courseIndex and field.offer.classNumber == answer.code:
+                        chosenFields.append(field)
+                else:
+                    if field.code == answer.code:
+                        chosenFields.append(field)
+            if len(chosenFields) == 0:
+                errors.append(answer)
+            for chosenField in chosenFields:
+                query2  = query2 + '(' + str(lastId) + ', ' + str(chosenField.idOpticalSheetField) + ' ,' + str(thisSurvey.idSurvey) + '), '
+        query2 = query2[:-2]
+        query1 = query1[:-2]
+        cursor.execute(query1)
+        cursor.execute(query2)
+        cursor.commit()
+        return errors
            
 
     def store(self):

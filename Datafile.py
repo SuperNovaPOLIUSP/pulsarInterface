@@ -164,10 +164,12 @@ class Datafile(object):
         @author
         """
         if self.idDatafile is not None:
+            self.answers = []
             if self == Datafile.pickById(self.idDatafile):
                 cursor = MySQLConnection()
-                cursor.execute('DELETE FROM datafile WHERE idDatafile = ' + str(self.idDatafile))
+                cursor.execute('DELETE FROM rel_answer_opticalSheetField_survey WHERE idAnswer in (SELECT idAnswer FROM answer WHERE idDatafile = ' + str(self.idDatafile) + ')')
                 cursor.execute('DELETE FROM answer WHERE idDatafile = '+str(self.idDatafile))
+                cursor.execute('DELETE FROM datafile WHERE idDatafile = ' + str(self.idDatafile))
                 cursor.commit()
             else:
                 raise DatafileError("Can't delete non saved object.")

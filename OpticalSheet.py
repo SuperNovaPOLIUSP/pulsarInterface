@@ -52,6 +52,10 @@ class OpticalSheet (object):
 
     fields  (public)
 
+     The name of the encoding in the opticalSheet, it defines the opticalSheet as encoded
+    
+    encodingName (public)
+
     """
 
     def __init__(self, surveyType):
@@ -210,12 +214,7 @@ class OpticalSheet (object):
             self.cycles.append({'cycle':Cycle.pickById(cycleData[0]), 'term':cycleData[1]})
 
     def fillOpticalSheetFields(self):
-        cursor = MySQLConnection()
-        self.fields = []
-        fieldsData = cursor.execute('SELECT idOpticalSheetField FROM aggr_opticalSheetField WHERE idOpticalSheet = ' + str(self.idOpticalSheet))
-        for fieldData in fieldsData:
-            self.fields.append(OpticalSheetField.pickById(fieldData[0]))
-        #self.fields = OpticalSheetField.find(idOpticalSheet = self.idOpticalSheet)
+       self.fields = OpticalSheetField.find(idOpticalSheet = self.idOpticalSheet)
 
     def fillSurveys(self):
         cursor = MySQLConnection()
@@ -358,10 +357,13 @@ class OpticalSheet (object):
         lastId = cursor.execute('SELECT * FROM answer ORDER BY idAnswer DESC LIMIT 1;')[0][0]
         query1 = 'INSERT INTO answer(idAnswer, questionIndex, idDatafile, alternative, identifier) VALUES'
         query2 = 'INSERT INTO rel_answer_opticalSheetField_survey(idAnswer, idOpticalSheetField, idSurvey) VALUES '
+        query1Check = False
+        query2Check = False
         datafile.store()
         errors = []
         for answer in datafile.answers:
             lastId = lastId + 1
+            query1Check = True
             query1 = query1 + '(' + str(lastId) + ' ,' + str(answer.questionIndex) + ', ' + str(datafile.idDatafile) + ', "' + answer.alternative + '", ' + str(answer.identifier) + '), '
             chosenFields = []
             for field in self.fields:
@@ -374,11 +376,14 @@ class OpticalSheet (object):
             if len(chosenFields) == 0:
                 errors.append(answer)
             for chosenField in chosenFields:
+                query2Check = True
                 query2  = query2 + '(' + str(lastId) + ', ' + str(chosenField.idOpticalSheetField) + ' ,' + str(thisSurvey.idSurvey) + '), '
         query2 = query2[:-2]
         query1 = query1[:-2]
-        cursor.execute(query1)
-        cursor.execute(query2)
+        if query1Check:
+            cursor.execute(query1)
+        if query2Check:
+            cursor.execute(query2)
         cursor.commit()
         return errors
            

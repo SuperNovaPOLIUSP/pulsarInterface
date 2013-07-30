@@ -3,6 +3,7 @@ from pulsarInterface.Course import *
 from pulsarInterface.Offer import *
 from pulsarInterface.Cycle import *
 from pulsarInterface.Professor import *
+from pulsarInterface.OpticalSheet import *
 
 class AnswerError(Exception):
     """
@@ -138,7 +139,7 @@ class Answer(object):
          > course
          > classNumber
          > professor
-         
+         > opticalSheet
          E. g. Answer.countAnswers(question = questionObject, timePeriod =
          timePeriodObject, course = courseObject)
 
@@ -217,6 +218,8 @@ class Answer(object):
             parameters = parameters + ' aggr_offer.idProfessor = ' + str(kwargs['professor'].idProfessor) + ' AND'
         if 'classNumber' in kwargs.keys():
             parameters = parameters + ' aggr_offer.classNumber = ' + str(kwargs['classNumber']) + ' AND'
+        if 'opticalSheet' in kwargs.keys():
+            parameters = parameters + ' aggr_opticalSheetField.idOpticalSheet = ' + str(kwargs['opticalSheet'].idOpticalSheet) + ' AND'
         if parameters != '':
             parameters = parameters[:-4]
         query = 'SELECT answer.alternative FROM answer JOIN rel_answer_opticalSheetField_survey ON rel_answer_opticalSheetField_survey.idAnswer = answer.idAnswer JOIN aggr_opticalSheetField ON aggr_opticalSheetField.idOpticalSheetField = rel_answer_opticalSheetField_survey.idOpticalSheetField JOIN aggr_offer ON aggr_offer.idOffer = aggr_opticalSheetField.idOffer  JOIN aggr_survey ON aggr_survey.idSurvey = rel_answer_opticalSheetField_survey.idSurvey JOIN rel_question_questionnaire ON aggr_survey.idQuestionnaire = rel_question_questionnaire.idQuestionnaire AND rel_question_questionnaire.questionIndex = answer.questionIndex JOIN rel_cycle_opticalSheet ON rel_cycle_opticalSheet.idOpticalSheet = aggr_opticalSheetField.idOpticalSheet WHERE '+parameters+' GROUP BY answer.idAnswer'

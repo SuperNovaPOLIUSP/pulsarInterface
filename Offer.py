@@ -161,8 +161,8 @@ class Offer(object):
     @staticmethod
     def offersName(setsOfOffers):
         """
-         Receives a list of list of offers and returns the name associated with each set of offers, in the same order as the given list.All offers must belong to the same course and timePeriod
-         E.g. Physics (P)[professor's name].
+         Receives a list of list of offers and returns the name associated with each set of offers, in the same order as the given list.All offers must belong to the same course and timePeriod. This method run multiples offerLists at once in order to improve efficiency in possibleNames method.
+         E.g. (P)[professor's name].
 
         @param Offer[][] setOfOffers : List of list of offers
         @return string[] :
@@ -192,7 +192,8 @@ class Offer(object):
                     professor = None
                 if practical != offer.practical:
                     practical = None
-            courseName = offers[0].course.name
+            #courseName = offers[0].course.name
+            courseName = ''
             #Now checks if there are other offers in this course that have diferent professors and practical from this set this check is the same for all setsOfOffer
             if otherOffers == None:
                 otherOffers = Offer.find(course = course, timePeriod = timePeriod)
@@ -219,9 +220,9 @@ class Offer(object):
     @staticmethod
     def possibleNames(offers):
         """
-         Returns a list of dicts in the form {name:specifyCourse(offers),offers:Offer[]},
-         where the offers is a subset of this courses offers, and the name is the name of
-         this subset. The list must contain all possible names for that set of offers.
+         Returns a list of dicts in the form {complement:offersComplement,offers:Offer[]},
+         where the offers is a subset of this courses offers, and the complement is the name of
+         this subset. The list contain all possible names for that set of offers.
     
         @return [] :
         @author
@@ -368,7 +369,22 @@ class Offer(object):
         offersData = cursor.find('SELECT aggr.idOffer, aggr.idTimePeriod, aggr.idCourse, aggr.classNumber, aggr.practical, aggr.idProfessor, aggr.numberOfRegistrations FROM aggr_offer aggr' + complement, parameters)
         offers = []
         for offerData in offersData:
-            offer = Offer(TimePeriod.pickById(offerData[1]), Course.pickById(offerData[2]), offerData[3], offerData[4], Professor.pickById(offerData[5]))
+            if 'timePeriod' in kwargs:
+                timePeriod = kwargs['timePeriod']    
+            else:
+                timePeriod = TimePeriod.pickById(offerData[1])
+
+            if 'course' in kwargs:
+                course = kwargs['course']
+            else:
+                course = Course.pickById(offerData[2])
+
+            if 'professor' in kwargs:
+                professor = kwargs['professor']
+            else:
+                professor = Professor.pickById(offerData[5])
+
+            offer = Offer(timePeriod, course, offerData[3], offerData[4], professor)
             offer.setNumberOfRegistrations(offerData[6])
             offer.idOffer = offerData[0]
             offer.fillSchedules()

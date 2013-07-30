@@ -57,7 +57,7 @@ class OpticalSheetField(object):
         if not isinstance(idOpticalSheet, (int, long)):
             raise OpticalSheetFieldError('Parameter idOpticalSheetField must be an int or long.')
 
-        if not isinstance(offer,Offer) or not Offer.pickById(offer.idOffer) == offer:
+        if not isinstance(offer,Offer) or offer.idOffer == None: #Comparison between offers objects is not made do to efficiency matters.
             raise OpticalSheetFieldError('Parameter offer must be an Offer object that exists in the database.')
 
         self.offer = offer

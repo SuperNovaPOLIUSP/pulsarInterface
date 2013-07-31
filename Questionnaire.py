@@ -300,7 +300,7 @@ class Questionnaire(object):
             insertRelQuestionQuery = 'insert into rel_question_questionnaire values ('
             for questionIndex in self.questions:
                 idQuestionnaire = str(self.idQuestionnaire)
-                idQuestion = str(self.questions[questionIndex])
+                idQuestion = str(self.questions[questionIndex].idQuestion)
                 relationAlreadyStored = cursor.execute('select * from rel_question_questionnaire where idQuestionnaire = ' + idQuestionnaire + ' and idQuestion = ' + idQuestion + ' and questionIndex = ' + str(questionIndex))
                 if not relationAlreadyStored:
                     insertRelQuestionQuery += idQuestionnaire + ', ' + idQuestion + ', ' + str(questionIndex) + ')'

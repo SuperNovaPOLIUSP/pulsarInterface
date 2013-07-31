@@ -184,7 +184,7 @@ class Course(object):
         """
         cursor = MySQLConnection()
         if self.endDate == None:
-            mySQLEndDate = 'NULL'  #in MySQL is NULL
+            mySQLEndDate = '"0000-00-00"'  #in MySQL is NULL
         else:
             mySQLEndDate = '"' + self.endDate + '"'
         if self.idCourse == None:

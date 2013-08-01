@@ -185,6 +185,7 @@ class Faculty(object):
          > name_equal or name_like
          > abbreviation_equal or abbreviation_like
          > campus_equal or campus_like
+         > courseCoordinations
          The parameters must be identified by their names when the method is called, and
          those which are strings must be followed by "_like" or by "_equal", in order to
          determine the kind of search to be done.

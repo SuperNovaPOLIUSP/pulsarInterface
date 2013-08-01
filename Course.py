@@ -218,8 +218,8 @@ class Course(object):
             cursor = MySQLConnection()
             if self == Course.pickById(self.idCourse):
                 cursor.execute('DELETE FROM course WHERE idCourse = ' + str(self.idCourse))
-                cursor.execute('DELETE FROM rel_course_curriculum WHERE idCourse = ' + str(self.idCourse))
-                cursor.execute('DELETE FROM rel_course_curriculum_course WHERE idCourse = ' + str(self.idCourse) + ' or idRequirement = ' + str(self.idCourse))        
+                cursor.execute('DELETE FROM rel_course_cycle WHERE idCourse = ' + str(self.idCourse))
+                cursor.execute('DELETE FROM rel_course_cycle_course WHERE idCourse = ' + str(self.idCourse) + ' or idRequirement = ' + str(self.idCourse))        
                 cursor.commit()
             else:
                 raise CourseError("Can't delete non saved object.")

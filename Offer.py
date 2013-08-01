@@ -168,7 +168,7 @@ class Offer(object):
         @return string[] :
         @author
         """
-        coursesName = []
+        complements = []
         otherOffers = None
          #course and timePeriod must be equal in all the offers.
         course = setsOfOffers[0][0].course
@@ -192,30 +192,43 @@ class Offer(object):
                     professor = None
                 if practical != offer.practical:
                     practical = None
-            #courseName = offers[0].course.name
-            courseName = ''
+            complement = ''
             #Now checks if there are other offers in this course that have diferent professors and practical from this set this check is the same for all setsOfOffer
             if otherOffers == None:
                 otherOffers = Offer.find(course = course, timePeriod = timePeriod)
-            otherProfessor = False
-            otherPractical = False
-            for otherOffer in otherOffers:
-                if professor != None:
-                    if not otherOffer.professor == professor:
-                        otherProfessor = True                    
-                if practical != None:
-                    if otherOffer.practical != practical:
-                        otherPractical = True
-            #Now creats the name
-            if otherProfessor:
-                courseName = courseName + '[' + professor.name + ']'
-            if otherPractical:
-                if practical == 1:
-                    courseName = courseName + '(P)'
+            if offers == otherOffers: #if they are all the offers there are no complement
+                complements.append('')
+            else:
+                otherProfessor = False
+                otherPractical = False
+                otherProfessorInPractical = False
+                for otherOffer in otherOffers:
+                    if professor != None:
+                        if not otherOffer.professor == professor:
+                            otherProfessor = True                    
+                    if practical != None:
+                        if otherOffer.practical != practical:
+                            otherPractical = True
+                    if professor != None and practical != None:
+                        if otherOffer.practical == practical and otherOffer.professor != professor:
+                            otherProfessorInPractical = True
+                if not otherProfessorInPractical:
+                    if otherPractical:
+                        if practical == 1:
+                            complement = complement + '(P)'
+                        else:
+                            complement = complement + '(T)'
                 else:
-                    courseName = courseName + '(T)'
-            coursesName.append(courseName) 
-        return coursesName
+                    #Now creats the name
+                    if otherProfessor:
+                        complement = complement + '[' + professor.name + ']'
+                    if otherPractical:
+                        if practical == 1:
+                            complement = complement + '(P)'
+                        else:
+                            complement = complement + '(T)'
+                complements.append(complement) 
+        return complements
 
     @staticmethod
     def possibleNames(offers):

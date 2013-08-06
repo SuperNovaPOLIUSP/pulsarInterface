@@ -30,7 +30,7 @@ class Offer(object):
 
      The database ID of the course related to this offer.
 
-    idCourse  (public)
+    course  (public)
 
      The professor responsible for this offer.
 

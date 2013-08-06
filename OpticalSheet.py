@@ -248,7 +248,7 @@ class OpticalSheet (object):
         opticalSheet.fillSurveys()
         opticalSheet.fillCycles()
         #opticalSheet.fillOpticalSheetFields() #it takes a long to do it
-        encodedData = cursor.execute('SELECT * FROM encoding WHERE idOpticalSheet = ' + str(idOpticalSheet))
+        encodedData = cursor.execute('SELECT name FROM encoding WHERE idOpticalSheet = ' + str(idOpticalSheet))
         if len(encodedData) > 0:
             opticalSheet.setEncodingName(encodedData[0][0])
         return opticalSheet

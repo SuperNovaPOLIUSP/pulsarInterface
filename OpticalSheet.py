@@ -408,7 +408,7 @@ class OpticalSheet (object):
             cursor.execute('INSERT INTO rel_cycle_opticalSheet (idOpticalSheet, idCycle, term) VALUES (' + str(self.idOpticalSheet) + ', ' + str(cycle['cycle'].idCycle) + ', ' + str(cycle['term']) + ')')
         if self.encodingName != None:
             cursor.execute('DELETE FROM encoding WHERE idOpticalSheet = ' + str(self.idOpticalSheet))
-            cursor.execute('INSERT INTO encoding VALUES (idOpticalSheet, name) VALUES (' + str(self.idOpticalSheet) + ', ' + self.encodingName + ')')
+            cursor.execute('INSERT INTO encoding (idOpticalSheet, name) VALUES (' + str(self.idOpticalSheet) + ', "' + self.encodingName + '")')
         cursor.commit()
         for survey in self.surveys:
             newSurveys = self.surveys

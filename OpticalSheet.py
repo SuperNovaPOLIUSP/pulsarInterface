@@ -406,7 +406,7 @@ class OpticalSheet (object):
                 cursor.execute('INSERT INTO rel_cycle_opticalSheet (idOpticalSheet, idCycle, term) VALUES (' + str(self.idOpticalSheet) + ', ' + str(cycle['cycle'].idCycle) + ', ' + str(cycle['term']) + ')')
             if self.encodingName != None:
                 cursor.execute('DELETE FROM encoding WHERE idOpticalSheet = ' + str(self.idOpticalSheet))
-                cursor.execute('INSERT INTO encoding VALUES (idOpticalSheet, name) VALUES (' + str(self.idOpticalSheet) + ', ' + self.encodingName + ')')
+                cursor.execute('INSERT INTO encoding (idOpticalSheet, name) VALUES (' + str(self.idOpticalSheet) + ', "' + self.encodingName + '")')
             cursor.commit()
             #NOW Update the fields
             if self.fields != None:
@@ -439,7 +439,7 @@ class OpticalSheet (object):
                     survey.store()
                     finalSurveys.append(survey) #If there are no answers put the new one
         #now put the real ones in the opticalSheet
-        self.surveys = finalSurveys
+            self.surveys = finalSurveys
 
 
     def delete(self):

@@ -399,44 +399,47 @@ class OpticalSheet (object):
         if self.idOpticalSheet == None:
             cursor.execute('INSERT INTO opticalSheet (idSurveyType) VALUES (' + str(self.idSurveyType) + ')') 
             self.idOpticalSheet = cursor.execute('SELECT LAST_INSERT_ID()')[0][0]
-        else:
-            if len(cursor.execute('SELECT * FROM rel_answer_opticalSheetField_survey JOIN aggr_opticalSheetField ON aggr_opticalSheetField.idOpticalSheetField = rel_answer_opticalSheetField_survey.idOpticalSheetField WHERE aggr_opticalSheetField.idOpticalSheet = ' + str(self.idOpticalSheet))) > 0:
-                raise OpticalSheetError("YOU CAN'T ALTER AN OPTICALSHEET WITH ANSWERS!!!!!")
-        #NOW Update cycles relation
-        cursor.execute('DELETE FROM rel_cycle_opticalSheet WHERE idOpticalSheet = ' + str(self.idOpticalSheet)) #Delete all the old ones
-        for cycle in self.cycles:
-            cursor.execute('INSERT INTO rel_cycle_opticalSheet (idOpticalSheet, idCycle, term) VALUES (' + str(self.idOpticalSheet) + ', ' + str(cycle['cycle'].idCycle) + ', ' + str(cycle['term']) + ')')
-        if self.encodingName != None:
-            cursor.execute('DELETE FROM encoding WHERE idOpticalSheet = ' + str(self.idOpticalSheet))
-            cursor.execute('INSERT INTO encoding (idOpticalSheet, name) VALUES (' + str(self.idOpticalSheet) + ', "' + self.encodingName + '")')
-        cursor.commit()
-        for survey in self.surveys:
-            newSurveys = self.surveys
-            self.fillSurveys() #to find the old surveys
-            oldSurveys = self.surveys
-            #now compare them
-            if oldSurveys != newSurveys:
-                surveysToRemove = [oldSurvey for oldSurvey in oldSurveys if oldSurvey not in newSurveys]
-                surveysToAdd = [newSurvey for newSurvey in newSurveys if newSurvey not in oldSurveys]
-                for survey in surveysToRemove:
-                    survey.delete()
-                for survey in surveysToAdd:
-                    survey.store()
-            #now put it back
-            self.surveys = newSurveys
-        #NOW Update the fields
-        if self.fields != None:
-            newFields = self.fields
-            self.fillOpticalSheetFields() #First find the old fields
-            if self.fields != newFields:
-                fieldsToRemove = [oldField for oldField in self.fields if oldField not in newFields] #Find the fields that don't belong to the new list
-                fieldsToAdd = [newField for newField in newFields if newField not in self.fields] #Find the fields that don't belong to the old list
-                for field in fieldsToRemove:
-                    field.delete()
-                for field in fieldsToAdd:
-                    field.store()
-            self.fields = newFields
+        if len(cursor.execute('SELECT * FROM rel_answer_opticalSheetField_survey JOIN aggr_opticalSheetField ON aggr_opticalSheetField.idOpticalSheetField = rel_answer_opticalSheetField_survey.idOpticalSheetField WHERE aggr_opticalSheetField.idOpticalSheet = ' + str(self.idOpticalSheet))) == 0:
+            #NOW Update cycles relation
+            cursor.execute('DELETE FROM rel_cycle_opticalSheet WHERE idOpticalSheet = ' + str(self.idOpticalSheet)) #Delete all the old ones
+            for cycle in self.cycles:
+                cursor.execute('INSERT INTO rel_cycle_opticalSheet (idOpticalSheet, idCycle, term) VALUES (' + str(self.idOpticalSheet) + ', ' + str(cycle['cycle'].idCycle) + ', ' + str(cycle['term']) + ')')
+            if self.encodingName != None:
+                cursor.execute('DELETE FROM encoding WHERE idOpticalSheet = ' + str(self.idOpticalSheet))
+                cursor.execute('INSERT INTO encoding VALUES (idOpticalSheet, name) VALUES (' + str(self.idOpticalSheet) + ', ' + self.encodingName + ')')
+            cursor.commit()
+            #NOW Update the fields
+            if self.fields != None:
+                newFields = self.fields
+                self.fillOpticalSheetFields() #First find the old fields
+                if self.fields != newFields:
+                    fieldsToRemove = [oldField for oldField in self.fields if oldField not in newFields] #Find the fields that don't belong to the new list
+                    fieldsToAdd = [newField for newField in newFields if newField not in self.fields] #Find the fields that don't belong to the old list
+                    for field in fieldsToRemove:
+                        field.delete()
+                    for field in fieldsToAdd:
+                        field.store()
+                self.fields = newFields
 
+        newSurveys = self.surveys
+        self.fillSurveys() #to find the old surveys
+        oldSurveys = self.surveys
+        #now compare them
+        if oldSurveys != newSurveys:
+            surveysToRemove = [oldSurvey for oldSurvey in oldSurveys if oldSurvey not in newSurveys]
+            surveysToAdd = [newSurvey for newSurvey in newSurveys if newSurvey not in oldSurveys]
+            finalSurveys = []
+            for survey in surveysToRemove:
+                if len(cursor.execute('SELECT * FROM rel_answer_opticalSheetField_survey JOIN aggr_survey ON aggr_survey.idSurvey = rel_answer_opticalSheetField_survey.idSurvey WHERE aggr_survey.idOpticalSheet = ' + str(self.idOpticalSheet) + ' AND aggr_survey.assessmentNumber = ' + str(survey.assessmentNumber))) == 0:
+                    survey.delete()
+                else:
+                    finalSurveys.append(survey) #If they have answers they won't be deleted
+            for survey in surveysToAdd:
+                if len(cursor.execute('SELECT * FROM rel_answer_opticalSheetField_survey JOIN aggr_survey ON aggr_survey.idSurvey = rel_answer_opticalSheetField_survey.idSurvey WHERE aggr_survey.idOpticalSheet = ' + str(self.idOpticalSheet) + ' AND aggr_survey.assessmentNumber = ' + str(survey.assessmentNumber))) == 0:
+                    survey.store()
+                    finalSurveys.append(survey) #If there are no answers put the new one
+        #now put the real ones in the opticalSheet
+        self.surveys = finalSurveys
 
 
     def delete(self):

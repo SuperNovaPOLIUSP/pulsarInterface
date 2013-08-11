@@ -227,7 +227,7 @@ class Answer(object):
             parameters = parameters[:-4]
         query = 'SELECT answer.alternative FROM answer JOIN rel_answer_opticalSheetField_survey ON rel_answer_opticalSheetField_survey.idAnswer = answer.idAnswer JOIN aggr_opticalSheetField ON aggr_opticalSheetField.idOpticalSheetField = rel_answer_opticalSheetField_survey.idOpticalSheetField JOIN aggr_offer ON aggr_offer.idOffer = aggr_opticalSheetField.idOffer  JOIN aggr_survey ON aggr_survey.idSurvey = rel_answer_opticalSheetField_survey.idSurvey JOIN rel_question_questionnaire ON aggr_survey.idQuestionnaire = rel_question_questionnaire.idQuestionnaire AND rel_question_questionnaire.questionIndex = answer.questionIndex JOIN rel_cycle_opticalSheet ON rel_cycle_opticalSheet.idOpticalSheet = aggr_opticalSheetField.idOpticalSheet WHERE '+parameters+' GROUP BY answer.idAnswer'
         mainQuery = 'select b.alternative, count(*) from (' + query + ') b group by b.alternative'
-        answers = {}
+        answers = {'A' : 0, 'B' : 0, 'C' : 0, 'D' : 0, 'E' : 0, 'X' : 0}
         searchData = cursor.execute(mainQuery)
         if searchData:
             for data in searchData:

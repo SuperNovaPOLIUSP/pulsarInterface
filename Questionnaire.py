@@ -171,17 +171,14 @@ class Questionnaire(object):
         @author
         """
         cursor = MySQLConnection()
-        query = 'select q.idQuestionnaire from questionnaire q, aggr_survey s, aggr_opticalSheetField osf, aggr_offer o where q.idQuestionnaire = s.idQuestionnaire and s.idOpticalSheet = osf.idOpticalSheet and osf.idOffer = o.idOffer and o.idOffer = ' + str(idOffer)
-        questionnaire_list = []
+        query = 'select distinct q.idQuestion from ((question q natural join rel_question_questionnaire) natural join aggr_survey s) natural join (aggr_opticalSheetField osf natural join aggr_offer o) where o.idOffer = ' + str(idOffer)
         question_list = []
         try:
             results = cursor.execute(query)
             if not results:
                 raise QuestionnaireError('Invalid idOffer to build Questionnaire')
             for result in results:
-                questionnaire_list.append(Questionnaire.pickById(result[0]))
-            for questionnaire in questionnaire_list:
-                question_list.extend(questionnaire.questions)
+                question_list.append(Question.pickById(result[0]))
             return question_list
         except:
             raise QuestionnaireError('Error joining offer with opticalSheet')

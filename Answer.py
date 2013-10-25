@@ -118,7 +118,7 @@ class Answer(object):
         """
         if not courseIndex or not isinstance(courseIndex, (int, long)):
             raise AnswerError('Must provide a valid courseIndex')
-        self.curseIndex = courseIndex
+        self.courseIndex = courseIndex
         
     @staticmethod
     def countAnswers(**kwargs):
@@ -231,7 +231,19 @@ class Answer(object):
         searchData = cursor.execute(mainQuery)
         if searchData:
             for data in searchData:
-                answers[data[0]] = data[1]
+                answers[str(data[0])] = data[1]
+        if 'A' not in answers.keys():
+            answers['A'] = 0
+        if 'B' not in answers.keys():
+            answers['B'] = 0
+        if 'C' not in answers.keys():
+            answers['C'] = 0
+        if 'D' not in answers.keys():
+            answers['D'] = 0
+        if 'E' not in answers.keys():
+            answers['E'] = 0
+        if 'X' not in answers.keys():
+            answers['X'] = 0
         return answers
 
     @staticmethod

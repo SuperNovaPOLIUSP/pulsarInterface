@@ -399,7 +399,6 @@ class Cycle(object):
                 
                 query += ''' WHERE idCycle = ''' +str(self.idCycle)
                 cursor = MySQLConnection()
-                print query
                 cursor.execute(query)
                 cursor.commit()
 

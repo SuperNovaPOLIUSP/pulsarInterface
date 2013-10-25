@@ -152,8 +152,10 @@ class OpticalSheet (object):
             self.fields = []
         for offer in offers:
             #Check if is a valid Offer object
-            if not isinstance(offer,Offer) or not Offer.pickById(offer.idOffer) == offer:
-                raise OpticalSheetError('Parameter offers must be a list of Offer object that exists in the database.')
+            if not isinstance(offer,Offer):
+                raise OpticalSheetError('Parameter offers must be a list of Offer object.')
+            if not Offer.pickById(offer.idOffer) == offer:
+                raise OpticalSheetError('Parameter offers must exists in the database.')
             #Create an OpticalSheetColumn for this offer and this index
             opticalSheetField = OpticalSheetField(self.idOpticalSheet, offer)
             if self.encodingName != None:
@@ -354,7 +356,7 @@ class OpticalSheet (object):
             if self.fields == None:
                 OpticalSheetError("This opticalSheet doesn't have fields")
         #First find the last used id
-        lastId = cursor.execute('SELECT * FROM answer ORDER BY idAnswer DESC LIMIT 1;')[0][0]
+        lastId = cursor.execute('SELECT idAnswer FROM answer ORDER BY idAnswer DESC LIMIT 1;')[0][0]
         query1 = 'INSERT INTO answer(idAnswer, questionIndex, idDatafile, alternative, identifier) VALUES'
         query2 = 'INSERT INTO rel_answer_opticalSheetField_survey(idAnswer, idOpticalSheetField, idSurvey) VALUES '
         query1Check = False
@@ -366,6 +368,8 @@ class OpticalSheet (object):
             query1Check = True
             query1 = query1 + '(' + str(lastId) + ' ,' + str(answer.questionIndex) + ', ' + str(datafile.idDatafile) + ', "' + answer.alternative + '", ' + str(answer.identifier) + '), '
             chosenFields = []
+            print 'len(fields)=', len(self.fields)
+            print answer.__dict__
             for field in self.fields:
                 if self.encodingName == None: #OpticalSheet is not encoded
                     if field.courseIndex == answer.courseIndex and field.offer.classNumber == answer.code:
@@ -373,6 +377,7 @@ class OpticalSheet (object):
                 else:
                     if field.code == answer.code:
                         chosenFields.append(field)
+            print 'len(chosenFields)=', len(chosenFields)
             if len(chosenFields) == 0:
                 errors.append(answer)
             for chosenField in chosenFields:
@@ -380,6 +385,7 @@ class OpticalSheet (object):
                 query2  = query2 + '(' + str(lastId) + ', ' + str(chosenField.idOpticalSheetField) + ' ,' + str(thisSurvey.idSurvey) + '), '
         query2 = query2[:-2]
         query1 = query1[:-2]
+        print query2Check, query2
         if query1Check:
             cursor.execute(query1)
         if query2Check:

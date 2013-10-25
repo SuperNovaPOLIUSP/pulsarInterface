@@ -181,7 +181,7 @@ class Questionnaire(object):
             for result in results:
                 questionnaire_list.append(Questionnaire.pickById(result[0]))
             for questionnaire in questionnaire_list:
-                question_list.extend(questionnaire.questions)
+                question_list.extend(questionnaire.questions.values())
             return question_list
         except:
             raise QuestionnaireError('Error joining offer with opticalSheet')
@@ -284,7 +284,10 @@ class Questionnaire(object):
         """
         cursor = MySQLConnection()
         if self.idQuestionnaire:
+            # Remove all relations of questions from this questionnaire
+            deleteQuery = "delete from rel_question_questionnaire where idQuestionnaire = " + str(self.idQuestionnaire)
             updateQuery = "update questionnaire set description = '" + self.description + "', creationDate = '" + self.creationDate + "'" + ' where idQuestionnaire = ' + str(self.idQuestionnaire)
+            cursor.execute(deleteQuery)
             cursor.execute(updateQuery)
             cursor.commit()
         else:
@@ -297,8 +300,8 @@ class Questionnaire(object):
                 cursor.commit()
                 self.idQuestionnaire = Questionnaire.find(description_equal=self.description, creationDate_equal=self.creationDate)[0].idQuestionnaire
         if self.questions:
-            insertRelQuestionQuery = 'insert into rel_question_questionnaire values ('
             for questionIndex in self.questions:
+                insertRelQuestionQuery = 'insert into rel_question_questionnaire values ('
                 idQuestionnaire = str(self.idQuestionnaire)
                 idQuestion = str(self.questions[questionIndex].idQuestion)
                 relationAlreadyStored = cursor.execute('select * from rel_question_questionnaire where idQuestionnaire = ' + idQuestionnaire + ' and idQuestion = ' + idQuestion + ' and questionIndex = ' + str(questionIndex))

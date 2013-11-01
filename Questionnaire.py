@@ -181,7 +181,9 @@ class Questionnaire(object):
             for result in results:
                 questionnaire_list.append(Questionnaire.pickById(result[0]))
             for questionnaire in questionnaire_list:
-                question_list.extend(questionnaire.questions.values())
+                for question in questionnaire.questions.values():
+                    if question not in question_list:
+                        question_list.append(question)
             return question_list
         except:
             raise QuestionnaireError('Error joining offer with opticalSheet')

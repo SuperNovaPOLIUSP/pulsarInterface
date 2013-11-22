@@ -1,4 +1,4 @@
-from Answer import *
+from pulsarInterface.Answer import *
 
 class DatafileError(Exception):
     """
@@ -33,6 +33,9 @@ class Datafile(object):
 
     answers  (public)
 
+     Number of OpticalSheets attached to the Datafile
+
+    maxIdentifier  (public)
     """
 
     def __init__(self, fileName):
@@ -92,6 +95,17 @@ class Datafile(object):
             for answerDatum in answerData:
                 answers.append(Answer.pickById(answerDatum[0]))
         self.answers = answers
+
+    def getMaxIdentifier(self):
+        """
+         Gets the number of lines in the datafile
+
+        @return  :
+        @author
+        """
+        cursor = MySQLConnection()
+        maxIdentifier = cursor.execute('SELECT identifier FROM answer WHERE idDatafile = '+str(self.idDatafile)+' ORDER BY identifier DESC LIMIT 1')[0][0]
+        self.maxIdentifier = maxIdentifier
 
     @staticmethod
     def pickById(idDatafile):

@@ -141,6 +141,7 @@ class Answer(object):
          > professor
          > opticalSheet
          > assessmentNumber
+         > datafile
          E. g. Answer.countAnswers(question = questionObject, timePeriod =
          timePeriodObject, course = courseObject)
 
@@ -209,6 +210,8 @@ class Answer(object):
         parameters = ''
         if 'question' in kwargs.keys():
             parameters = parameters + ' rel_question_questionnaire.idQuestion = ' + str(kwargs['question'].idQuestion) + ' AND'
+        if 'datafile' in kwargs.keys():
+            parameters = parameters + ' answer.idDatafile = ' + str(kwargs['datafile'].idDatafile) +' AND'
         if 'timePeriod' in kwargs.keys():
             parameters = parameters + ' aggr_offer.idTimePeriod = ' + str(kwargs['timePeriod'].idTimePeriod) + ' AND'
         if 'cycle' in kwargs.keys():

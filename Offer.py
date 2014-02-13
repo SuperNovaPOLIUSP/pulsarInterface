@@ -433,7 +433,7 @@ class Offer(object):
             #Update offer
             query = 'UPDATE aggr_offer SET idTimePeriod = ' + str(self.timePeriod.idTimePeriod) + ', idCourse = ' + str(self.course.idCourse) + ', classNumber = ' + str(self.classNumber) + ', practical = ' + str(self.practical) + ', idProfessor = ' + str(self.professor.idProfessor) + ', numberOfRegistrations = ' + str(mySQLNumberOfRegistrations) + ' WHERE idOffer = ' + str(self.idOffer)
             cursor.execute(query)
-            cursor.commit() 
+            cursor.commit()
         #Create the rel_offer_schedule
         idsScheduleOld = cursor.execute('SELECT idSchedule FROM rel_offer_schedule WHERE idOffer = ' + str(self.idOffer))
         #First delete all the old relations

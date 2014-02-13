@@ -1,6 +1,8 @@
+from datetime import timedelta
+
 from tools.MySQLConnection import *
 from tools.timeCheck import *
-from datetime import timedelta
+
 
 class ScheduleError(Exception):
     """
@@ -74,9 +76,9 @@ class Schedule(object):
         if not checkTimeString(start):
             raise ScheduleError("Wrong time format for parameter start. Format must be HH:MM:SS")        
         self.dayOfTheWeek = dayOfTheWeek
-        self.end = str(end)
+        self.end = formatHour(str(end))
         self.frequency = frequency
-        self.start = str(start)
+        self.start = formatHour(str(start))
         self.idSchedule = None
 
     def __str__(self):
@@ -115,7 +117,11 @@ class Schedule(object):
             values = cursor.execute(query)[0]
         except:
             return None
-        schedule = Schedule(values[0], str(values[1]), values[2], str(values[3]))
+        end = str(values[1])
+        start = str(values[3])
+        end = formatHour(end)
+        start = formatHour(start)
+        schedule = Schedule(values[0], end, values[2], start)
         schedule.idSchedule = idSchedule
         return schedule
 

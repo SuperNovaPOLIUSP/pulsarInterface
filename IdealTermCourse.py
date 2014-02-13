@@ -85,7 +85,8 @@ class IdealTermCourse(object):
         if not isinstance(endDate, (str,unicode)) or not checkDateString(endDate):
             raise IdealTermCourseError('endDate parameter must be a valid string representing a date')
         self.endDate = endDate
-	
+
+
     @staticmethod 
     def find(**kwargs):
         """

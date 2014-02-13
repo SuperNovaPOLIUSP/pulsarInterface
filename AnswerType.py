@@ -200,7 +200,7 @@ class AnswerType(object):
             query += "GROUP BY idAnswerType HAVING count(idAnswerType) = 5"
             foundAnswerTypeIdsByMeaning = databaseConnection.execute(query)
 
-            # changes the resoult found to a list, instead of a tuple of tuples
+            # changes the result found to a list, instead of a tuple of tuples
             foundAnswerTypeIdsByMeaning = [int(foundAnswerTypeId[0]) for foundAnswerTypeId in foundAnswerTypeIdsByMeaning]
 
             # removes the 'meaning_like' key from kwargs in order to call the MySQLConnection find method
@@ -301,7 +301,7 @@ class AnswerType(object):
         """
         
         if not hasattr(self, 'idAnswerType'):
-           pass 
+            pass 
         else:
             # gets connection with the mysql database
             databaseConnection = MySQLConnection()

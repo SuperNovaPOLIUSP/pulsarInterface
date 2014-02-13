@@ -1,4 +1,6 @@
-from Questionnaire import *
+from pulsarInterface.Questionnaire import Questionnaire
+from tools.MySQLConnection import MySQLConnection
+
 
 class SurveyError(Exception):
     """
@@ -97,7 +99,7 @@ class Survey(object):
          
          Returns:
          A list of objects that match the specifications made by one (or more) of the
-         folowing parameters:
+         following parameters:
          > idOpticalSheet
          > idSurvey
          > questionnaire
@@ -138,7 +140,7 @@ class Survey(object):
             surveys = self.find(idOpticalSheet = self.idOpticalSheet, questionnaire = self.questionnaire, assessmentNumber = self.assessmentNumber)
             if len(surveys) > 0:
                 #The survey already exist in the database, no need to do nothing
-                self.idSurvey = surveys[0].idSurvey #Any survey that fit those paramaters is the same as this survey
+                self.idSurvey = surveys[0].idSurvey #Any survey that fit those parameters is the same as this survey
                 return
             else:
                 #Create this survey

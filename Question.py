@@ -1,6 +1,7 @@
 #coding: utf8
-from AnswerType import *
+from pulsarInterface.AnswerType import AnswerType
 from tools.MySQLConnection import MySQLConnection
+
 
 class QuestionError(Exception):
     """
@@ -196,10 +197,6 @@ class Question(object):
     def delete(self):
         """
          removes object from database. Returns "true" if succeeds
-         
-         remove o objeto do banco de dados e retorna True se conseguir, caso contrario
-         retorna False
-
         @return bool :
         @author
         """

@@ -107,7 +107,7 @@ class Offer(object):
         """
         Associate a new professor with the offer, if the given professor is a Professor object and there are non not saved changes in it.
 
-        @param Professor professor : The new professorresponsable for this offer
+        @param Professor professor : The new professor responsible for this offer
         @return  :
         @author
         """
@@ -170,7 +170,7 @@ class Offer(object):
         """
         complements = []
         otherOffers = None
-         #course and timePeriod must be equal in all the offers.
+        #course and timePeriod must be equal in all the offers.
         course = setsOfOffers[0][0].course
         timePeriod = setsOfOffers[0][0].timePeriod
         
@@ -344,7 +344,7 @@ class Offer(object):
          are not any parameters passed.
          
          A list of objects that match the specifications made by one (or more) of the
-         folowing parameters:
+         following parameters:
          > idOffer
          > idCourse
          > course

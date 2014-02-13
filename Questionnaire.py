@@ -1,6 +1,8 @@
-from Question import *
-import time
-from datetime import *
+from datetime import date
+
+from pulsarInterface.Question import Question
+from tools.MySQLConnection import MySQLConnection
+
 
 class QuestionnaireError(Exception):
     """
@@ -40,7 +42,7 @@ class Questionnaire(object):
 
     def __init__(self, questionDictionary, description):
         """
-         Constructor method. When creating a questionary, this method sets its date to
+         Constructor method. When creating a questionnaire, this method sets its date to
          the the same as the date of the object's creation.
 
         @param Question{} questionDictionary : Dictionary of Questions objects, in which each key is the question's index in the questionnaire and the value is a Question object.
@@ -97,7 +99,7 @@ class Questionnaire(object):
          Adds a question to the questionnaire's dictionary of questions at the position
          specified by the index parameter. Returns a boolean that confirms if the
          question was successfully added.
-        @param Question question : A Question object to be added to the dictionay of questions in the questionnaire.
+        @param Question question : A Question object to be added to the dictionary of questions in the questionnaire.
         @param int index : The index of the question to be inserted in the questionnaire.
         @return bool :
         @author
@@ -133,7 +135,7 @@ class Questionnaire(object):
             try:
                 all_keys = self.questions.keys()
                 if index not in all_keys:
-                    return false  # Key not in dict
+                    return False  # Key not in dict
                 del self.questions[index]
                 return True
             except:
@@ -250,7 +252,7 @@ class Questionnaire(object):
          are not any parameters passed.
          
          A list of objects that match the specifications made by one (or more) of the
-         folowing parameters:
+         following parameters:
          > idQuestionnaire
          > description_equal or description_like
          > creationDate_equal or creationDate_like

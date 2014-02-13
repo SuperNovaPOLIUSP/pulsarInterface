@@ -1,7 +1,10 @@
 #coding: utf8
-from tools.MySQLConnection import *
-from tools.timeCheck import *
+
 import datetime
+
+from tools.MySQLConnection import MySQLConnection
+from tools.timeCheck import checkDateString
+
 
 class CourseError(Exception):
     """
@@ -102,7 +105,7 @@ class Course(object):
         """
          Set the endDate of this course .
 
-        @param string endDate : String difining the end  date of this course, in the form year-month-day "xxxx-xx-xx".
+        @param string endDate : String defining the end  date of this course, in the form year-month-day "xxxx-xx-xx".
         @return string :
         @author
         """
@@ -149,7 +152,7 @@ class Course(object):
          are not any parameters passed.
          
          A list of objects that match the specifications made by one (or more) of the
-         folowing parameters:
+         following parameters:
          > idCourse
          > courseCode_equal or courseCode_like
          > abbreviation_equal or abbreviation_like
@@ -190,7 +193,7 @@ class Course(object):
         if self.idCourse == None:
             courses = Course.find(courseCode_equal = self.courseCode, abbreviation_equal = self.abbreviation, name_equal = self.name, startDate_equal = str(self.startDate), endDate_equal = self.endDate)
             if len(courses) > 0:
-                self.idCourse = courses[0].idCourse #Any course that fit those paramaters is the same as this course, so no need to save
+                self.idCourse = courses[0].idCourse #Any course that fit those parameters is the same as this course, so no need to save
                 return
             else: 
                 #Create this course
@@ -200,7 +203,6 @@ class Course(object):
                 self.idCourse = Course.find(courseCode_equal = self.courseCode, abbreviation_equal = self.abbreviation, name_equal = self.name, startDate_equal = str(self.startDate), endDate_equal = self.endDate)[0].idCourse 
         else:
             #Update Course
-            oldCourse = Course.pickById(self.idCourse)
             query = 'UPDATE course SET abbreviation = "' + self.abbreviation + '", endDate = ' + mySQLEndDate + ' WHERE idCourse = ' + str(self.idCourse)
             cursor.execute(query)
             cursor.commit() 

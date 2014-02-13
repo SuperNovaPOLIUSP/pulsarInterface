@@ -1,15 +1,16 @@
 #encoding: utf8
+from pulsarInterface.Department import Department
 from tools.MySQLConnection import MySQLConnection
-from Department import *
+
 
 class ProfessorError(Exception):
-     """
-      Exception reporting an error in the execution of a Professor method.
+    """
+     Exception reporting an error in the execution of a Professor method.
  
      :version:
      :author:
      """
-     pass
+    pass
 
 
 class Professor(object):
@@ -35,7 +36,7 @@ class Professor(object):
 
     idDepartment  (public)
 
-     Professor's identification number 0 by defaut
+     Professor's identification number 0 by default
 
     memberId  (public)
 
@@ -200,7 +201,7 @@ class Professor(object):
     def find(**kwargs):
         """
          Searches the database to find one or more objects that fit the description
-         sepcified by the method's parameters. It is possible to perform two kinds of
+         specified by the method's parameters. It is possible to perform two kinds of
          search when passing a string as a parameter: a search for the exact string
          (EQUAL operator) and a search for at least part of the string (LIKE operator).
          
@@ -209,7 +210,7 @@ class Professor(object):
          are not any parameters passed.
          
          A list of objects that match the specifications made by one (or more) of the
-         folowing parameters:
+         following parameters:
          > idProfessor
          > name_equal or name_like
          > memberId
@@ -312,7 +313,7 @@ class Professor(object):
         """
          Deletes the professor's data in the data base.
          
-         Return: true if succesful or false otherwise
+         Return: true if successful or false otherwise
 
         @return bool :
         @author

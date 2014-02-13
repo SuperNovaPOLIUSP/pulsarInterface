@@ -1,4 +1,6 @@
-from pulsarInterface.Answer import *
+from pulsarInterface.Answer import Answer
+from tools.MySQLConnection import MySQLConnection
+
 
 class DatafileError(Exception):
     """
@@ -134,7 +136,7 @@ class Datafile(object):
          
          Returns:
          A list of objects that match the specifications made by one (or more) of the
-         folowing parameters:
+         following parameters:
          > idDatafile
          > fileName_like
          > fileName_equal

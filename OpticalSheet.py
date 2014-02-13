@@ -1,8 +1,11 @@
 #coding: utf8
-from Survey import *
-from OpticalSheetField import *
-from Cycle import *
-from Datafile import *
+from pulsarInterface.Cycle import Cycle
+from pulsarInterface.Offer import Offer
+from pulsarInterface.OpticalSheetField import OpticalSheetField
+from pulsarInterface.Questionnaire import Questionnaire
+from pulsarInterface.Survey import Survey
+from tools.MySQLConnection import MySQLConnection
+
 
 class OpticalSheetError(Exception):
     """
@@ -106,7 +109,7 @@ class OpticalSheet (object):
     def addSurvey(self, questionnaire, assessmentNumber):
         """
          Creates and adds a survey to the surveys list with the parameters passed. In
-         case there is already a servey belonging to the same assessment, or if it is not
+         case there is already a survey belonging to the same assessment, or if it is not
          possible to add the survey for any other reason, returns False.
 
         @param undef questionnaire : Questionnaire to be associated to this Optical Sheet.
@@ -216,7 +219,7 @@ class OpticalSheet (object):
             self.cycles.append({'cycle':Cycle.pickById(cycleData[0]), 'term':cycleData[1]})
 
     def fillOpticalSheetFields(self):
-       self.fields = OpticalSheetField.find(idOpticalSheet = self.idOpticalSheet)
+        self.fields = OpticalSheetField.find(idOpticalSheet = self.idOpticalSheet)
 
     def fillSurveys(self):
         cursor = MySQLConnection()
@@ -269,7 +272,7 @@ class OpticalSheet (object):
          are not any parameters passed.
          
          A list of objects that match the specifications made by one (or more) of the
-         folowing parameters:
+         following parameters:
          > idOpticalSheet
          > surveyType
          > cycles
@@ -334,7 +337,7 @@ class OpticalSheet (object):
 
     def storeDatafile(self, datafile, assessmentNumber):
         """
-         Store a Datafile object along with its anwsers, and return the answers that
+         Store a Datafile object along with its answers, and return the answers that
          couldn't be stored.
  
         @param answer.Datafile datafile : Datafile to be stored (including its answers) to this opticalSheet.

@@ -1,4 +1,6 @@
-from Offer import *
+from pulsarInterface.Offer import Offer
+from tools.MySQLConnection import MySQLConnection
+
 
 class OpticalSheetFieldError(Exception):
     """
@@ -47,7 +49,7 @@ class OpticalSheetField(object):
 
     def __init__(self, idOpticalSheet, offer):
         """
-         Constructur method.
+         Constructor method.
 
         @param int idOpticalSheet : Associated database key of the related opticaSheet
         @param Offer offer : The Offer Object of this relation.
@@ -129,7 +131,7 @@ class OpticalSheetField(object):
          
          Returns:
          A list of objects that match the specifications made by one (or more) of the
-         folowing parameters:
+         following parameters:
          > idOpticalSheet
          > idOpticalSheetField
          > offer
@@ -187,7 +189,7 @@ class OpticalSheetField(object):
         if self.idOpticalSheetField == None:
             opticalSheetFields = self.find(offer = self.offer, idOpticalSheet = self.idOpticalSheet, code = self.code, courseIndex = self.courseIndex)
             if len(opticalSheetFields) > 0:
-                self.idOpticalSheetField = opticalSheetFields[0].idOpticalSheetField #Any osf that fit those paramaters is the same as this osf
+                self.idOpticalSheetField = opticalSheetFields[0].idOpticalSheetField #Any osf that fit those parameters is the same as this osf
                 return
             else: 
                 #Create this osf

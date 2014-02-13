@@ -1,7 +1,5 @@
-from datetime import timedelta
-
-from tools.MySQLConnection import *
-from tools.timeCheck import *
+from tools.MySQLConnection import MySQLConnection
+from tools.timeCheck import checkTimeString, formatHour
 
 
 class ScheduleError(Exception):
@@ -60,7 +58,7 @@ class Schedule(object):
         """
         if not isinstance(dayOfTheWeek,(str, unicode)):
             raise ScheduleError('dayOfTheWeek must be unicode')
-    	#check if dayOfTheWeek is in the database
+        #check if dayOfTheWeek is in the database
         cursor = MySQLConnection()              
         if not cursor.execute('SELECT idDayOfTheWeek FROM minitableDayOfTheWeek WHERE dayOfTheWeek = "' + dayOfTheWeek + '" '):   
             raise ScheduleError('dayOfTheWeek must be in the database')
@@ -138,7 +136,7 @@ class Schedule(object):
          are not any parameters passed.
          
          A list of objects that match the specifications made by one (or more) of the
-         folowing parameters:
+         following parameters:
          > idSchedule
          > dayOfTheWeek_equal or dayOfTheWeek_like
          > start_equal or start_like
@@ -170,7 +168,7 @@ class Schedule(object):
         """
          Creates or changes the schedule's data in the database.
          
-         Return: True if succesful or False otherwise.
+         Return: True if successful or False otherwise.
 
         @return  :
         @author
@@ -181,7 +179,7 @@ class Schedule(object):
             possibleIds = self.find(dayOfTheWeek_equal = self.dayOfTheWeek, end_equal = self.end, frequency_equal = self.frequency, start_equal = self.start)
             if not possibleIds :
                 #If there is no idSchedule, then create row
-		idDayOfTheWeek = cursor.execute("SELECT idDayOfTheWeek FROM minitableDayOfTheWeek WHERE dayOfTheWeek = '" + self.dayOfTheWeek + "'")[0][0]
+                idDayOfTheWeek = cursor.execute("SELECT idDayOfTheWeek FROM minitableDayOfTheWeek WHERE dayOfTheWeek = '" + self.dayOfTheWeek + "'")[0][0]
                 query = 'INSERT INTO schedule (idDayOfTheWeek, end, frequency, start) VALUES(' + str(idDayOfTheWeek) + ', "' + self.end + '", "' + self.frequency + '", "' + self.start + '")'
                 cursor.execute(query)
                 cursor.commit()
@@ -202,7 +200,7 @@ class Schedule(object):
         """
          Deletes the schedule's data in the database.
          
-         Return: True if succesful or False otherwise.
+         Return: True if successful or False otherwise.
 
         @return  :
         @author

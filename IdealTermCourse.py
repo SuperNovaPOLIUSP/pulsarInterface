@@ -1,9 +1,7 @@
-from Course import Course
-from tools.MySQLConnection import *
-from tools.timeCheck import *
-import sys
-import time
-from datetime import *
+from Course import Course   
+from tools.MySQLConnection import MySQLConnection
+from tools.timeCheck import checkDateString
+
 
 class IdealTermCourseError(Exception):
     """
@@ -100,7 +98,7 @@ class IdealTermCourse(object):
          are not any parameters passed.
          
          A list of objects that match the specifications made by one (or more) of the
-         folowing parameters:
+         following parameters:
          > idCycle
          > term
          > idCourse
@@ -172,7 +170,7 @@ class IdealTermCourse(object):
         """
          Deletes the ideal term's data in the data base.
          
-         Return: true if succesful or false otherwise
+         Return: true if successful or false otherwise
 
         @return bool :
         @author

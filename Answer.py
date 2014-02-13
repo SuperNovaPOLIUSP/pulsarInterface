@@ -1,9 +1,5 @@
-from pulsarInterface.Question import *
-from pulsarInterface.Course import *
-from pulsarInterface.Offer import *
-from pulsarInterface.Cycle import *
-from pulsarInterface.Professor import *
-from pulsarInterface.OpticalSheet import *
+from tools.MySQLConnection import MySQLConnection
+
 
 class AnswerError(Exception):
     """

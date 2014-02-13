@@ -44,8 +44,8 @@ class TimePeriod(object):
          Constructor Method.
 
         @param int length : Defines if the Time Period range is a semester or a quarter.
-        @param int year : Defines the year on wich the Time Period takes place.
-        @param int session : Defines the order of the term lengh on the year, if it's the first or second semester or the first, second, third quarter.
+        @param int year : Defines the year on which the Time Period takes place.
+        @param int session : Defines the order of the term length on the year, if it's the first or second semester or the first, second, third quarter.
         @return  :
         @author
         """
@@ -62,7 +62,7 @@ class TimePeriod(object):
         self.length = length
         self.year = year
         self.session = session
-        #Setting None paramenters.
+        #Setting None parameters.
         self.idTimePeriod = None
         
     def __eq__(self, other):
@@ -116,7 +116,7 @@ class TimePeriod(object):
          are not any parameters passed.
          
          A list of objects that match the specifications made by one (or more) of the
-         folowing parameters:
+         following parameters:
          > idTimePeriod
          > length
          > year
@@ -144,7 +144,7 @@ class TimePeriod(object):
         """
          Creates or changes the time period's data in the database.
          
-         Return: True if succesful or False otherwise
+         Return: True if successful or False otherwise
 
         @return bool :
         @author
@@ -174,7 +174,7 @@ class TimePeriod(object):
         """
          Deletes the time period's data in the database.
          
-         Return: True if succesful or False otherwise.
+         Return: True if successful or False otherwise.
 
         @return bool :
         @author
@@ -186,9 +186,9 @@ class TimePeriod(object):
                 cursor.execute(query)
                 cursor.commit()
             except:
-                raise OfferError("Can't delete non saved object.")
+                raise TimePeriodError("Can't delete non saved object.")
         else:
-            raise OfferError('No idOffer defined.')
+            raise TimePeriodError('No idTimePeriod defined.')
 
 
 

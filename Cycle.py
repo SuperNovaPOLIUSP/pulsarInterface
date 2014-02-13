@@ -1,9 +1,10 @@
 # coding: utf-8
-
-from Course import *
-from IdealTermCourse import *
 import datetime
-from tools.timeCheck import *
+
+from pulsarInterface.IdealTermCourse import IdealTermCourse
+from tools.MySQLConnection import MySQLConnection
+from tools.timeCheck import checkDateString
+
 
 class CycleError(Exception):
     """
@@ -142,7 +143,7 @@ class Cycle(object):
         if endDate != None:
             if not isinstance(endDate,datetime.date):
                 if not isinstance(endDate,(str,unicode)) or not checkDateString(endDate):
-                    raise CourseError('Parameter endDate must be a datetime.date format or a string in the format year-month-day')
+                    raise CycleError('Parameter endDate must be a datetime.date format or a string in the format year-month-day')
             self.endDate = str(endDate)
         else:
             self.endDate = endDate
@@ -274,7 +275,7 @@ class Cycle(object):
          are not any parameters passed.
          
          A list of objects that match the specifications made by one (or more) of the
-         folowing parameters:
+         following parameters:
          > idCycle
          > name_equal or name_like
          > startDate_equal or startDate_like
@@ -326,7 +327,7 @@ class Cycle(object):
         if self.idCycle == None:
             cycles = Cycle.find(name_equal = self.name, startDate_equal = self.startDate, endDate_equal = self.endDate, cycleType_equal = self.cycleType, cycleCode = self.cycleCode, termLength_equal = self.termLength, abbreviation_equal = self.abbreviation)
             if len(cycles) > 0:
-                self.idCycle = cycles[0].idCycle #Any cycle that fit those paramaters is the same as this cycle, so no need to save
+                self.idCycle = cycles[0].idCycle #Any cycle that fit those parameters is the same as this cycle, so no need to save
                 return
             else:
                 #Create this cycle
@@ -374,7 +375,7 @@ class Cycle(object):
                 if self.cycleType != old.cycleType:
                     if firstItem == 0: query += ", "
                     else: firstItem = 0
-                    idCycleType = getIdCycleType()
+                    idCycleType = self.getIdCycleType()
                     query += "idCycleType = " +str(idCycleType)
                 if self.cycleCode != old.cycleCode:
                     if firstItem == 0: query += ", "
@@ -383,7 +384,7 @@ class Cycle(object):
                 if self.idTermLength != old.idTermLength:
                     if firstItem == 0: query += ", "
                     else: firstItem = 0
-                    query += "termLength = " + str(idTermLength)
+                    query += "termLength = " + str(self.idTermLength)
                 if self.abbreviation != old.abbreviation:
                     if firstItem == 0: query += ", "
                     else: firstItem = 0
@@ -407,7 +408,7 @@ class Cycle(object):
         """
          Deletes the cycle's data in the data base.
          
-         Return: true if succesful or false otherwise
+         Return: true if successful or false otherwise
 
         @return bool :
         @author
@@ -424,9 +425,9 @@ class Cycle(object):
                 cursor.execute('DELETE FROM cycle WHERE idCycle = ' + str(self.idCycle))
                 cursor.commit()
             else:
-                raise CourseError("Can't delete non saved object.")
+                raise CycleError("Can't delete non saved object.")
         else:
-            raise CourseError('idCycle not defined.')
+            raise CycleError('idCycle not defined.')
 
 
 

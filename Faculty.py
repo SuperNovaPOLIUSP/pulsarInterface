@@ -1,6 +1,6 @@
-from Cycle import *
-from CourseCoordination import *
-from tools.MySQLConnection import *
+from pulsarInterface.CourseCoordination import CourseCoordination
+from tools.MySQLConnection import MySQLConnection
+
 
 class FacultyError(Exception):
     """
@@ -171,7 +171,7 @@ class Faculty(object):
     def find(**kwargs):
         """
          Searches the database to find one or more objects that fit the description
-         sepcified by the method's parameters. It is possible to perform two kinds of
+         specified by the method's parameters. It is possible to perform two kinds of
          search when passing a string as a parameter: a search for the exact string
          (EQUAL operator) and a search for at least part of the string (LIKE operator).
          
@@ -180,7 +180,7 @@ class Faculty(object):
          are not any parameters passed.
          
          A list of objects that match the specifications made by one (or more) of the
-         folowing parameters:
+         following parameters:
          > idFaculty
          > name_equal or name_like
          > abbreviation_equal or abbreviation_like
@@ -189,7 +189,7 @@ class Faculty(object):
          The parameters must be identified by their names when the method is called, and
          those which are strings must be followed by "_like" or by "_equal", in order to
          determine the kind of search to be done.
-         E. g. faculty.find(name_equal = "Faculty of Enginieering", campus_like = "Main")
+         E. g. faculty.find(name_equal = "Faculty of Engineering", campus_like = "Main")
 
         @param dictionary _kwargs : Dictionary of arguments to be used as parameters for the search.
         @return  :

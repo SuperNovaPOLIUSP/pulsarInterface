@@ -1,5 +1,5 @@
 #encoding: utf8
-from pulsarInterface.Cycle import *
+from pulsarInterface.Cycle import Cycle
 from tools.MySQLConnection import MySQLConnection
 
 
@@ -126,7 +126,6 @@ class CourseCoordination(object):
         """
         cursor = MySQLConnection()
         query = 'SELECT idCourseCoordination, name, abbreviation FROM courseCoordination WHERE idCourseCoordination = ' + str(idCourseCoordination)
-        CourseCoordinationData = cursor.execute(query)[0]
         try:
             courseCoordinationData = cursor.execute(query)[0]
         except:
@@ -149,7 +148,7 @@ class CourseCoordination(object):
          are not any parameters passed.
          
          A list of objects that match the specifications made by one (or more) of the
-         folowing parameters:
+         following parameters:
          > idCourseCoordination
          > name_equal or name_like
          > abbreviation_equal or abbreviation_like

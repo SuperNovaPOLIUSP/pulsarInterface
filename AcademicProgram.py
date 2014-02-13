@@ -1,8 +1,10 @@
 #encoding: utf8
-from Cycle import *
-from tools.MySQLConnection import MySQLConnection
-from tools.timeCheck import *
 import datetime
+
+from pulsarInterface.Cycle import Cycle
+from tools.MySQLConnection import MySQLConnection
+from tools.timeCheck import checkDateString
+
 
 class AcademicProgramError(Exception):
     """
@@ -68,7 +70,7 @@ class AcademicProgram(object):
         @author
         """
 
-        #Parameters verificarion.
+        #Parameters verification.
         if not isinstance(name, (str, unicode)):
             raise AcademicProgramError('Parameter name must be a string.')
         if not isinstance(abbreviation, (str, unicode)):
@@ -208,14 +210,14 @@ class AcademicProgram(object):
          are not any parameters passed.
          
          A list of objects that match the specifications made by one (or more) of the
-         folowing parameters:
+         following parameters:
          > idAcademicProgram
          > name_equal or name_like
          > abbreviation_equal or abbreviation_like
          The parameters must be identified by their names when the method is called, and
          those which are strings must be followed by "_like" or by "_equal", in order to
          determine the kind of search to be done.
-         E. g. AcademicProgram.find(name_equal = "Computing Cience")
+         E. g. AcademicProgram.find(name_equal = "Computing Science")
 
         @param {} **kwargs : Dictionary of arguments to be used as parameters for the search.
         @return  :
@@ -265,7 +267,7 @@ class AcademicProgram(object):
         if self.idAcademicProgram == None:
             academicPrograms = self.find(name_equal = self.name, vacancyNumber = self.vacancyNumber, abbreviation_equal = self.abbreviation, startDate_equal = self.startDate, endDate_equal = self.endDate)
             if len(academicPrograms) > 0:
-                self.idAcademicProgram = academicPrograms[0].idAcademicProgram #Any offer that fit those paramaters is the same as this offer
+                self.idAcademicProgram = academicPrograms[0].idAcademicProgram #Any offer that fit those parameters is the same as this offer
                 
             else: 
                 #If there is no idAcademicProgram create row

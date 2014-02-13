@@ -50,7 +50,7 @@ class Department(object):
         if not isinstance(departmentCode, (str, unicode)):
             raise DepartmentError('Parameter departmentCode must be a string or an unicode.')
         
-        #Setting paramenters.        
+        #Setting parameters.        
         self.name = name
         self.departmentCode = departmentCode
         #Setting None parameters.        
@@ -89,7 +89,7 @@ class Department(object):
     def find(**kwargs):
         """
          Searches the database to find one or more objects that fit the description
-         sepcified by the method's parameters. It is possible to perform two kinds of
+         specified by the method's parameters. It is possible to perform two kinds of
          search when passing a string as a parameter: a search for the exact string
          (EQUAL operator) and a search for at least part of the string (LIKE operator).
          
@@ -98,7 +98,7 @@ class Department(object):
          are not any parameters passed.
          
          A list of objects that match the specifications made by one (or more) of the
-         folowing parameters:
+         following parameters:
          > idDepartment
          > name_equal or name_like
          > departmentCode_equal or departmentCode_like
@@ -124,7 +124,7 @@ class Department(object):
     def store(self):
         """
          Creates or changes the department's data in the database.
-         Return: True if succesful or False otherwise.
+         Return: True if successful or False otherwise.
 
         @return bool :
         @author
@@ -133,7 +133,7 @@ class Department(object):
         if self.idDepartment == None:
             departments = Department.find(name_equal = self.name, departmentCode_equal = self.departmentCode)
             if len(departments) > 0:
-                self.idDepartment = departments[0].idDepartment #Any department that fit those paramaters is the same as this department, so no need to save
+                self.idDepartment = departments[0].idDepartment #Any department that fit those parameters is the same as this department, so no need to save
                 return
             else:
                 #Create this department
@@ -146,7 +146,7 @@ class Department(object):
     def delete(self):
         """
          Deletes the department's data in the database.
-         Return: True if succesful or False otherwise.
+         Return: True if successful or False otherwise.
 
         @return bool :
         @author
@@ -159,9 +159,9 @@ class Department(object):
                 cursor.execute('DELETE FROM rel_department_professor WHERE idDepartment = ' + str(self.idDepartment))
                 cursor.commit()
             else:
-                raise CourseError("Can't delete non saved object.")
+                raise DepartmentError("Can't delete non saved object.")
         else:
-            raise CourseError('idDepartment not defined.')
+            raise DepartmentError('idDepartment not defined.')
 
 
 

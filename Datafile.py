@@ -1,6 +1,5 @@
-from pulsarInterface.Answer import Answer
 from tools.MySQLConnection import MySQLConnection
-
+from pulsarInterface.Answer import *
 
 class DatafileError(Exception):
     """

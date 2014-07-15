@@ -55,8 +55,8 @@ class TimePeriod(object):
             raise TimePeriodError("Parameter length must be: '1' if it is a semester or '2' if it is a quarter.")
         if not isinstance(year, (int, long)):
             raise TimePeriodError('Parameter year must be an int or a long.')
-        if session != 1 and session != 2 and session != 3:
-            raise TimePeriodError("Parameter session must be: '1' for first, '2' for second or '3' for third.")
+        if session != 1 and session != 2 and session != 3 and session != 12 and session != 22:
+            raise TimePeriodError("Parameter session must be: '1' for first, '12' for first - second avaliation, '2' for second, '22' for second - second avaliation, '3' for third.")
         
         #Setting parameters.        
         self.length = length
@@ -81,8 +81,17 @@ class TimePeriod(object):
         @author
         """
         length_str = ("semestre", "quadrimestre")
-        session_str = ("Primeiro", "Segundo", "Terceiro")
-        str_timePeriod = session_str[self.session -1] + " " + length_str[self.length -1] + " de " + str(self.year)
+        #Using sessions 1, 2 or 3 for FIRST evaluation
+        if self.session == 1 or self.session == 2 or self.session == 3:
+            session_str = ("Primeiro", "Segundo", "Terceiro")
+            str_timePeriod = session_str[self.session -1] + " " + length_str[self.length -1] + " de " + str(self.year)
+            #Using sessions 12 or 22 for SECOND evaluation of FIRST and SECOND semester.
+        else:
+            session_str = ("Segunda Avaliacao - Primeiro", "Segunda Avaliacao - Segundo")
+            if self.session == 12:
+                str_timePeriod = session_str[0] + " " + length_str[self.length -1] + " de " + str(self.year)
+            else:
+                str_timePeriod = session_str[1] + " " + length_str[self.length -1] + " de " + str(self.year)
         return str_timePeriod
 
     @staticmethod

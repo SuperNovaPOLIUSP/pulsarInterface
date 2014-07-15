@@ -100,7 +100,7 @@ class Answer(object):
         @return  :
         @author
         """
-        if not code or not isinstance(code, (int, long)):
+        if code is None or not isinstance(code, (int, long)):
             raise AnswerError('Must provide a valid code')
         self.code = code
 

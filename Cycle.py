@@ -218,7 +218,6 @@ class Cycle(object):
         else:#we have to create it on the DB
             query = "INSERT INTO minitableCycleType (name) VALUES ('" +self.cycleType +"')"
             cursor.execute(query)
-            cursor.commit()
             query = "SELECT idCycleType FROM minitableCycleType WHERE name = '" +self.cycleType +"'"
             return cursor.execute(query)[0][0]
             
@@ -235,7 +234,6 @@ class Cycle(object):
         else:#we have to create it on the DB
             query = "INSERT INTO minitableLength (length) VALUES ('" +self.termLength +"')"
             cursor.execute(query)
-            cursor.commit()
             query = "SELECT idLength FROM minitableLength WHERE length = '" +self.termLength +"'"
             return cursor.execute(query)[0][0]
 
@@ -347,7 +345,6 @@ class Cycle(object):
                     values += ", '" +self.dayPeriod +"'"
                 cursor = MySQLConnection()
                 cursor.execute(query + values +")")
-                cursor.commit()
                 self.idCycle = Cycle.find(name_equal = self.name, startDate_equal = self.startDate, endDate_equal = self.endDate, cycleType_equal = self.cycleType, cycleCode = self.cycleCode, termLength_equal = self.termLength, abbreviation_equal = self.abbreviation)[0].idCycle 
         
         else:#we need to update the object in the bank
@@ -401,8 +398,6 @@ class Cycle(object):
                 query += ''' WHERE idCycle = ''' +str(self.idCycle)
                 cursor = MySQLConnection()
                 cursor.execute(query)
-                cursor.commit()
-
 
     def delete(self):
         """
@@ -423,7 +418,6 @@ class Cycle(object):
                 cursor.execute('DELETE FROM rel_course_cycle_course WHERE idCycle = ' + str(self.idCycle))
                 cursor.execute('DELETE FROM rel_cycle_opticalSheet WHERE idCycle = ' + str(self.idCycle))
                 cursor.execute('DELETE FROM cycle WHERE idCycle = ' + str(self.idCycle))
-                cursor.commit()
             else:
                 raise CycleError("Can't delete non saved object.")
         else:

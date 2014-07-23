@@ -266,10 +266,11 @@ class Professor(object):
         """
         cursor = MySQLConnection()
         #First correct the parameters that can be None
+        
         if self.office == None:
             mySQLOffice = 'NULL'  #in MySQL is NULL
         else:
-            mySQLOffice = '"' + self.office + '"'
+            mySQLOffice = '"' + self.office + '"'          
 
         if self.email == None:
             mySQLEmail = 'NULL'  #in MySQL is NULL
@@ -295,19 +296,16 @@ class Professor(object):
             else:
                 query = 'INSERT INTO professor (name, memberId, office, email, phoneNumber, cellphoneNumber) VALUES ("' + self.name + '", ' + str(self.memberId) + ', ' + mySQLOffice + ', ' + mySQLEmail + ', ' + str(mySQLPhoneNumber) + ', ' + str(mySQLCellphoneNumber) + ')'
                 cursor.execute(query)
-                cursor.commit()
-                self.idProfessor = self.find(name_equal = self.name, memberId = self.memberId, office = self.office, email = self.email, phoneNumber = self.phoneNumber, cellphoneNumber = self.cellphoneNumber)[0].idProfessor
+                self.idProfessor = self.find(name_equal = self.name, memberId = self.memberId, office_equal = self.office, email_equal = self.email, phoneNumber = self.phoneNumber, cellphoneNumber = self.cellphoneNumber)[0].idProfessor
         else:
-            query = 'UPDATE professor SET memberId = ' + str(self.memberId) + ', office = ' + mySQLOffice + ', email = ' + mySQLEmail + ', phoneNumber = ' + str(mySQLPhoneNumber) + ', cellphoneNumber = ' + str(mySQLCellphoneNumber)
+            query = 'UPDATE professor SET name = "' + str(self.name) + '", memberId = ' + str(self.memberId) + ', office = ' + mySQLOffice + ', email = ' + mySQLEmail + ', phoneNumber = ' + str(mySQLPhoneNumber) + ', cellphoneNumber = ' + str(mySQLCellphoneNumber)
             query += " WHERE idProfessor = " +str(self.idProfessor)
             cursor.execute(query)
-            cursor.commit()
         #First delete old department relations
         cursor.execute('DELETE FROM rel_department_professor WHERE idProfessor = ' + str(self.idProfessor))
         #Now create the new ones
         if self.idDepartment != None:
             cursor.execute('INSERT INTO rel_department_professor (idProfessor, idDepartment) VALUES (' + str(self.idProfessor) + ', ' + str(self.idDepartment)  + ')')
-        cursor.commit()
 
     def delete(self):
         """
@@ -323,7 +321,6 @@ class Professor(object):
             if self == Professor.pickById(self.idProfessor):
                 cursor.execute('DELETE FROM rel_department_professor WHERE idProfessor = ' + str(self.idProfessor))
                 cursor.execute('DELETE FROM professor WHERE idProfessor = ' + str(self.idProfessor))
-                cursor.commit()
             else:
                 raise ProfessorError("Can't delete non saved object.")
         else:

@@ -155,7 +155,6 @@ class IdealTermCourse(object):
                     raise IdealTermCourseError('More than one object found in query')
                 print queryUpdate
                 cursor.execute(queryUpdate)
-            cursor.commit()
         except:
             return False
         return True
@@ -183,7 +182,6 @@ class IdealTermCourse(object):
         print query
         try:
             cursor.execute(query)
-            cursor.commit()
         except:
             raise IdealTermCourseError("Couldn't delete object")
             return False

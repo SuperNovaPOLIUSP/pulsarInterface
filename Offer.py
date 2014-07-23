@@ -427,13 +427,11 @@ class Offer(object):
                 #Create this offer
                 query = 'INSERT INTO aggr_offer (idTimePeriod, idCourse, classNumber, practical, idProfessor, numberOfRegistrations) VALUES(' + str(self.timePeriod.idTimePeriod) + ', ' + str(self.course.idCourse) + ', ' + str(self.classNumber) + ', ' + str(self.practical) + ', ' + str(self.professor.idProfessor) + ', ' + str(mySQLNumberOfRegistrations) + ')'
                 cursor.execute(query)
-                cursor.commit()
                 self.idOffer = self.find(course = self.course, professor = self.professor, timePeriod = self.timePeriod, classNumber = self.classNumber, practical = self.practical, numberOfRegistrations = self.numberOfRegistrations)[0].idOffer
         else:
             #Update offer
             query = 'UPDATE aggr_offer SET idTimePeriod = ' + str(self.timePeriod.idTimePeriod) + ', idCourse = ' + str(self.course.idCourse) + ', classNumber = ' + str(self.classNumber) + ', practical = ' + str(self.practical) + ', idProfessor = ' + str(self.professor.idProfessor) + ', numberOfRegistrations = ' + str(mySQLNumberOfRegistrations) + ' WHERE idOffer = ' + str(self.idOffer)
             cursor.execute(query)
-            cursor.commit()
         #Create the rel_offer_schedule
         idsScheduleOld = cursor.execute('SELECT idSchedule FROM rel_offer_schedule WHERE idOffer = ' + str(self.idOffer))
         #First delete all the old relations
@@ -442,7 +440,6 @@ class Offer(object):
         #Now creates all the new relations
         for schedule in self.schedules:
             cursor.execute('INSERT INTO rel_offer_schedule (idOffer, idSchedule) VALUES (' + str(self.idOffer) + ', ' + str(schedule.idSchedule) + ')')
-        cursor.commit() 
         
         return
 
@@ -460,7 +457,6 @@ class Offer(object):
             if self == Offer.pickById(self.idOffer):
                 cursor.execute('DELETE FROM rel_offer_schedule WHERE idOffer = ' + str(self.idOffer))
                 cursor.execute('DELETE FROM aggr_offer WHERE idOffer = ' + str(self.idOffer))
-                cursor.commit()
             else:
                 raise OfferError("Can't delete non saved object.")
         else:

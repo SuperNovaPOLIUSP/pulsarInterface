@@ -243,22 +243,17 @@ class Faculty(object):
                 #If there is no idFaculty create row
                 query = 'INSERT INTO faculty (name, abbreviation, city, campus) VALUES("' + self.name + '", "' + self.abbreviation + '", ' + MySQLcity + ', ' + MySQLcampus + ')'
                 cursor.execute(query)
-                cursor.commit()
                 self.idFaculty = self.find(name_equal = self.name, abbreviation_equal = self.abbreviation, city_equal = self.city, campus_equal = self.campus)[0].idFaculty
                 
         else:
             #If there is an idFaculty try to update row
             query = 'UPDATE faculty SET city = ' + MySQLcity + ', campus = ' + MySQLcampus + ' WHERE idFaculty = ' + str(self.idFaculty)
             cursor.execute(query)
-            cursor.commit()
-
         #Storing the courseCoordinations of this Faculty
         cursor.execute('DELETE FROM rel_courseCoordination_faculty WHERE idFaculty = ' + str(self.idFaculty))
         for courseCoordination in self.courseCoordinations:
             query = 'INSERT INTO rel_courseCoordination_faculty (idCourseCoordination, idFaculty) VALUES (' + str(courseCoordination.idCourseCoordination) + ', ' + str(self.idFaculty) + ')'
             cursor.execute(query)
-
-        cursor.commit()
 
     def delete(self):
         """
@@ -273,7 +268,6 @@ class Faculty(object):
             if self == Faculty.pickById(self.idFaculty):
                 cursor.execute('DELETE FROM rel_courseCoordination_faculty WHERE idFaculty = ' + str(self.idFaculty))
                 cursor.execute('DELETE FROM faculty WHERE idFaculty = ' + str(self.idFaculty))
-                cursor.commit()
                 return True
             else:
                 raise FacultyError("Can't delete non saved object.")

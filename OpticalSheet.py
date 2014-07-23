@@ -393,7 +393,6 @@ class OpticalSheet (object):
             cursor.execute(query1)
         if query2Check:
             cursor.execute(query2)
-        cursor.commit()
         return errors
            
 
@@ -416,7 +415,6 @@ class OpticalSheet (object):
             if self.encodingName != None:
                 cursor.execute('DELETE FROM encoding WHERE idOpticalSheet = ' + str(self.idOpticalSheet))
                 cursor.execute('INSERT INTO encoding (idOpticalSheet, name) VALUES (' + str(self.idOpticalSheet) + ', "' + self.encodingName + '")')
-            cursor.commit()
             #NOW Update the fields
             if self.fields != None:
                 newFields = self.fields
@@ -469,7 +467,6 @@ class OpticalSheet (object):
                 cursor.execute('DELETE FROM aggr_survey WHERE idOpticalSheet = ' + str(self.idOpticalSheet))
                 cursor.execute('DELETE FROM opticalSheet WHERE idOpticalSheet = ' + str(self.idOpticalSheet))
                 cursor.execute('DELETE FROM encoding WHERE idOpticalSheet = ' + str(self.idOpticalSheet))
-                cursor.commit()
             else:
                 raise OpticalSheetError("Can't delete non saved object.")
         else:

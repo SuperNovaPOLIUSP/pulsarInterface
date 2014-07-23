@@ -170,13 +170,11 @@ class TimePeriod(object):
                 query = "INSERT INTO timePeriod (length, year, session) VALUES (" + str(self.length) + ", " + str(self.year) + ", " + str(self.session) + ")"
                 print query
                 cursor.execute(query)
-                cursor.commit()
                 self.idTimePeriod = self.find(length = self.length, year = self.year, session = self.session)[0].idTimePeriod
         else:
             #Update timePeriod.
             query = "UPDATE timePeriod SET length = " +str(self.length) +", year = " +str(self.year) +", session = " +str(self.session) +" WHERE idTimePeriod = " +str(self.idTimePeriod)
             cursor.execute(query)
-            cursor.commit() 
         return
 
     def delete(self):
@@ -193,7 +191,6 @@ class TimePeriod(object):
             query = "DELETE FROM timePeriod WHERE idTimePeriod = " + str(self.idTimePeriod) + " AND length = " + str(self.length) + " AND year = " + str(self.year) + " AND session = " + str(self.session)
             try:
                 cursor.execute(query)
-                cursor.commit()
             except:
                 raise TimePeriodError("Can't delete non saved object.")
         else:

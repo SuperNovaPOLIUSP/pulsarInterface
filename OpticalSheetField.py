@@ -195,13 +195,11 @@ class OpticalSheetField(object):
                 #Create this osf
                 query = 'INSERT INTO aggr_opticalSheetField (idOffer, idOpticalSheet, code, courseIndex) VALUES(' + str(self.offer.idOffer) + ', ' + str(self.idOpticalSheet) + ', ' + str(mySQLCode) + ', ' + str(mySQLCourseIndex) + ')'
                 cursor.execute(query)
-                cursor.commit()
                 self.idOpticalSheetField = self.find(offer = self.offer, idOpticalSheet = self.idOpticalSheet, code = self.code, courseIndex = self.courseIndex)[0].idOpticalSheetField
         else:
             #Update opticalSheetField
             query = 'UPDATE aggr_opticalSheetField SET idOffer = ' + str(self.offer.idOffer) + ', idOpticalSheet = ' + str(self.idOpticalSheet) + ', code = ' + str(mySQLCode) + ', courseIndex = ' + str(mySQLCourseIndex) + ' WHERE idOpticalSheetField = ' + str(self.idOpticalSheetField)
             cursor.execute(query)
-            cursor.commit() 
 
 
     def delete(self):
@@ -215,7 +213,6 @@ class OpticalSheetField(object):
             cursor = MySQLConnection()
             if self == OpticalSheetField.pickById(self.idOpticalSheetField):
                 cursor.execute('DELETE FROM aggr_opticalSheetField WHERE idOpticalSheetField = ' + str(self.idOpticalSheetField))
-                cursor.commit()
             else:
                 raise OpticalSheetFieldError("Can't delete non saved object.")
         else:

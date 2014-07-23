@@ -199,7 +199,6 @@ class CourseCoordination(object):
                 #Create this department
                 query = 'INSERT INTO courseCoordination (name, abbreviation) VALUES("' + self.name + '", "' + self.abbreviation + '")'
                 cursor.execute(query)
-                cursor.commit()
                 self.idCourseCoordination = CourseCoordination.find(name_equal = self.name, abbreviation_equal = self.abbreviation)[0].idCourseCoordination   
   
         #Storing the cycles of this courseCoordinations
@@ -207,8 +206,6 @@ class CourseCoordination(object):
         for cycle in self.cycles:
             query = 'INSERT INTO rel_courseCoordination_cycle (idCourseCoordination, idCycle) VALUES (' + str(self.idCourseCoordination) + ', ' + str(cycle.idCycle) + ')'
             cursor.execute(query)
-
-        cursor.commit()
 
 
     def delete(self):
@@ -224,7 +221,6 @@ class CourseCoordination(object):
                 cursor.execute('DELETE FROM rel_courseCoordination_cycle WHERE idCourseCoordination = ' + str(self.idCourseCoordination))           
                 cursor.execute('DELETE FROM rel_courseCoordination_faculty WHERE idCourseCoordination = ' + str(self.idCourseCoordination))
                 cursor.execute('DELETE FROM courseCoordination WHERE idCourseCoordination = ' + str(self.idCourseCoordination))
-                cursor.commit()
             else:
                 raise CourseCoordinationError("Can't delete non saved object.")
         else:

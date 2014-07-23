@@ -165,10 +165,8 @@ class Datafile(object):
         cursor = MySQLConnection()
         if self.idDatafile is not None:
             cursor.execute('UPDATE datafile SET fileName = "'+ self.fileName + '" WHERE idDatafile = '+ str(self.idDatafile))
-            cursor.commit()
         else:
             cursor.execute("INSERT INTO datafile (fileName) VALUES ('" + self.fileName + "')")
-            cursor.commit()
             self.idDatafile = Datafile.find(fileName_equal = self.fileName)[0].idDatafile
 
     def delete(self):
@@ -185,7 +183,6 @@ class Datafile(object):
                 cursor.execute('DELETE FROM rel_answer_opticalSheetField_survey WHERE idAnswer in (SELECT idAnswer FROM answer WHERE idDatafile = ' + str(self.idDatafile) + ')')
                 cursor.execute('DELETE FROM answer WHERE idDatafile = '+str(self.idDatafile))
                 cursor.execute('DELETE FROM datafile WHERE idDatafile = ' + str(self.idDatafile))
-                cursor.commit()
             else:
                 raise DatafileError("Can't delete non saved object.")
         else:

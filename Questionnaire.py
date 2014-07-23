@@ -293,7 +293,6 @@ class Questionnaire(object):
             updateQuery = "update questionnaire set description = '" + self.description + "', creationDate = '" + self.creationDate + "'" + ' where idQuestionnaire = ' + str(self.idQuestionnaire)
             cursor.execute(deleteQuery)
             cursor.execute(updateQuery)
-            cursor.commit()
         else:
             possibleMatch = Questionnaire.find(description_equal=self.description, creationDate_equal=self.creationDate)
             if possibleMatch:
@@ -301,7 +300,6 @@ class Questionnaire(object):
             else:
                 insertQuery = "insert into questionnaire (description, creationDate) values ('" + self.description + "', '" + self.creationDate + "')"
                 cursor.execute(insertQuery)
-                cursor.commit()
                 self.idQuestionnaire = Questionnaire.find(description_equal=self.description, creationDate_equal=self.creationDate)[0].idQuestionnaire
         if self.questions:
             for questionIndex in self.questions:
@@ -312,7 +310,6 @@ class Questionnaire(object):
                 if not relationAlreadyStored:
                     insertRelQuestionQuery += idQuestionnaire + ', ' + idQuestion + ', ' + str(questionIndex) + ')'
                     cursor.execute(insertRelQuestionQuery)
-                    cursor.commit()
 
     def delete(self):
         """
@@ -328,4 +325,3 @@ class Questionnaire(object):
         cursor.execute(query_rel)
         cursor.execute(query_rel2)
         cursor.execute(query)
-        cursor.commit()

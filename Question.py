@@ -184,13 +184,11 @@ class Question(object):
                 query = """INSERT INTO question (idAnswerType, questionWording) VALUES ("""
                 query += str(self.answerType.idAnswerType) + """, '""" +self.questionWording +"""')"""
                 cursor.execute(query)
-                cursor.commit()
                 questionInBank = Question.find(questionWording_equal = self.questionWording, category_equal = self.answerType.name)[0]
                 self.idQuestion = questionInBank.idQuestion
                 return
         #Execute query
         cursor.execute(query)
-        cursor.commit()
         return
         
 
@@ -206,7 +204,6 @@ class Question(object):
             if self == Question.pickById(self.idQuestion):
                 cursor.execute("""DELETE FROM question WHERE idQuestion = """ + str(self.idQuestion))
                 cursor.execute("""DELETE FROM rel_question_questionnaire WHERE idQuestion = """ + str(self.idQuestion))
-                cursor.commit()
             else:
                 raise QuestionError("Can't delete non saved object.")
         else:

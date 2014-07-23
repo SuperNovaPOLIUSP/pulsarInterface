@@ -273,18 +273,15 @@ class AcademicProgram(object):
                 #If there is no idAcademicProgram create row
                 query = 'INSERT INTO academicProgram (name, vacancyNumber, abbreviation, startDate, endDate) VALUES("' + self.name + '", ' + str(mySQLVacancyNumber) + ', "' + self.abbreviation + '", "' + str(self.startDate) + '", ' + mySQLEndDate + ')'
                 cursor.execute(query)
-                cursor.commit()
                 self.idAcademicProgram = AcademicProgram.find(name_equal = self.name, vacancyNumber = self.vacancyNumber, abbreviation_equal = self.abbreviation, startDate_equal = self.startDate, endDate_equal = self.endDate)[0].idAcademicProgram
         else:
             #Update offer
             query = 'UPDATE academicProgram SET vacancyNumber = ' + str(mySQLVacancyNumber) + ', endDate = ' + mySQLEndDate + ' WHERE idAcademicProgram = ' + str(self.idAcademicProgram) 
             cursor.execute(query)
-            cursor.commit() 
       
         for cycle in self.cycles:
             query = 'INSERT INTO rel_academicProgram_cycle (idAcademicProgram, idCycle) VALUES(' + str(self.idAcademicProgram) + ', ' + str(cycle.idCycle) + ')'
-            cursor.execute(query)
-        cursor.commit()        
+            cursor.execute(query)     
         return
 
     def delete(self):
@@ -299,7 +296,6 @@ class AcademicProgram(object):
             if self == AcademicProgram.pickById(self.idAcademicProgram):
                 cursor.execute('DELETE FROM rel_academicProgram_cycle WHERE idAcademicProgram = ' + str(self.idAcademicProgram))           
                 cursor.execute('DELETE FROM academicProgram WHERE idAcademicProgram = ' + str(self.idAcademicProgram))
-                cursor.commit()
             else:
                 raise AcademicProgramError("Can't delete non saved object.")
         else:

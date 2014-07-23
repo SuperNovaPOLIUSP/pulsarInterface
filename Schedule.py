@@ -182,7 +182,6 @@ class Schedule(object):
                 idDayOfTheWeek = cursor.execute("SELECT idDayOfTheWeek FROM minitableDayOfTheWeek WHERE dayOfTheWeek = '" + self.dayOfTheWeek + "'")[0][0]
                 query = 'INSERT INTO schedule (idDayOfTheWeek, end, frequency, start) VALUES(' + str(idDayOfTheWeek) + ', "' + self.end + '", "' + self.frequency + '", "' + self.start + '")'
                 cursor.execute(query)
-                cursor.commit()
                 self.idSchedule = self.find(dayOfTheWeek_equal = self.dayOfTheWeek, end_equal = self.end, frequency_equal = self.frequency, start_equal = self.start)[0].idSchedule                
                 return 
             else:
@@ -193,7 +192,6 @@ class Schedule(object):
             query = 'UPDATE schedule SET idDayOfTheWeek = ' + str(idDayOfTheWeek) + ', end = "' + self.end + '", frequency = "'
             query += self.frequency + '" , start = "' + self.start + '" WHERE idSchedule = ' + str(self.idSchedule)
             cursor.execute(query)
-            cursor.commit()
             return 
 
     def delete(self):
@@ -211,7 +209,6 @@ class Schedule(object):
             if self == Schedule.pickById(idSchedule):
                 cursor.execute('DELETE FROM rel_offer_schedule WHERE idSchedule = ' + str(idSchedule))
                 cursor.execute('DELETE FROM schedule WHERE idSchedule = ' + str(idSchedule))
-                cursor.commit()
             else:
                 raise ScheduleError("Can't delete non saved object.")
         else:

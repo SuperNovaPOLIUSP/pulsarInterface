@@ -139,7 +139,6 @@ class Department(object):
                 #Create this department
                 query = 'INSERT INTO department (name, departmentCode) VALUES("' + self.name + '", "' + self.departmentCode + '")'
                 cursor.execute(query)
-                cursor.commit()
                 self.idDepartment = Department.find(name_equal = self.name, departmentCode_equal = self.departmentCode)[0].idDepartment        
         return
 
@@ -157,7 +156,6 @@ class Department(object):
             if self == Department.pickById(self.idDepartment):
                 cursor.execute('DELETE FROM department WHERE idDepartment = ' + str(self.idDepartment))
                 cursor.execute('DELETE FROM rel_department_professor WHERE idDepartment = ' + str(self.idDepartment))
-                cursor.commit()
             else:
                 raise DepartmentError("Can't delete non saved object.")
         else:

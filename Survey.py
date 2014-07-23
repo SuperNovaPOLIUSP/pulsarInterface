@@ -145,7 +145,6 @@ class Survey(object):
             else:
                 #Create this survey
                 cursor.execute('INSERT INTO aggr_survey (idOpticalSheet, idQuestionnaire, assessmentNumber) VALUES(' + str(self.idOpticalSheet) + ', ' + str(self.questionnaire.idQuestionnaire) + ', ' + str(self.assessmentNumber) + ')')
-                cursor.commit()
                 self.idSurvey = self.find(idOpticalSheet = self.idOpticalSheet, questionnaire = self.questionnaire, assessmentNumber = self.assessmentNumber)[0].idSurvey
         #in this class there is no update, so if idSurvey != None no need to do nothing
 
@@ -160,7 +159,6 @@ class Survey(object):
             cursor = MySQLConnection()
             if self == Survey.pickById(self.idSurvey):
                 cursor.execute('DELETE FROM aggr_survey WHERE idSurvey = ' + str(self.idSurvey))
-                cursor.commit()
             else:
                 raise SurveyError("Can't delete non saved object.")
         else:

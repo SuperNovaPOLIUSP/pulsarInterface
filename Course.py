@@ -199,13 +199,11 @@ class Course(object):
                 #Create this course
                 query = 'INSERT INTO course (courseCode, abbreviation, name, startDate, endDate) VALUES("' + self.courseCode + '", "' + self.abbreviation + '", "' + self.name + '", "' + str(self.startDate) + '", ' + mySQLEndDate + ')'
                 cursor.execute(query)
-                cursor.commit()
                 self.idCourse = Course.find(courseCode_equal = self.courseCode, abbreviation_equal = self.abbreviation, name_equal = self.name, startDate_equal = str(self.startDate), endDate_equal = self.endDate)[0].idCourse 
         else:
             #Update Course
             query = 'UPDATE course SET abbreviation = "' + self.abbreviation + '", endDate = ' + mySQLEndDate + ' WHERE idCourse = ' + str(self.idCourse)
             cursor.execute(query)
-            cursor.commit() 
         return
 
     def delete(self):
@@ -222,7 +220,6 @@ class Course(object):
                 cursor.execute('DELETE FROM course WHERE idCourse = ' + str(self.idCourse))
                 cursor.execute('DELETE FROM rel_course_cycle WHERE idCourse = ' + str(self.idCourse))
                 cursor.execute('DELETE FROM rel_course_cycle_course WHERE idCourse = ' + str(self.idCourse) + ' or idRequirement = ' + str(self.idCourse))        
-                cursor.commit()
             else:
                 raise CourseError("Can't delete non saved object.")
         else:

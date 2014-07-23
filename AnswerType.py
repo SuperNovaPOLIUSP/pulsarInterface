@@ -288,9 +288,7 @@ class AnswerType(object):
 
         else:
             pass
-        
-        # commit changes to the database
-        databaseConnection.commit()
+
         
     def delete(self):
         """
@@ -310,6 +308,4 @@ class AnswerType(object):
             databaseConnection.execute("DELETE FROM alternativeMeaning WHERE idAnswerType = " + str(self.idAnswerType))
             # deletes from the answerType table
             databaseConnection.execute("DELETE FROM answerType WHERE idAnswerType = " + str(self.idAnswerType))
-
-            # commit changes to the database
-            databaseConnection.commit()           
+       

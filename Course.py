@@ -111,7 +111,7 @@ class Course(object):
         """
         if endDate != None:
             if not isinstance(endDate,datetime.date):
-                if not isinstance(endDate,(str,unicode)) or checkDateString(endDate) == None:
+                if not isinstance(endDate,(str,unicode)) or checkDateString(endDate) == False:
                     raise CourseError('Parameter endDate must be a datetime.date format or a string in the format year-month-day')
             self.endDate = str(endDate)
         else:

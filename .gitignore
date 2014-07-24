@@ -6,5 +6,6 @@
 *.swp
 .*.swp
 .htaccess
-.coverage
+*.coverage
+tests/htmlcov*
 settings.py

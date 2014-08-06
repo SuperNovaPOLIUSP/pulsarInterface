@@ -465,8 +465,8 @@ class OpticalSheet (object):
                 cursor.execute('DELETE FROM rel_cycle_opticalSheet WHERE idOpticalSheet = ' + str(self.idOpticalSheet))
                 cursor.execute('DELETE FROM aggr_opticalSheetField WHERE idOpticalSheet = ' + str(self.idOpticalSheet))
                 cursor.execute('DELETE FROM aggr_survey WHERE idOpticalSheet = ' + str(self.idOpticalSheet))
-                cursor.execute('DELETE FROM opticalSheet WHERE idOpticalSheet = ' + str(self.idOpticalSheet))
                 cursor.execute('DELETE FROM encoding WHERE idOpticalSheet = ' + str(self.idOpticalSheet))
+                cursor.execute('DELETE FROM opticalSheet WHERE idOpticalSheet = ' + str(self.idOpticalSheet))
             else:
                 raise OpticalSheetError("Can't delete non saved object.")
         else:

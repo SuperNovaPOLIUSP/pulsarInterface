@@ -80,7 +80,7 @@ class Offer(object):
             raise OfferError('Parameter course must be a Course object.')            
         if not isinstance(classNumber, (int, long)):
             raise OfferError('Parameter classNumber must be an int or a long.')
-        if not isinstance(practical, int):
+        if not isinstance(practical, (int, long)):
             raise OfferError('Parameter practical must be a bool.')
 
         #Setting parameters that have set function
